@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import cloudinary from "cloudinary";
-import OwnerModel from "@/models/Owner";
-import dbConnect from "@/lib/dbConnect";
+import OwnerModel from "@/models/owner";
+import dbConnect from "@/lib/db-connect";
 import crypto from "crypto";
-import { extractInvoiceNumberFromPdf } from "@/utils/upload-invoice-utils/extractInvoiceNumber";
-import { generateQrPdf } from "@/utils/upload-invoice-utils/generateQRpdf";
-import { mergePdfs } from "@/utils/upload-invoice-utils/mergePdfs";
-import InvoiceModel from "@/models/Invoice";
+import { extractInvoiceNumberFromPdf } from "@/utils/upload-invoice-utils/extract-invoice-number";
+import { generateQrPdf } from "@/utils/upload-invoice-utils/generate-qr-pdf";
+import { mergePdfs } from "@/utils/upload-invoice-utils/merge-pdfs";
+import InvoiceModel from "@/models/invoice";
 import { authOptions } from "../auth/[...nextauth]/options";
 import { getServerSession } from "next-auth";
 

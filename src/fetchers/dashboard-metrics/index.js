@@ -1,9 +1,9 @@
 "use server";
 
-import dbConnect from "@/lib/dbConnect";
-import FeedbackModel from "@/models/Feedback";
-import InvoiceModel from "@/models/Invoice";
-import OwnerModel from "@/models/Owner";
+import dbConnect from "@/lib/db-connect";
+import FeedbackModel from "@/models/feedback";
+import InvoiceModel from "@/models/invoice";
+import OwnerModel from "@/models/owner";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import {
@@ -20,7 +20,7 @@ import {
   groupByMonth,
   calculateAverageResponseTime,
   groupSalesByDate,
-} from "@/utils/dashboardUtility";
+} from "@/utils/dashboard-utility";
 
 export async function getDashboardMetrics({
   salesYear,

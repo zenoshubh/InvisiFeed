@@ -1,10 +1,10 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import dbConnect from "@/lib/dbConnect";
-import OwnerModel from "@/models/Owner";
-import { deleteOldInvoicePdfs } from "@/utils/deleteOldInvoicesFromCloudinary";
-import sendVerificationEmail from "@/utils/sendVerificationEmail";
+import dbConnect from "@/lib/db-connect";
+import OwnerModel from "@/models/owner";
+import { deleteOldInvoicePdfs } from "@/utils/delete-old-invoices-from-cloudinary";
+import sendVerificationEmail from "@/utils/send-verification-email";
 
 export async function signInUser(identifier, password) {
   try {
@@ -59,9 +59,12 @@ export async function signInUser(identifier, password) {
 
     return {
       success: true,
-      user: {
-        ...user,
-        id: user._id.toString(),
+      message: "Sign in successful",
+      data: {
+        user: {
+          ...user,
+          id: user._id.toString(),
+        },
       },
     };
   } catch (error) {

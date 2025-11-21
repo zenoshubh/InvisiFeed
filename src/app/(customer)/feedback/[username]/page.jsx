@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import FeedbackClient from "./client";
-import LoadingScreen from "@/components/LoadingScreen";
+import LoadingScreen from "@/components/loading-screen";
 import { Suspense } from "react";
 
 export default async function FeedbackPage({ params, searchParams }) {

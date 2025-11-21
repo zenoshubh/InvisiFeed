@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { registerSchema } from "@/schemas/registerSchema";
+import { registerSchema } from "@/schemas/register-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
@@ -18,16 +18,16 @@ import React, { useState, useEffect, useRef, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { signIn } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import LoadingScreen from "@/components/LoadingScreen";
+import LoadingScreen from "@/components/loading-screen";
 import {
   registerUser,
   checkUsernameAvailability,
 } from "@/actions/auth/registration";
 import { useActionState } from "react";
-import LeftSection from "@/components/auth/LeftSection";
+import LeftSection from "@/components/auth/left-section";
 
 export default function RegisterClient() {
   const [step, setStep] = useState(1);

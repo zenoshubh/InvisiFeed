@@ -1,5 +1,5 @@
-import dbConnect from "@/lib/dbConnect";
-import InvisifeedReviewModel from "@/models/InvisifeedReview";
+import dbConnect from "@/lib/db-connect";
+import InvisifeedReviewModel from "@/models/invisifeed-review";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/options";

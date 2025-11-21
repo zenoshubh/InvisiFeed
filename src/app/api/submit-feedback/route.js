@@ -1,8 +1,8 @@
-import dbConnect from "@/lib/dbConnect";
-import InvoiceModel from "@/models/Invoice";
-import OwnerModel from "@/models/Owner";
+import dbConnect from "@/lib/db-connect";
+import InvoiceModel from "@/models/invoice";
+import OwnerModel from "@/models/owner";
 import { NextResponse } from "next/server";
-import FeedbackModel from "@/models/Feedback";
+import FeedbackModel from "@/models/feedback";
 
 export async function POST(req) {
   await dbConnect();

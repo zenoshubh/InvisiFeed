@@ -1,10 +1,10 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import dbConnect from "@/lib/dbConnect";
-import OwnerModel from "@/models/Owner";
-import DeletedAccountModel from "@/models/DeletedAccount";
-import { deleteOldInvoicePdfs } from "@/utils/deleteOldInvoicesFromCloudinary";
+import dbConnect from "@/lib/db-connect";
+import OwnerModel from "@/models/owner";
+import DeletedAccountModel from "@/models/deleted-account";
+import { deleteOldInvoicePdfs } from "@/utils/delete-old-invoices-from-cloudinary";
 
 export async function handleGoogleSignIn(user, profile) {
   try {
@@ -84,9 +84,12 @@ export async function handleGoogleSignIn(user, profile) {
 
     return {
       success: true,
-      user: {
-        ...newUser.toObject(),
-        id: newUser._id.toString(),
+      message: "Google sign-in successful",
+      data: {
+        user: {
+          ...newUser.toObject(),
+          id: newUser._id.toString(),
+        },
       },
     };
   } catch (error) {

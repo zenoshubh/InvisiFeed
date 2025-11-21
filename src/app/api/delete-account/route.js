@@ -1,8 +1,8 @@
-import dbConnect from "@/lib/dbConnect";
-import DeletedAccountModel from "@/models/DeletedAccount";
-import OwnerModel from "@/models/Owner";
-import InvoiceModel from "@/models/Invoice";
-import FeedbackModel from "@/models/Feedback";
+import dbConnect from "@/lib/db-connect";
+import DeletedAccountModel from "@/models/deleted-account";
+import OwnerModel from "@/models/owner";
+import InvoiceModel from "@/models/invoice";
+import FeedbackModel from "@/models/feedback";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";

@@ -2,16 +2,16 @@
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import dbConnect from "@/lib/dbConnect";
-import OwnerModel from "@/models/Owner";
-import InvoiceModel from "@/models/Invoice";
+import dbConnect from "@/lib/db-connect";
+import OwnerModel from "@/models/owner";
+import InvoiceModel from "@/models/invoice";
 import cloudinary from "cloudinary";
 import crypto from "crypto";
-import { extractInvoiceNumberFromPdf } from "@/utils/upload-invoice-utils/extractInvoiceNumber";
-import { generateQrPdf } from "@/utils/upload-invoice-utils/generateQRpdf";
-import { mergePdfs } from "@/utils/upload-invoice-utils/mergePdfs";
-import sendInvoiceToMail from "@/utils/sendInvoiceToMail";
-import { generateInvoicePdf } from "@/utils/pdfGenerator";
+import { extractInvoiceNumberFromPdf } from "@/utils/upload-invoice-utils/extract-invoice-number";
+import { generateQrPdf } from "@/utils/upload-invoice-utils/generate-qr-pdf";
+import { mergePdfs } from "@/utils/upload-invoice-utils/merge-pdfs";
+import sendInvoiceToMail from "@/utils/send-invoice-to-mail";
+import { generateInvoicePdf } from "@/utils/pdf-generator";
 
 // Cloudinary Config
 cloudinary.v2.config({

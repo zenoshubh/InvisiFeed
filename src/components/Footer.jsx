@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import {
   Facebook,
   Twitter,
@@ -12,8 +12,8 @@ import {
   Github,
   Coffee,
 } from "lucide-react";
-import SocialMediaPopup from "./SocialMediaPopup";
-import LoadingScreen from "./LoadingScreen"; // Import the loading screen
+import SocialMediaPopup from "./social-media-popup";
+import LoadingScreen from "./loading-screen"; // Import the loading screen
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 

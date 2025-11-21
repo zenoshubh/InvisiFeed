@@ -15,10 +15,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2, Eye, EyeOff } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { toast } from "sonner";
-import MobileLogo from "@/components/MobileLogo";
-import ResetPasswordLeftSection from "@/components/auth/ResetPasswordLeftSection";
+import MobileLogo from "@/components/mobile-logo";
+import ResetPasswordLeftSection from "@/components/auth/reset-password-left-section";
 import {
   sendPasswordResetEmail,
   resetUserPassword,

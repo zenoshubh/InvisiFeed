@@ -1,4 +1,4 @@
-import CustomerFeedbacks from '@/components/owner-page-components/CustomerFeedbacks'
+import CustomerFeedbacks from '@/components/owner-page-components/customer-feedbacks'
 import React from 'react'
 
 function page() {

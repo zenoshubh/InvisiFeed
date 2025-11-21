@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { getUploadCount } from "@/actions/invoice-actions";
-import InvoiceManagementContainer from "@/components/InvoiceManagement/InvoiceManagementContainer";
+import InvoiceManagementContainer from "@/components/invoice-management/invoice-management-container";
 
 export default async function InvoiceManagementPage() {
   const session = await getServerSession(authOptions);

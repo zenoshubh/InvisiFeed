@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import Image from "next/image";
-import NavbarClient from "./NavbarClient";
+import NavbarClient from "./navbar-client";
 
 export default async function Navbar({ pathname = "/" }) {
   // SSR session check

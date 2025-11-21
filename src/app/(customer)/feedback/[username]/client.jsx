@@ -16,7 +16,7 @@ import {
   Gift,
 } from "lucide-react";
 import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { format } from "date-fns";
 import confetti from "canvas-confetti";
 import {
@@ -32,7 +32,7 @@ import {
   generateSuggestionsWithAI,
   submitFeedback,
 } from "@/actions/feedback-actions";
-import LoadingScreen from "@/components/LoadingScreen";
+import LoadingScreen from "@/components/loading-screen";
 
 const emojiOptions = [
   { value: 1, emoji: <BsEmojiAngryFill />, label: "Very Dissatisfied" },
@@ -94,16 +94,16 @@ export default function FeedbackClient({ username, invoiceNumber }) {
       try {
         const result = await checkInvoiceValidity(username, invoiceNumber);
         if (result.success) {
-          setBusinessName(result.businessName);
-          setAiUsageCount(result.aiUsageCount || 0);
+          setBusinessName(result.data?.businessName || "");
+          setAiUsageCount(result.data?.aiUsageCount || 0);
           setInvalidInvoice(false);
-        } else if (result.alreadySubmitted) {
+        } else if (result.data?.alreadySubmitted) {
           setFeedbackAlreadySubmitted(true);
-          setBusinessName(result.businessName);
+          setBusinessName(result.data?.businessName || "");
           setInvalidInvoice(false);
         } else {
           setInvalidInvoice(true);
-          setBusinessName(result.businessName || "");
+          setBusinessName(result.data?.businessName || "");
         }
       } catch (error) {
         toast.error("Error checking invoice");
@@ -149,10 +149,10 @@ export default function FeedbackClient({ username, invoiceNumber }) {
         invoiceNumber
       );
       if (result.success) {
-        handleChange("feedbackContent", result.feedback);
-        setAiUsageCount(result.aiUsageCount);
+        handleChange("feedbackContent", result.data?.feedback || result.feedback);
+        setAiUsageCount(result.data?.aiUsageCount || result.aiUsageCount || 0);
         toast.success("Feedback generated!");
-        if (result.aiUsageCount >= 3) {
+        if ((result.data?.aiUsageCount || result.aiUsageCount || 0) >= 3) {
           setAiLimitReached(true);
         }
       } else {
@@ -174,10 +174,10 @@ export default function FeedbackClient({ username, invoiceNumber }) {
         invoiceNumber
       );
       if (result.success) {
-        handleChange("suggestionContent", result.suggestions);
-        setAiUsageCount(result.aiUsageCount);
+        handleChange("suggestionContent", result.data?.suggestions || result.suggestions);
+        setAiUsageCount(result.data?.aiUsageCount || result.aiUsageCount || 0);
         toast.success("Suggestions generated!");
-        if (result.aiUsageCount >= 3) {
+        if ((result.data?.aiUsageCount || result.aiUsageCount || 0) >= 3) {
           setAiLimitReached(true);
         }
       } else {

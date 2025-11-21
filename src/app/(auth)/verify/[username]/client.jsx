@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState, useTransition } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Loader2 } from "lucide-react";
-import MobileLogo from "@/components/MobileLogo";
-import LoadingScreen from "@/components/LoadingScreen";
+import MobileLogo from "@/components/mobile-logo";
+import LoadingScreen from "@/components/loading-screen";
 import Link from "next/link";
 import { verifyUserAccount } from "@/actions/auth/registration";
 import { useActionState } from "react";
-import LeftSection from "@/components/auth/LeftSection";
+import LeftSection from "@/components/auth/left-section";
 
 const VerifyAccount = () => {
   const router = useRouter();

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/dbConnect";
-import OwnerModel from "@/models/Owner";
+import dbConnect from "@/lib/db-connect";
+import OwnerModel from "@/models/owner";
 
 // --- Configuration ---
 // Ensure you set this environment variable in your deployment environment.

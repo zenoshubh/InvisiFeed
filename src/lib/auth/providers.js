@@ -25,7 +25,7 @@ export const credentialsProvider = CredentialsProvider({
         throw new Error(result.message);
       }
 
-      return result.user;
+      return result.data?.user || result.user;
     } catch (error) {
       throw new Error(error.message);
     }

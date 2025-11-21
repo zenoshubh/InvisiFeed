@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/options";
-import dbConnect from "@/lib/dbConnect";
-import OwnerModel from "@/models/Owner";
+import dbConnect from "@/lib/db-connect";
+import OwnerModel from "@/models/owner";
 
 export async function POST(req) {
   try {

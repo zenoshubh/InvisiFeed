@@ -1,9 +1,9 @@
 "use server";
 
-import dbConnect from "@/lib/dbConnect";
-import InvoiceModel from "@/models/Invoice";
-import OwnerModel from "@/models/Owner";
-import FeedbackModel from "@/models/Feedback";
+import dbConnect from "@/lib/db-connect";
+import InvoiceModel from "@/models/invoice";
+import OwnerModel from "@/models/owner";
+import FeedbackModel from "@/models/feedback";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -17,7 +17,9 @@ export async function checkInvoiceValidity(username, invoiceNumber) {
       return {
         success: false,
         message: "Business not found",
-        businessName: null,
+        data: {
+          businessName: null,
+        },
       };
     }
 
@@ -30,7 +32,9 @@ export async function checkInvoiceValidity(username, invoiceNumber) {
       return {
         success: false,
         message: "Invalid invoice",
-        businessName: owner.businessName,
+        data: {
+          businessName: owner.businessName,
+        },
       };
     }
 
@@ -42,16 +46,20 @@ export async function checkInvoiceValidity(username, invoiceNumber) {
       return {
         success: false,
         message: "Feedback already submitted for this invoice",
-        businessName: owner.businessName,
-        alreadySubmitted: true,
+        data: {
+          businessName: owner.businessName,
+          alreadySubmitted: true,
+        },
       };
     }
 
     return {
       success: true,
       message: "Invoice is valid",
-      businessName: owner.businessName,
-      aiUsageCount: invoice.AIuseCount || 0,
+      data: {
+        businessName: owner.businessName,
+        aiUsageCount: invoice.AIuseCount || 0,
+      },
     };
   } catch (error) {
     console.error("Error checking invoice validity:", error);

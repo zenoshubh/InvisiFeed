@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import sendInvoiceToMail from "@/utils/sendInvoiceToMail";
+import sendInvoiceToMail from "@/utils/send-invoice-to-mail";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/options";
 

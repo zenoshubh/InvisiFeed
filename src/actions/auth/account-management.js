@@ -2,11 +2,11 @@
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import dbConnect from "@/lib/dbConnect";
-import OwnerModel from "@/models/Owner";
-import InvoiceModel from "@/models/Invoice";
-import FeedbackModel from "@/models/Feedback";
-import DeletedAccountModel from "@/models/DeletedAccount";
+import dbConnect from "@/lib/db-connect";
+import OwnerModel from "@/models/owner";
+import InvoiceModel from "@/models/invoice";
+import FeedbackModel from "@/models/feedback";
+import DeletedAccountModel from "@/models/deleted-account";
 
 export async function deleteUserAccount() {
   try {

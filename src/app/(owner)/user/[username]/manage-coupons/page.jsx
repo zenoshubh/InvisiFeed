@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { useSession } from "next-auth/react";
 import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import LoadingScreen from "@/components/LoadingScreen";
+import LoadingScreen from "@/components/loading-screen";
 import Link from "next/link";
 
 export default function ManageCoupons() {

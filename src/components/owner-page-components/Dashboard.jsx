@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { getDashboardMetrics } from "@/actions/dashboard-actions";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import {
   Lightbulb,
   Star,

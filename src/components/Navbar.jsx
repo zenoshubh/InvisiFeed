@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import UserNav from "./UserNav";
+import { motion } from "motion/react";
+import UserNav from "./user-nav";
 
 function Navbar() {
   const { data: session, status } = useSession();

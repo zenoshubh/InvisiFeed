@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import { useWatch } from "react-hook-form";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 const formSchema = z.object({
   businessName: z.string().min(1, "Business name is required"),

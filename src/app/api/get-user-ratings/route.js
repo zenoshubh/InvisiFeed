@@ -1,6 +1,6 @@
-import dbConnect from "@/lib/dbConnect";
-import FeedbackModel from "@/models/Feedback";
-import OwnerModel from "@/models/Owner";
+import dbConnect from "@/lib/db-connect";
+import FeedbackModel from "@/models/feedback";
+import OwnerModel from "@/models/owner";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/options";

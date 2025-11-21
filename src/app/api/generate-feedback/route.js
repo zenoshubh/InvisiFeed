@@ -1,8 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import InvoiceModel from "@/models/Invoice";
-import dbConnect from "@/lib/dbConnect";
+import InvoiceModel from "@/models/invoice";
+import dbConnect from "@/lib/db-connect";
 import { NextResponse } from "next/server";
-import OwnerModel from "@/models/Owner";
+import OwnerModel from "@/models/owner";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 

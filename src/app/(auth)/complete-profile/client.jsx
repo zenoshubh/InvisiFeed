@@ -10,16 +10,16 @@ import { useForm } from "react-hook-form";
 import { toast, Toaster } from "sonner";
 import { useRouter } from "next/navigation";
 import { Country, State, City } from "country-state-city";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { useSession, Session } from "next-auth/react"; // Import Session type
 import * as z from "zod";
-import MobileLogo from "@/components/MobileLogo";
-import GSTINVerificationDialog from "@/components/owner-page-components/GSTINVerificationDialog";
+import MobileLogo from "@/components/mobile-logo";
+import GSTINVerificationDialog from "@/components/owner-page-components/gstin-verification-dialog";
 import {
   completeUserProfile,
   skipProfileCompletion,
 } from "@/actions/auth/profile-management";
-import LoadingScreen from "@/components/LoadingScreen";
+import LoadingScreen from "@/components/loading-screen";
 
 // Simplified client-side schema for form validation only
 const clientFormSchema = z.object({

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/dbConnect";
-import OwnerModel from "@/models/Owner";
+import dbConnect from "@/lib/db-connect";
+import OwnerModel from "@/models/owner";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/options";
-import FeedbackModel from "@/models/Feedback";
-import InvoiceModel from "@/models/Invoice";
+import FeedbackModel from "@/models/feedback";
+import InvoiceModel from "@/models/invoice";
 
 export async function DELETE(request) {
   try {

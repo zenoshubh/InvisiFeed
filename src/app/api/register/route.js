@@ -1,9 +1,9 @@
-import sendVerificationEmail from "@/utils/sendVerificationEmail";
-import dbConnect from "@/lib/dbConnect";
-import OwnerModel from "@/models/Owner";
+import sendVerificationEmail from "@/utils/send-verification-email";
+import dbConnect from "@/lib/db-connect";
+import OwnerModel from "@/models/owner";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
-import DeletedAccountModel from "@/models/DeletedAccount";
+import DeletedAccountModel from "@/models/deleted-account";
 
 export async function POST(req) {
   await dbConnect();

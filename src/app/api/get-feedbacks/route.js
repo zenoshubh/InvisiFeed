@@ -1,10 +1,10 @@
-import dbConnect from "@/lib/dbConnect";
-import OwnerModel from "@/models/Owner";
-import FeedbackModel from "@/models/Feedback";
+import dbConnect from "@/lib/db-connect";
+import OwnerModel from "@/models/owner";
+import FeedbackModel from "@/models/feedback";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/options";
-import InvoiceModel from "@/models/Invoice";
+import InvoiceModel from "@/models/invoice";
 
 export async function GET(req) {
   await dbConnect();

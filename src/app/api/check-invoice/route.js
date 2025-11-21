@@ -1,6 +1,6 @@
-import dbConnect from "@/lib/dbConnect";
-import OwnerModel from "@/models/Owner";
-import InvoiceModel from "@/models/Invoice";
+import dbConnect from "@/lib/db-connect";
+import OwnerModel from "@/models/owner";
+import InvoiceModel from "@/models/invoice";
 import { NextResponse } from "next/server";
 
 export async function GET(req) {
@@ -60,8 +60,10 @@ export async function GET(req) {
       {
         success: true,
         message: "Invoice Number and Username verified",
-        owner,
-        invoice,
+        data: {
+          owner,
+          invoice,
+        },
       },
       { status: 200 }
     );

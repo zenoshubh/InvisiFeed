@@ -2,8 +2,8 @@
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import dbConnect from "@/lib/dbConnect";
-import OwnerModel from "@/models/Owner";
+import dbConnect from "@/lib/db-connect";
+import OwnerModel from "@/models/owner";
 import Razorpay from "razorpay";
 import crypto from "crypto";
 
@@ -46,8 +46,10 @@ export async function createOrder() {
 
     return {
       success: true,
-      order,
       message: "Order created successfully",
+      data: {
+        order,
+      },
     };
   } catch (error) {
     console.error("Error creating order:", error);

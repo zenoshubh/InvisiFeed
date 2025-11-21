@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import OwnerModel from "@/models/Owner";
-import InvoiceModel from "@/models/Invoice";
-import dbConnect from "@/lib/dbConnect";
+import OwnerModel from "@/models/owner";
+import InvoiceModel from "@/models/invoice";
+import dbConnect from "@/lib/db-connect";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/options";
 

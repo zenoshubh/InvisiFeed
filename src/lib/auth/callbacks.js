@@ -11,7 +11,7 @@ export const authCallbacks = {
         }
 
         // Update user object with database info
-        Object.assign(user, result.user);
+        Object.assign(user, result.data?.user || result.user);
         return true;
       } catch (error) {
         console.error("Google Sign-In Error:", error);

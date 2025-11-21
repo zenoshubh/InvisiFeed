@@ -1,8 +1,8 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import MobileNav from "@/components/MobileNav";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
+import MobileNav from "@/components/mobile-nav";
 import { Suspense } from "react";
-import LoadingScreen from "@/components/LoadingScreen";
+import LoadingScreen from "@/components/loading-screen";
 
 export const metadata = {
   title: "Dashboard - InvisiFeed",

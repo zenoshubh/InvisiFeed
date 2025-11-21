@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import cloudinary from "cloudinary";
-import OwnerModel from "@/models/Owner";
-import dbConnect from "@/lib/dbConnect";
+import OwnerModel from "@/models/owner";
+import dbConnect from "@/lib/db-connect";
 import crypto from "crypto";
-import { generateInvoicePdf } from "@/utils/pdfGenerator";
-import InvoiceModel from "@/models/Invoice";
+import { generateInvoicePdf } from "@/utils/pdf-generator";
+import InvoiceModel from "@/models/invoice";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/options";
 

@@ -1,22 +1,22 @@
 import React from "react";
 
-import HeroSection from "@/components/landing-page-components/HeroSection";
-import HowItWorksSection from "@/components/landing-page-components/HowItWorksSection";
-import FeaturesSection from "@/components/landing-page-components/FeaturesSection";
-import DashboardShowcaseSection from "@/components/landing-page-components/DashboardShowcaseSection";
-import BenefitsSection from "@/components/landing-page-components/BenefitsSection";
-import SampleInvoiceSection from "@/components/landing-page-components/SampleInvoiceSection";
-import ReviewInvisifeed from "@/components/landing-page-components/ReviewInvisifeed";
-import SecuritySection from "@/components/landing-page-components/SecuritySection";
+import HeroSection from "@/components/landing-page-components/hero-section";
+import HowItWorksSection from "@/components/landing-page-components/how-it-works-section";
+import FeaturesSection from "@/components/landing-page-components/features-section";
+import DashboardShowcaseSection from "@/components/landing-page-components/dashboard-showcase-section";
+import BenefitsSection from "@/components/landing-page-components/benefits-section";
+import SampleInvoiceSection from "@/components/landing-page-components/sample-invoice-section";
+import ReviewInvisifeed from "@/components/landing-page-components/review-invisifeed";
+import SecuritySection from "@/components/landing-page-components/security-section";
 
-import FAQSection from "@/components/landing-page-components/FAQSection";
-import CTASection from "@/components/landing-page-components/CTASection";
-import GetStartedPopup from "@/components/landing-page-components/GetStartedPopup";
-import ScrollToTop from "@/components/ScrollToTop";
-import PricingSectionClient from "@/components/landing-page-components/PricingSectionClient";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import MobileNav from "@/components/MobileNav";
+import FAQSection from "@/components/landing-page-components/faq-section";
+import CTASection from "@/components/landing-page-components/cta-section";
+import GetStartedPopup from "@/components/landing-page-components/get-started-popup";
+import ScrollToTop from "@/components/scroll-to-top";
+import PricingSectionClient from "@/components/landing-page-components/pricing-section-client";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
+import MobileNav from "@/components/mobile-nav";
 
 export default function Home() {
   return (

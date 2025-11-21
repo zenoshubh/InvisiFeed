@@ -1,7 +1,7 @@
-import dbConnect from "@/lib/dbConnect";
-import FeedbackModel from "@/models/Feedback";
-import InvoiceModel from "@/models/Invoice";
-import OwnerModel from "@/models/Owner";
+import dbConnect from "@/lib/db-connect";
+import FeedbackModel from "@/models/feedback";
+import InvoiceModel from "@/models/invoice";
+import OwnerModel from "@/models/owner";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 

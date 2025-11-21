@@ -1,4 +1,4 @@
-import PricingSectionClient from "@/components/landing-page-components/PricingSectionClient";
+import PricingSectionClient from "@/components/landing-page-components/pricing-section-client";
 import React from "react";
 
 export default function PricingPage() {

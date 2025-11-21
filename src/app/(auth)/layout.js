@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import LoadingScreen from "@/components/LoadingScreen";
+import LoadingScreen from "@/components/loading-screen";
 
 export const metadata = {
   title: "Authentication - InvisiFeed",
