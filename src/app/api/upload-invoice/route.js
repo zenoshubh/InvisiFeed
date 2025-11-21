@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import cloudinary from "cloudinary";
 import OwnerModel from "@/models/owner";
 import dbConnect from "@/lib/db-connect";
 import crypto from "crypto";
@@ -9,13 +8,7 @@ import { mergePdfs } from "@/utils/upload-invoice-utils/merge-pdfs";
 import InvoiceModel from "@/models/invoice";
 import { authOptions } from "../auth/[...nextauth]/options";
 import { getServerSession } from "next-auth";
-
-// Cloudinary Config
-cloudinary.v2.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 // Validate coupon data against schema
 function validateCouponData(couponData) {
@@ -213,25 +206,18 @@ export async function POST(req) {
     const mergedPdfBuffer = await mergePdfs(buffer, pdf);
 
     // Upload Final Merged PDF to Cloudinary
-    const finalUpload = await new Promise((resolve, reject) => {
-      const sanitiseString = (str) => {
-        return str.replace(/[^a-zA-Z0-9-_\.]/g, "_");
-      };
+    const sanitiseString = (str) => {
+      return str.replace(/[^a-zA-Z0-9-_\.]/g, "_");
+    };
 
-      const sanitizedInvoiceNumber = sanitiseString(invoiceData.invoiceId);
+    const sanitizedInvoiceNumber = sanitiseString(invoiceData.invoiceId);
 
-      cloudinary.v2.uploader
-        .upload_stream(
-          {
-            folder: "invoice_pdf_uploads",
-            resource_type: "raw",
-            public_id: `invoice_${sanitizedInvoiceNumber}_${username}_${Date.now()}`,
-            format: "pdf",
-            context: "ttl=20",
-          },
-          (error, result) => (error ? reject(error) : resolve(result))
-        )
-        .end(mergedPdfBuffer);
+    const finalUpload = await uploadToCloudinary(mergedPdfBuffer, {
+      folder: "invoice_pdf_uploads",
+      resource_type: "raw",
+      public_id: `invoice_${sanitizedInvoiceNumber}_${username}_${Date.now()}`,
+      format: "pdf",
+      context: "ttl=20",
     });
 
     const finalPdfUrl = finalUpload.secure_url;

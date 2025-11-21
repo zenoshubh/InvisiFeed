@@ -1,25 +1,21 @@
-import nodemailer from 'nodemailer';
+import { sendEmail as sendEmailLib } from "@/lib/nodemailer";
 
+/**
+ * Send an email (backward compatibility wrapper)
+ * @param {string} email - Recipient email address
+ * @param {string} subject - Email subject
+ * @param {string} message - Email content (HTML)
+ * @param {Object} attachment - Email attachment (optional)
+ * @returns {Promise<Object>} Send result
+ */
 const sendEmail = async (email, subject, message, attachment = null) => {
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    auth: {
-      user: process.env.SMTP_EMAIL, // Your email
-      pass: process.env.SMTP_PASSWORD, // App password
-    },
-  });
-
-  const mailOptions = {
-    from: `"InvisiFeed" <${process.env.SMTP_EMAIL}>`,
+  return await sendEmailLib({
     to: email,
-    subject: subject,
-    text: message, // Plain text version
-    html: message, // HTML version
-    attachments: attachment ? [attachment] : [], // Add attachment if provided
-  };
-
-  await transporter.sendMail(mailOptions);
+    subject,
+    html: message,
+    text: message,
+    attachment,
+  });
 };
 
 export default sendEmail;

@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Check, Edit2 } from "lucide-react";
-import axios from "axios";
+import { updateProfile } from "@/actions/profile";
+import { deleteAccount } from "@/actions/data-management";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -183,28 +184,30 @@ function UpdateProfilePage() {
     try {
       setSaving(true);
 
-      const { data } = await axios.patch("/api/update-profile", payload);
+      const result = await updateProfile(payload.data);
 
-      if (data.success) {
+      if (result.success) {
         // Update session with new data
         await update({
           user: {
             ...session.user,
             businessName:
-              data.user.businessName || session.user.businessName,
-            phoneNumber: data.user.phoneNumber,
-            address: data.user.address || session.user.address,
-            isProfileCompleted: data.user.isProfileCompleted,
+              result.data.user.businessName || session.user.businessName,
+            phoneNumber: result.data.user.phoneNumber,
+            address: result.data.user.address || session.user.address,
+            isProfileCompleted: result.data.user.isProfileCompleted,
           },
         });
 
-        toast.success(data.message);
+        toast.success(result.message);
         setEditingField(null);
         router.refresh();
+      } else {
+        toast.error(result.message || "Failed to update profile");
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error(error.response?.data?.message || "Failed to update profile");
+      toast.error("Failed to update profile");
     } finally {
       setSaving(false);
     }
@@ -219,11 +222,14 @@ function UpdateProfilePage() {
 
   const handleDeleteAccount = async () => {
     setIsDeletingAccount(true);
-    const { data } = await axios.delete("/api/delete-account");
-    if (data.success) {
-      toast.success(data.message);
+    const result = await deleteAccount();
+    if (result.success) {
+      toast.success(result.message);
       setIsDeletingAccount(false);
       signOut();
+    } else {
+      toast.error(result.message || "Failed to delete account");
+      setIsDeletingAccount(false);
     }
   };
 

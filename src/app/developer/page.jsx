@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import axios from "axios";
+import { getReviews } from "@/fetchers/reviews";
 import { toast } from "sonner";
 
 export default function DeveloperPage() {
@@ -12,12 +12,11 @@ export default function DeveloperPage() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await axios.get("/api/review-invisifeed");
-        if (!response.data.success) throw new Error("Failed to fetch reviews");
-        const data = response.data.reviews;
-        setReviews(data);
+        const result = await getReviews();
+        if (!result.success) throw new Error(result.message || "Failed to fetch reviews");
+        setReviews(result.data.reviews);
       } catch (error) {
-        toast.error(error?.response?.data?.message || "Failed to fetch reviews");
+        toast.error("Failed to fetch reviews");
       } finally {
         setIsLoading(false);
       }

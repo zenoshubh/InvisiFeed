@@ -1,12 +1,8 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+import { getGenerativeModel } from "@/lib/google-ai";
 
 export async function extractInvoiceNumberFromPdf(buffer) {
   try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-    });
+    const model = getGenerativeModel("gemini-2.0-flash");
 
     const pdfBuffer = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer);
 

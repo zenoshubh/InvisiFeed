@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import axios from "axios";
+import { getFeedbacks } from "@/fetchers/feedbacks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -87,23 +87,25 @@ const CustomerFeedbacks = () => {
   const fetchFeedbacks = async (page) => {
     try {
       setLoading(true);
-      const response = await axios.get("/api/get-feedbacks", {
-        params: {
-          username: username,
-          page,
-          limit: 5,
-          sortBy,
-        },
+      const result = await getFeedbacks({
+        page,
+        limit: 5,
+        sortBy,
       });
 
-      const { data } = response.data;
-      setFeedbacks(data.feedbacks);
-      setTotalPages(data.totalPages);
-      setHasNextPage(data.hasNextPage);
-      setHasPrevPage(data.hasPrevPage);
-      setError(null);
+      if (result.success) {
+        const { data } = result;
+        setFeedbacks(data.feedbacks);
+        setTotalPages(data.totalPages);
+        setHasNextPage(data.hasNextPage);
+        setHasPrevPage(data.hasPrevPage);
+        setError(null);
+      } else {
+        setError(result.message || "Failed to fetch feedbacks");
+        setFeedbacks([]);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch feedbacks");
+      setError("Failed to fetch feedbacks");
       setFeedbacks([]);
     } finally {
       setLoading(false);

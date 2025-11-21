@@ -8,7 +8,8 @@ import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSession } from "next-auth/react";
-import axios from "axios";
+import { getCoupons } from "@/fetchers/coupons";
+import { deleteCoupon } from "@/actions/coupon";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import LoadingScreen from "@/components/loading-screen";
@@ -36,15 +37,16 @@ export default function ManageCoupons() {
 
   const fetchCoupons = async () => {
     try {
-      const response = await axios.get("/api/get-coupons");
-      if (response?.data?.success) {
-        setCoupons(response.data.coupons);
+      const result = await getCoupons();
+      if (result?.success) {
+        setCoupons(result.data.coupons);
         return;
+      } else {
+        toast.error(result.message || "Failed to fetch coupons");
       }
     } catch (error) {
-      toast("Failed to fetch coupons");
+      toast.error("Failed to fetch coupons");
       console.error("Error fetching coupons:", error);
-      toast(error?.response?.data?.message);
     } finally {
       setLoading(false);
     }
@@ -53,18 +55,16 @@ export default function ManageCoupons() {
   const handleDeleteCoupon = async (coupon) => {
     try {
       setDeleting(true);
-      const response = await axios.delete("/api/delete-coupon", {
-        data: { invoiceId: coupon.invoiceId },
-      });
-      if (response?.data?.success) {
-        setDeleting(false);
-        toast("Coupon marked as used successfully");
+      const result = await deleteCoupon(coupon.invoiceId);
+      if (result?.success) {
+        toast.success(result.message || "Coupon marked as used successfully");
         setCoupons(coupons.filter((c) => c.invoiceId !== coupon.invoiceId));
         setShowDeleteDialog(false);
+      } else {
+        toast.error(result.message || "Failed to delete coupon");
       }
     } catch (error) {
-      toast(error?.response?.data?.message);
-      setDeleting(false);
+      toast.error("Failed to delete coupon");
       console.error("Error deleting coupon:", error);
     } finally {
       setDeleting(false);

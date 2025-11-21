@@ -1,15 +1,9 @@
 import { NextResponse } from "next/server";
-import Razorpay from "razorpay";
-import crypto from "crypto";
 import dbConnect from "@/lib/db-connect";
 import OwnerModel from "@/models/owner";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/options";
-
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+import { verifyRazorpaySignature } from "@/lib/razorpay";
 
 export async function POST(req) {
   try {
@@ -24,13 +18,13 @@ export async function POST(req) {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = await req.json();
 
     // Verify the payment signature
-    const body = razorpay_order_id + "|" + razorpay_payment_id;
-    const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(body)
-      .digest("hex");
+    const isValid = verifyRazorpaySignature(
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature
+    );
 
-    if (expectedSignature !== razorpay_signature) {
+    if (!isValid) {
       return NextResponse.json(
         { success: false, message: "Invalid signature" },
         { status: 400 }

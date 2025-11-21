@@ -51,13 +51,17 @@ export default function ShowInvoicesPage({ params }) {
   const fetchInvoices = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        `/api/get-invoices?page=${currentPage}&limit=10&sortBy=${sortBy}&feedbackFilter=${feedbackFilter}&search=${searchQuery}`
-      );
-      const data = await response.json();
-      if (data.success) {
-        setInvoices(data.data.invoices);
-        setTotalPages(data.data.totalPages);
+      const { getInvoices } = await import("@/fetchers/invoices");
+      const result = await getInvoices({
+        page: currentPage,
+        limit: 10,
+        sortBy,
+        feedbackFilter,
+        search: searchQuery,
+      });
+      if (result.success) {
+        setInvoices(result.data.invoices);
+        setTotalPages(result.data.totalPages);
       }
     } catch (error) {
       console.error("Error fetching invoices:", error);

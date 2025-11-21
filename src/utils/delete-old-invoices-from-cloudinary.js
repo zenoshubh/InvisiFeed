@@ -1,13 +1,6 @@
-import cloudinary from "cloudinary";
 import OwnerModel from "@/models/owner";
 import InvoiceModel from "@/models/invoice";
-
-// Cloudinary Config
-cloudinary.v2.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+import { deleteFromCloudinary } from "@/lib/cloudinary";
 
 
 export async function deleteOldInvoicePdfs(username) {
@@ -40,9 +33,7 @@ export async function deleteOldInvoicePdfs(username) {
           // Extract public_id from URL
           const publicId = extractPublicIdFromUrl(invoice.mergedPdfUrl);
           if (publicId) {
-            const result = await cloudinary.v2.uploader.destroy(publicId, {
-              resource_type: "raw",
-            });
+            const result = await deleteFromCloudinary(publicId);
             if (result.result === "ok" || result.result === "not found") {
               invoice.mergedPdfUrl = null;
               await invoice.save()

@@ -4,13 +4,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import dbConnect from "@/lib/db-connect";
 import OwnerModel from "@/models/owner";
-import Razorpay from "razorpay";
 import crypto from "crypto";
-
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+import {
+  createRazorpayOrder,
+  verifyRazorpaySignature,
+} from "@/lib/razorpay";
 
 export async function createOrder() {
   await dbConnect();
@@ -42,7 +40,7 @@ export async function createOrder() {
       receipt: `receipt_${Date.now()}`,
     };
 
-    const order = await razorpay.orders.create(options);
+    const order = await createRazorpayOrder(options);
 
     return {
       success: true,
@@ -75,13 +73,13 @@ export async function verifyPayment({
     }
 
     // Verify payment signature
-    const body = razorpay_order_id + "|" + razorpay_payment_id;
-    const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(body.toString())
-      .digest("hex");
+    const isValid = verifyRazorpaySignature(
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature
+    );
 
-    if (expectedSignature !== razorpay_signature) {
+    if (!isValid) {
       return { success: false, message: "Invalid payment signature" };
     }
 

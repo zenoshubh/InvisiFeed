@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import { Star, X } from "lucide-react";
 
 import { toast } from "sonner";
-import axios from "axios";
+import { submitReview } from "@/actions/review";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 const ReviewInvisifeed = () => {
@@ -20,18 +20,18 @@ const ReviewInvisifeed = () => {
     }
     setIsSubmitting(true);
     try {
-      const response = await axios.post("/api/review-invisifeed", {
-        review,
-      });
-      if (response.data.success) {
+      const result = await submitReview(review);
+      if (result.success) {
         toast.success("Thank you for your review!");
         setReview("");
         setIsReviewModalOpen(false);
+      } else {
+        if (result.message === "Unauthorized") {
+          router.push("/sign-in");
+        }
+        toast.error(result.message || "Failed to submit review. Please try again.");
       }
     } catch (error) {
-      if (error?.response?.data?.message === "Unauthorized") {
-        router.push("/sign-in");
-      }
       toast.error("Failed to submit review. Please try again.");
     } finally {
       setIsSubmitting(false);

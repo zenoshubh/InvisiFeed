@@ -31,7 +31,7 @@ import {
   generateFeedbackWithAI,
   generateSuggestionsWithAI,
   submitFeedback,
-} from "@/actions/feedback-actions";
+} from "@/actions/feedback";
 import LoadingScreen from "@/components/loading-screen";
 
 const emojiOptions = [

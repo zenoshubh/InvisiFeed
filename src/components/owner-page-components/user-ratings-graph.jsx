@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useParams } from "next/navigation";
-import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useSession } from "next-auth/react";
@@ -18,8 +17,13 @@ export default function UserRatingsGraph() {
   useEffect(() => {
     const fetchRatings = async () => {
       try {
-        const response = await axios.get(`/api/get-user-ratings`);
-        setRatings(response.data.data);
+        const { getUserRatings } = await import("@/fetchers/user-ratings");
+        const result = await getUserRatings();
+        if (result.success) {
+          setRatings(result.data);
+        } else {
+          setError(result.message || "Failed to fetch ratings");
+        }
       } catch (error) {
         setError("Failed to fetch ratings");
         console.error("Error fetching ratings:", error);

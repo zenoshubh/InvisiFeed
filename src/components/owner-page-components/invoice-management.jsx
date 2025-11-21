@@ -121,11 +121,12 @@ export default function InvoiceManagement() {
       if (!owner?.username) return;
 
       try {
-        const { data } = await axios.get(`/api/upload-count`);
-        if (data.success) {
-          setDailyUploadCount(data.dailyUploadCount);
-          if (data.timeLeft) {
-            setTimeLeft(data.timeLeft);
+        const { getUploadCount } = await import("@/fetchers/upload-count");
+        const result = await getUploadCount();
+        if (result.success) {
+          setDailyUploadCount(result.data.dailyUploadCount);
+          if (result.data.timeLeft) {
+            setTimeLeft(result.data.timeLeft);
           }
           if (data.dailyLimit) {
             setDailyLimit(data.dailyLimit);
@@ -323,7 +324,8 @@ export default function InvoiceManagement() {
 
     setSendingEmail(true);
     try {
-      const { data } = await axios.post("/api/send-invoice-email", {
+      const { sendInvoiceEmail } = await import("@/actions/invoice");
+      const result = await sendInvoiceEmail({
         customerEmail,
         invoiceNumber,
         pdfUrl,
@@ -331,7 +333,7 @@ export default function InvoiceManagement() {
         companyName: owner?.businessName || "Your Company",
       });
 
-      if (data.success) {
+      if (result.success) {
         setEmailSent(true);
         setCustomerEmail("");
         toast.success("Email sent successfully");
@@ -351,7 +353,8 @@ export default function InvoiceManagement() {
 
   const handleResetData = async () => {
     try {
-      const { data } = await axios.delete("/api/reset-data");
+      const { resetData } = await import("@/actions/data-management-actions");
+      const data = await resetData();
 
       if (data.success) {
         toast.success("Data reset successfully");
@@ -415,36 +418,31 @@ export default function InvoiceManagement() {
 
     setSaving(true);
     try {
-      const response = await axios.post("/api/create-invoice", {
-        ...invoiceData,
-      });
-      const data = response.data;
+      const { createInvoice } = await import("@/actions/invoice");
+      const result = await createInvoice(invoiceData);
 
-      if (data.success) {
-        setPdfUrl(data.url);
-        setFeedbackUrl(data.feedbackUrl);
-        setInvoiceNumber(data.invoiceNumber);
-        setCustomerName(data.customerName);
-        setExtractedCustomerEmail(data.customerEmail);
-        setCustomerEmail(data.customerEmail);
-        setCustomerAmount(data.customerAmount);
-        setDailyUploadCount(data.dailyUploadCount);
-        setTimeLeft(data.timeLeft);
+      if (result.success) {
+        setPdfUrl(result.data.url);
+        setFeedbackUrl(result.data.feedbackUrl);
+        setInvoiceNumber(result.data.invoiceNumber);
+        setCustomerName(result.data.customerName);
+        setExtractedCustomerEmail(result.data.customerEmail);
+        setCustomerEmail(result.data.customerEmail);
+        setCustomerAmount(result.data.customerAmount);
+        setDailyUploadCount(result.data.dailyUploadCount);
+        setTimeLeft(result.data.timeLeft);
         setShowCreateInvoice(false);
         setSaving(false);
         toast.success("Invoice created successfully");
       } else {
         toast.error(
-          data.message || "Failed to create invoice. Please try again."
+          result.message || "Failed to create invoice. Please try again."
         );
         setSaving(false);
       }
     } catch (error) {
       console.error("Error creating invoice:", error);
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to create invoice. Please try again."
-      );
+      toast.error("Failed to create invoice. Please try again.");
     } finally {
       setSaving(false);
     }

@@ -6,8 +6,7 @@ import {
   uploadInvoice,
   sendInvoiceEmail,
   createInvoice,
-  resetInvoiceData,
-} from "@/actions/invoice-actions";
+} from "@/actions/invoice";
 import InvoiceUploadSection from "./invoice-upload-section";
 import InvoiceDisplaySection from "./invoice-display-section";
 import CreateInvoiceModal from "./create-invoice-modal";
@@ -202,7 +201,8 @@ export default function InvoiceManagementContainer({ initialData }) {
     setLoading(true);
 
     try {
-      const result = await resetInvoiceData();
+      const { resetData } = await import("@/actions/data-management");
+      const result = await resetData();
 
       if (result.success) {
         toast.success(result.message);
