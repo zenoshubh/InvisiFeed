@@ -5,6 +5,7 @@ import dbConnect from "@/lib/db-connect";
 import OwnerModel from "@/models/owner";
 import { deleteOldInvoicePdfs } from "@/utils/invoice/delete-old-invoices";
 import sendVerificationEmail from "@/utils/email/send-verification-email";
+import { generateOTP } from "@/utils/common/generate-otp";
 
 export async function signInUser(identifier, password) {
   try {
@@ -29,7 +30,7 @@ export async function signInUser(identifier, password) {
     }
 
     if (!user.isVerified) {
-      const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const verifyCode = generateOTP();
 
       await OwnerModel.findByIdAndUpdate(user._id, {
         verifyCode,

@@ -200,7 +200,7 @@ export async function generateQrPdf(
               Thank you for choosing InvisiFeed!
             </Text>
             {/* QR Code */}
-            <Image src={qrDataUrl} style={styles.qrCode} />
+            <Image src={qrDataUrl} style={styles.qrCode} alt="QR Code for feedback form" />
             <Link src={qrData} style={[styles.infoText, styles.link]}>
               Click Here
             </Link>

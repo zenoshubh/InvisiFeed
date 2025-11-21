@@ -5,6 +5,7 @@ import dbConnect from "@/lib/db-connect";
 import OwnerModel from "@/models/owner";
 import DeletedAccountModel from "@/models/deleted-account";
 import sendVerificationEmail from "@/utils/email/send-verification-email";
+import { generateOTP } from "@/utils/common/generate-otp";
 
 // ✅ Fix: Add prevState parameter for useActionState
 export async function registerUser(prevState, formData) {
@@ -48,7 +49,7 @@ export async function registerUser(prevState, formData) {
     }
 
     const existingEmailUser = await OwnerModel.findOne({ email });
-    const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verifyCode = generateOTP();
     const hashedPassword = await bcrypt.hash(password, 10);
 
     if (existingEmailUser) {

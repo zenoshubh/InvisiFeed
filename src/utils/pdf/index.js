@@ -9,6 +9,7 @@ import {
   Link,
 } from "@react-pdf/renderer";
 import QRCode from "qrcode";
+import { formatDate } from "@/utils/common/date-helpers";
 
 // Create styles
 const styles = StyleSheet.create({
@@ -234,16 +235,18 @@ const InvoiceDocument = ({
   taxTotal,
   grandTotal,
 }) => {
-  const currentDate = new Date().toLocaleDateString("en-US", {
+  const currentDate = formatDate(new Date(), {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
 
-  const formatDate = (dateString) => {
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", options);
+  const formatDateForInvoice = (dateString) => {
+    return formatDate(dateString, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
   };
   // Filter out empty fields
   const filteredInvoiceData = {
@@ -259,7 +262,7 @@ const InvoiceDocument = ({
     customerPhone: invoiceData.customerPhone.trim() || undefined,
     customerEmail: invoiceData.customerEmail.trim() || undefined,
     invoiceDate: invoiceData.invoiceDate.trim() || undefined,
-    dueDate: invoiceData.dueDate ? formatDate(invoiceData.dueDate) : undefined,
+    dueDate: invoiceData.dueDate ? formatDateForInvoice(invoiceData.dueDate) : undefined,
     paymentTerms: invoiceData.paymentTerms.trim() || undefined,
     bankDetails: invoiceData.bankDetails.trim() || undefined,
     paymentMethod: invoiceData.paymentMethod.trim() || undefined,
@@ -574,7 +577,7 @@ const InvoiceDocument = ({
                 <Link src={feedbackUrl}>Click Here</Link>
               </View>
             </View>
-            <Image src={qrImage} style={styles.qrCode} />
+            <Image src={qrImage} style={styles.qrCode} alt="QR Code for feedback form" />
           </View>
 
           {/* Disclaimer */}
@@ -596,7 +599,7 @@ const InvoiceDocument = ({
             lineHeight: 1.5,
           }}
         >
-          Disclaimer: This tool is meant strictly for generating valid business invoices. Any misuse, such as fake invoicing or GST fraud, is punishable under the GST Act, 2017 and Bharatiya Nyaya Sanhita (BNS), 2023 (Sections 316 & 333). The user is solely responsible for the accuracy of GSTIN or any missing information; as per Rule 46 of the CGST Rules, furnishing correct invoice details is the supplier's responsibility. We are not liable for any incorrect, fake, or missing GSTIN entered by users.
+          Disclaimer: This tool is meant strictly for generating valid business invoices. Any misuse, such as fake invoicing or GST fraud, is punishable under the GST Act, 2017 and Bharatiya Nyaya Sanhita (BNS), 2023 (Sections 316 & 333). The user is solely responsible for the accuracy of GSTIN or any missing information; as per Rule 46 of the CGST Rules, furnishing correct invoice details is the supplier&apos;s responsibility. We are not liable for any incorrect, fake, or missing GSTIN entered by users.
         </Text>
       </View>
 

@@ -6,6 +6,7 @@ import dbConnect from "@/lib/db-connect";
 import OwnerModel from "@/models/owner";
 import { revalidatePath } from "next/cache";
 import { completeProfileSchema } from "@/schemas/profile/complete-profile";
+import { extractFormData } from "@/utils/common/form-data-helpers";
 
 export async function completeUserProfile(prevState, formData) {
   try {
@@ -20,15 +21,15 @@ export async function completeUserProfile(prevState, formData) {
     }
 
     // Extract form data
-    const rawData = {
-      businessName: formData.get("businessName"),
-      phoneNumber: formData.get("phoneNumber"),
-      localAddress: formData.get("localAddress"),
-      city: formData.get("city"),
-      state: formData.get("state"),
-      country: formData.get("country"),
-      pincode: formData.get("pincode"),
-    };
+    const rawData = extractFormData(formData, [
+      "businessName",
+      "phoneNumber",
+      "localAddress",
+      "city",
+      "state",
+      "country",
+      "pincode",
+    ]);
 
     // Validate the data
     const validation = completeProfileSchema.safeParse(rawData);

@@ -5,8 +5,9 @@ import {
   createRazorpayOrder,
   verifyRazorpaySignature,
 } from "@/lib/razorpay";
-import { getAuthenticatedOwnerDocument } from "@/lib/auth/session-utils";
+import { getAuthenticatedOwnerDocument, getAuthenticatedOwner } from "@/lib/auth/session-utils";
 import { successResponse, errorResponse } from "@/utils/response";
+import { addDaysToDate } from "@/utils/common/date-helpers";
 
 export async function createOrder() {
   await dbConnect();
@@ -69,7 +70,7 @@ export async function verifyPayment({
     }
 
     const planStartDate = new Date();
-    const planEndDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const planEndDate = addDaysToDate(30);
 
     user.plan = {
       planName: "pro",
@@ -114,7 +115,7 @@ export async function updatePlan({ planName }) {
       }
 
       const planStartDate = new Date();
-      const planEndDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      const planEndDate = addDaysToDate(7);
 
       user.plan = {
         planName: "pro-trial",

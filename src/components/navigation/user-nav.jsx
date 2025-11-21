@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {

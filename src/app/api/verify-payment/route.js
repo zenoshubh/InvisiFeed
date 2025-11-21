@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db-connect";
 import OwnerModel from "@/models/owner";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/options";
+import { authOptions } from "@/lib/auth/options";
 import { verifyRazorpaySignature } from "@/lib/razorpay";
 
 export async function POST(req) {

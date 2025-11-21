@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db-connect";
 import OwnerModel from "@/models/owner";
-import { authOptions } from "../auth/[...nextauth]/options";
+import { authOptions } from "@/lib/auth/options";
 import { getServerSession } from "next-auth";
 import { createRazorpayOrder } from "@/lib/razorpay";
 

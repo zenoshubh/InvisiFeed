@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 import dbConnect from "@/lib/db-connect";
 import OwnerModel from "@/models/owner";
+import { addDaysToDate } from "@/utils/common/date-helpers";
 
 export async function updatePlan(planName) {
   try {
@@ -34,7 +35,7 @@ export async function updatePlan(planName) {
       user.plan = {
         planName: "pro-trial",
         planStartDate: new Date(),
-        planEndDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        planEndDate: addDaysToDate(7),
       };
       user.proTrialUsed = true;
     }
@@ -71,7 +72,7 @@ export async function startProTrial() {
     user.plan = {
       planName: "pro-trial",
       planStartDate: new Date(),
-      planEndDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      planEndDate: addDaysToDate(7),
     };
 
     user.proTrialUsed = true;
