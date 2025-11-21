@@ -18,7 +18,6 @@ import { updateProfile } from "@/actions/profile";
 import { deleteAccount } from "@/actions/data-management";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import {
   Form,
   FormControl,
@@ -30,18 +29,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useWatch } from "react-hook-form";
 import { motion } from "motion/react";
-
-const formSchema = z.object({
-  businessName: z.string().min(1, "Business name is required"),
-  phoneNumber: z.string(),
-  address: z.object({
-    country: z.string(),
-    state: z.string(),
-    city: z.string(),
-    localAddress: z.string(),
-    pincode: z.string(),
-  }),
-});
+import { updateProfileSchema as formSchema } from "@/schemas/profile/update-profile";
 
 function UpdateProfilePage() {
   const { data: session, update } = useSession();

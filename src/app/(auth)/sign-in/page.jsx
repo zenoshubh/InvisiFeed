@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import LoadingScreen from "@/components/loading-screen";
+import { authOptions } from "@/lib/auth/options";
+import LoadingScreen from "@/components/common/loading-screen";
 import { Suspense } from "react";
 import SignInClient from "./client";
 

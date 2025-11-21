@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight, Search, Star } from "lucide-react";
-import LoadingScreen from "@/components/loading-screen";
+import LoadingScreen from "@/components/common/loading-screen";
 import Link from "next/link";
 
 export default function ShowInvoicesPage({ params }) {

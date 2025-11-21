@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { X, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter, usePathname } from "next/navigation";
-import LoadingScreen from "./loading-screen";
+import LoadingScreen from "@/components/common/loading-screen";
 import Link from "next/link";
 
 export const SubscriptionPopup = ({ isOpen, onClose }) => {

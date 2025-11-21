@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { authOptions } from "@/lib/auth/options";
 import { getUploadCount } from "@/actions/invoice";
 import InvoiceManagementContainer from "@/components/invoice-management/invoice-management-container";
 

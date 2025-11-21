@@ -223,10 +223,6 @@ const styles = StyleSheet.create({
   },
 });
 
-
-
-
-
 // Create PDF document
 const InvoiceDocument = ({
   invoiceData,
@@ -272,8 +268,6 @@ const InvoiceDocument = ({
     addCoupon: invoiceData.addCoupon || false,
     coupon: invoiceData.coupon || undefined,
   };
-
-
 
   return (
     <Document>
@@ -602,7 +596,7 @@ const InvoiceDocument = ({
             lineHeight: 1.5,
           }}
         >
-          Disclaimer: This tool is meant strictly for generating valid business invoices. Any misuse, such as fake invoicing or GST fraud, is punishable under the GST Act, 2017 and Bharatiya Nyaya Sanhita (BNS), 2023 (Sections 316 & 333). The user is solely responsible for the accuracy of GSTIN or any missing information; as per Rule 46 of the CGST Rules, furnishing correct invoice details is the supplier’s responsibility. We are not liable for any incorrect, fake, or missing GSTIN entered by users.
+          Disclaimer: This tool is meant strictly for generating valid business invoices. Any misuse, such as fake invoicing or GST fraud, is punishable under the GST Act, 2017 and Bharatiya Nyaya Sanhita (BNS), 2023 (Sections 316 & 333). The user is solely responsible for the accuracy of GSTIN or any missing information; as per Rule 46 of the CGST Rules, furnishing correct invoice details is the supplier's responsibility. We are not liable for any incorrect, fake, or missing GSTIN entered by users.
         </Text>
       </View>
 
@@ -657,3 +651,4 @@ export const generateInvoicePdf = async (
     throw error;
   }
 };
+

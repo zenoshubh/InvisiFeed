@@ -1,25 +1,18 @@
 "use server";
 
-import OwnerModel from "@/models/owner";
 import InvoiceModel from "@/models/invoice";
 import dbConnect from "@/lib/db-connect";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getAuthenticatedOwner } from "@/lib/auth/session-utils";
+import { successResponse, errorResponse } from "@/utils/response";
 
 export async function getCoupons() {
   await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-    const username = session?.user?.username;
-
-    if (!username) {
-      return { success: false, message: "Unauthorized" };
+    const ownerResult = await getAuthenticatedOwner();
+    if (!ownerResult.success) {
+      return errorResponse(ownerResult.message);
     }
-
-    const owner = await OwnerModel.findOne({ username });
-    if (!owner) {
-      return { success: false, message: "Owner not found" };
-    }
+    const { owner } = ownerResult;
 
     const invoices = await InvoiceModel.find({ owner: owner._id });
 
@@ -38,16 +31,12 @@ export async function getCoupons() {
         isUsed: invoice.couponAttached.isCouponUsed,
       }));
 
-    return {
-      success: true,
-      message: "Coupons fetched successfully",
-      data: {
-        coupons,
-      },
-    };
+    return successResponse("Coupons fetched successfully", {
+      coupons,
+    });
   } catch (error) {
     console.error("Error fetching coupons:", error);
-    return { success: false, message: "Internal Server Error" };
+    return errorResponse("Internal Server Error");
   }
 }
 

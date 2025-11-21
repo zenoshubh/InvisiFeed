@@ -2,7 +2,6 @@ import OwnerModel from "@/models/owner";
 import InvoiceModel from "@/models/invoice";
 import { deleteFromCloudinary } from "@/lib/cloudinary";
 
-
 export async function deleteOldInvoicePdfs(username) {
   try {
     // Find the owner
@@ -51,7 +50,6 @@ export async function deleteOldInvoicePdfs(username) {
     }
    
 
-
     return { deleted: deletedCount, errors: errorCount };
   } catch (error) {
     console.error("Error in deleteOldInvoicePdfs:", error);
@@ -80,3 +78,4 @@ function extractPublicIdFromUrl(url) {
     return null;
   }
 }
+

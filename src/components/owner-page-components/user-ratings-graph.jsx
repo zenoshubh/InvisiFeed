@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useSession } from "next-auth/react";
+import LoadingState from "@/components/common/loading-state";
+import ErrorState from "@/components/common/error-state";
+import EmptyState from "@/components/common/empty-state";
 
 export default function UserRatingsGraph() {
   const { data: session } = useSession();
@@ -14,63 +15,59 @@ export default function UserRatingsGraph() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchRatings = async () => {
-      try {
-        const { getUserRatings } = await import("@/fetchers/user-ratings");
-        const result = await getUserRatings();
-        if (result.success) {
-          setRatings(result.data);
-        } else {
-          setError(result.message || "Failed to fetch ratings");
-        }
-      } catch (error) {
-        setError("Failed to fetch ratings");
-        console.error("Error fetching ratings:", error);
-      } finally {
-        setLoading(false);
+  const fetchRatings = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const { getUserRatings } = await import("@/fetchers/user-ratings");
+      const result = await getUserRatings();
+      if (result.success) {
+        setRatings(result.data);
+      } else {
+        setError(result.message || "Failed to fetch ratings");
       }
-    };
+    } catch (error) {
+      setError("Failed to fetch ratings");
+      console.error("Error fetching ratings:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if (owner?.username) {
       fetchRatings();
     }
   }, [owner]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="flex items-center space-x-2 text-yellow-400">
-          <Loader2 className="w-6 h-6 animate-spin" />
-          <span>Loading ratings...</span>
-        </div>
-      </div>
-    );
+    return <LoadingState message="Loading ratings..." fullScreen />;
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-400 mb-2">Error</h2>
-          <p className="text-gray-400">{error}</p>
-        </div>
-      </div>
+      <ErrorState
+        title="Error"
+        message={error}
+        fullScreen
+        onRetry={() => {
+          setError(null);
+          setLoading(true);
+          if (owner?.username) {
+            fetchRatings();
+          }
+        }}
+      />
     );
   }
 
   if (!ratings || ratings.totalFeedbacks === 0) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-yellow-400 mb-2">
-            No Ratings Found
-          </h2>
-          <p className="text-gray-400">
-            This business hasn't received any ratings yet.
-          </p>
-        </div>
-      </div>
+      <EmptyState
+        title="No Ratings Found"
+        message="This business hasn't received any ratings yet."
+        fullScreen
+      />
     );
   }
 

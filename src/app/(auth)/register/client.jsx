@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { registerSchema } from "@/schemas/register-schema";
+import { registerSchema } from "@/schemas/auth/register";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { signIn } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import LoadingScreen from "@/components/loading-screen";
+import LoadingScreen from "@/components/common/loading-screen";
 import {
   registerUser,
   checkUsernameAvailability,

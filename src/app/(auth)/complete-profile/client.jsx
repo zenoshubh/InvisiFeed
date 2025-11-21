@@ -12,20 +12,14 @@ import { useRouter } from "next/navigation";
 import { Country, State, City } from "country-state-city";
 import { motion } from "motion/react";
 import { useSession, Session } from "next-auth/react"; // Import Session type
-import * as z from "zod";
-import MobileLogo from "@/components/mobile-logo";
+import MobileLogo from "@/components/layout/mobile-logo";
 import GSTINVerificationDialog from "@/components/owner-page-components/gstin-verification-dialog";
 import {
   completeUserProfile,
   skipProfileCompletion,
 } from "@/actions/auth/profile-management";
-import LoadingScreen from "@/components/loading-screen";
-
-// Simplified client-side schema for form validation only
-const clientFormSchema = z.object({
-  businessName: z.string().min(1, "Business name is required"),
-  phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
-});
+import LoadingScreen from "@/components/common/loading-screen";
+import { clientFormSchema } from "@/schemas/profile/complete-profile";
 
 function ProfileCompletionForm({ initialSession }) {
   // ✅ Move ALL hooks to the top first

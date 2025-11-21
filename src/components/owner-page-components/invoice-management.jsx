@@ -16,7 +16,7 @@ import {
   Send,
 } from "lucide-react";
 import { toast } from "sonner";
-import ConfirmModal from "@/components/confirm-modal";
+import ConfirmModal from "@/components/modals/confirm-modal";
 import CreateInvoiceForm from "./create-invoice-form";
 import CompleteProfileDialog from "./complete-profile-dialog";
 import axios from "axios";

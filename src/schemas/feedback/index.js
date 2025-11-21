@@ -6,3 +6,4 @@ export const feedbackSchema = z.object({
     .min(10, { message: "Content must be at least 10 characters" })
     .max(300, { message: "Content must be no longer than 300 characters" }),
 });
+

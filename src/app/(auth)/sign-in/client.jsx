@@ -14,13 +14,13 @@ import {
 } from "@/components/ui/form"; // UI components for form
 import { Input } from "@/components/ui/input"; // Input component
 import { Button } from "@/components/ui/button"; // Button component
-import { signInSchema } from "@/schemas/signin-schema";
+import { signInSchema } from "@/schemas/auth/signin";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
-import MobileLogo from "@/components/mobile-logo";
-import LoadingScreen from "@/components/loading-screen";
+import MobileLogo from "@/components/layout/mobile-logo";
+import LoadingScreen from "@/components/common/loading-screen";
 
 function SignInClient() {
   const [isSubmitting, setIsSubmitting] = useState(false);

@@ -1,55 +1,14 @@
 "use server";
 
-import OwnerModel from "@/models/owner";
 import dbConnect from "@/lib/db-connect";
 import crypto from "crypto";
-import { generateInvoicePdf } from "@/utils/pdf-generator";
+import { generateInvoicePdf } from "@/utils/pdf";
 import InvoiceModel from "@/models/invoice";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { uploadToCloudinary } from "@/lib/cloudinary";
-
-function validateCouponData(couponData) {
-  if (!couponData) return null;
-
-  couponData = JSON.parse(couponData);
-  // Required fields validation
-  if (!couponData.code || typeof couponData.code !== "string") {
-    throw new Error("Invalid coupon code ");
-  }
-  if (couponData.code.includes(" ")) {
-    throw new Error("Coupon code must not contain spaces");
-  }
-  if (!couponData.description || typeof couponData.description !== "string") {
-    throw new Error("Invalid coupon description ");
-  }
-
-  // Length validations
-  if (couponData.code.length < 3 || couponData.code.length > 10) {
-    throw new Error("Coupon code must be between 3 and 10 characters");
-  }
-
-  if (
-    couponData.description.length < 10 ||
-    couponData.description.length > 200
-  ) {
-    throw new Error("Coupon description must be between 10 and 200 characters");
-  }
-
-  // Expiry days validation
-  if (couponData.expiryDays < 1 || couponData.expiryDays > 365) {
-    throw new Error("Expiry days must be between 1 and 365");
-  }
-
-  // Format validations
-  if (!/^[A-Z0-9]+$/.test(couponData.code)) {
-    throw new Error(
-      "Coupon code must contain only uppercase letters and numbers"
-    );
-  }
-
-  return true;
-}
+import { getAuthenticatedOwnerDocument } from "@/lib/auth/session-utils";
+import { validateCouponData } from "@/schemas/coupon";
+import { checkDailyUploadLimit, incrementDailyUploadCount } from "@/utils/invoice/upload-limit";
+import { successResponse, errorResponse } from "@/utils/response";
 
 export async function createInvoice(invoiceData) {
   try {
@@ -57,74 +16,29 @@ export async function createInvoice(invoiceData) {
 
     const { customerName, customerEmail } = invoiceData;
 
+    // Validate coupon data if provided
     let couponData = invoiceData.coupon;
-
-    if (invoiceData.addCoupon) {
-      try {
-        couponData = JSON.stringify(couponData);
-        // Validate coupon data against schema
-        validateCouponData(couponData);
-      } catch (error) {
-        console.error(error);
-        return {
-          success: false,
-          message: `Invalid coupon data: ${error.message}`,
-        };
+    if (invoiceData.addCoupon && couponData) {
+      const couponValidation = validateCouponData(couponData);
+      if (!couponValidation.success) {
+        return errorResponse(`Invalid coupon data: ${couponValidation.message}`);
       }
+      couponData = couponValidation.data;
     }
 
-    const session = await getServerSession(authOptions);
-    const username = session?.user?.username;
-
-    if (!username) {
-      return { success: false, message: "Unauthorized" };
+    // Get authenticated owner
+    const ownerResult = await getAuthenticatedOwnerDocument();
+    if (!ownerResult.success) {
+      return errorResponse(ownerResult.message);
     }
-
-    // Find owner
-    const owner = await OwnerModel.findOne({ username });
-    if (!owner) {
-      return { success: false, message: "Business not found" };
-    }
+    const { owner, username } = ownerResult;
 
     // Check daily upload limit
-    const now = new Date();
-    const lastReset = new Date(owner.uploadedInvoiceCount.lastDailyReset);
-    const hoursSinceLastReset = (now - lastReset) / (1000 * 60 * 60);
-    const timeLeft = 24 - hoursSinceLastReset;
-    const hoursLeft = Math.ceil(timeLeft);
-
-    // Reset daily uploads if 24 hours have passed
-    if (hoursSinceLastReset >= 24) {
-      owner.uploadedInvoiceCount.dailyUploadCount = 0;
-      owner.uploadedInvoiceCount.lastDailyReset = now;
-    }
-
-    const isProPlan =
-      owner?.plan?.planName === "pro" && owner?.plan?.planEndDate > new Date();
-
-    if (isProPlan) {
-      if (owner.uploadedInvoiceCount.dailyUploadCount >= 10) {
-        return {
-          success: false,
-          message: `Daily upload limit reached. Please try again after ${hoursLeft} hours.`,
-          data: {
-            timeLeft: hoursLeft,
-          },
-        };
-      }
-    }
-
-    // Check if daily limit reached for free plan and pro-trial plan
-    if (!isProPlan) {
-      if (owner.uploadedInvoiceCount.dailyUploadCount >= 3) {
-        return {
-          success: false,
-          message: `Daily upload limit reached. Please try again after ${hoursLeft} hours. Upgrade to pro plan to increase daily upload limit`,
-          data: {
-            timeLeft: hoursLeft,
-          },
-        };
-      }
+    const limitCheck = await checkDailyUploadLimit(owner);
+    if (!limitCheck.success) {
+      return errorResponse(limitCheck.message, {
+        timeLeft: limitCheck.timeLeft,
+      });
     }
 
     // Generate invoice number if not provided
@@ -138,7 +52,7 @@ export async function createInvoice(invoiceData) {
     });
 
     if (existedInvoice) {
-      return { success: false, message: "Invoice number already exists" };
+      return errorResponse("Invoice number already exists");
     }
 
     // Generate QR code
@@ -150,7 +64,7 @@ export async function createInvoice(invoiceData) {
     let modifiedCouponCodeforURL = null;
     let dbCouponCode = null;
     const expiryDate = new Date();
-    if (invoiceData.addCoupon && invoiceData.coupon) {
+    if (invoiceData.addCoupon && couponData) {
       // Generate 4 random characters
       const randomChars = Array.from(
         { length: 4 },
@@ -158,14 +72,11 @@ export async function createInvoice(invoiceData) {
       ).join("");
 
       // Modify coupon code by adding random chars at start and invoice count
-      dbCouponCode = `${invoiceData.coupon.code.trim()}${
-        (await InvoiceModel.countDocuments({})) + 1
-      }`;
-      modifiedCouponCodeforURL = `${randomChars}${invoiceData.coupon.code.trim()}${
-        (await InvoiceModel.countDocuments({})) + 1
-      }`;
+      const invoiceCount = (await InvoiceModel.countDocuments({})) + 1;
+      dbCouponCode = `${couponData.couponCode.trim()}${invoiceCount}`;
+      modifiedCouponCodeforURL = `${randomChars}${couponData.couponCode.trim()}${invoiceCount}`;
       expiryDate.setDate(
-        expiryDate.getDate() + Number(invoiceData.coupon.expiryDays)
+        expiryDate.getDate() + Number(couponData.expiryDays)
       );
 
       qrData += `&cpcd=${modifiedCouponCodeforURL}`;
@@ -227,10 +138,10 @@ export async function createInvoice(invoiceData) {
       },
       mergedPdfUrl: uploadResponse.secure_url,
       AIuseCount: 0,
-      couponAttached: invoiceData.addCoupon
+      couponAttached: invoiceData.addCoupon && couponData
         ? {
             couponCode: dbCouponCode,
-            couponDescription: invoiceData.coupon.description.trim(),
+            couponDescription: couponData.description.trim(),
             couponExpiryDate: expiryDate,
             isCouponUsed: false,
           }
@@ -239,28 +150,22 @@ export async function createInvoice(invoiceData) {
 
     await newInvoice.save();
 
-    // Update upload counts
-    owner.uploadedInvoiceCount.dailyUploadCount += 1;
+    // Increment daily upload count
+    const uploadCountResult = await incrementDailyUploadCount(owner);
 
-    await owner.save();
-
-    return {
-      success: true,
-      message: "Invoice created successfully",
-      data: {
-        url: uploadResponse.secure_url,
-        customerName: customerName,
-        customerEmail: customerEmail,
-        customerAmount: grandTotal,
-        invoiceNumber: invoiceNumber,
-        feedbackUrl: qrData,
-        dailyUploadCount: owner.uploadedInvoiceCount.dailyUploadCount,
-        timeLeft: hoursLeft,
-      },
-    };
+    return successResponse("Invoice created successfully", {
+      url: uploadResponse.secure_url,
+      customerName: customerName,
+      customerEmail: customerEmail,
+      customerAmount: grandTotal,
+      invoiceNumber: invoiceNumber,
+      feedbackUrl: qrData,
+      dailyUploadCount: uploadCountResult.dailyUploadCount,
+      dailyLimit: uploadCountResult.dailyLimit,
+    });
   } catch (error) {
     console.error("Error creating invoice:", error);
-    return { success: false, message: "Failed to create invoice" };
+    return errorResponse("Failed to create invoice");
   }
 }
 

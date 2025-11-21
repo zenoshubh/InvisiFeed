@@ -12,9 +12,9 @@ import InvoiceDisplaySection from "./invoice-display-section";
 import CreateInvoiceModal from "./create-invoice-modal";
 import CouponFormModal from "./coupon-form-modal";
 import SampleInvoicesModal from "./sample-invoices-modal";
-import ConfirmModal from "@/components/confirm-modal";
+import ConfirmModal from "@/components/modals/confirm-modal";
 import CompleteProfileDialog from "@/components/owner-page-components/complete-profile-dialog";
-import { SubscriptionPopup } from "@/components/subscription-popup";
+import { SubscriptionPopup } from "@/components/modals/subscription-popup";
 
 export default function InvoiceManagementContainer({ initialData }) {
   const {

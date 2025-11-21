@@ -1,11 +1,11 @@
 "use server";
 
 import dbConnect from "@/lib/db-connect";
-import OwnerModel from "@/models/owner";
 import FeedbackModel from "@/models/feedback";
 import InvoiceModel from "@/models/invoice";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getAuthenticatedOwner } from "@/lib/auth/session-utils";
+import { getPaginationParams, buildSortObject, SORT_CONFIGS, buildPaginationResponse } from "@/utils/pagination";
+import { successResponse, errorResponse } from "@/utils/response";
 
 export async function getFeedbacks({
   page = 1,
@@ -15,51 +15,26 @@ export async function getFeedbacks({
   await dbConnect();
 
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return { success: false, message: "Unauthorized" };
+    const ownerResult = await getAuthenticatedOwner();
+    if (!ownerResult.success) {
+      return errorResponse(ownerResult.message);
     }
-
-    const username = session?.user?.username;
-
-    const owner = await OwnerModel.findOne({ username });
-
-    if (!owner) {
-      return { success: false, message: "Business not found" };
-    }
+    const { owner } = ownerResult;
 
     // Get total count for pagination
     const totalFeedbacks = await FeedbackModel.countDocuments({
       givenTo: owner._id,
     });
-    const totalPages = Math.ceil(totalFeedbacks / limit);
-    const startIndex = (page - 1) * limit;
 
-    // Build sort object
-    let sortObject = {};
-    switch (sortBy) {
-      case "newest":
-        sortObject = { createdAt: -1 };
-        break;
-      case "oldest":
-        sortObject = { createdAt: 1 };
-        break;
-      case "highest":
-        sortObject = { overAllRating: -1 };
-        break;
-      case "lowest":
-        sortObject = { overAllRating: 1 };
-        break;
-      default:
-        sortObject = { createdAt: -1 };
-    }
+    // Get pagination params and sort object
+    const { skip, limit: limitNum } = getPaginationParams(page, limit);
+    const sortObject = buildSortObject(sortBy, SORT_CONFIGS.feedbacks);
 
     // Get paginated feedbacks with customer details
     const feedbacks = await FeedbackModel.find({ givenTo: owner._id })
       .sort(sortObject)
-      .skip(startIndex)
-      .limit(limit)
+      .skip(skip)
+      .limit(limitNum)
       .lean();
 
     // Populate customer details for each feedback
@@ -93,21 +68,13 @@ export async function getFeedbacks({
       })
     );
 
-    return {
-      success: true,
-      message: "Feedbacks retrieved successfully",
-      data: {
-        feedbacks: feedbacksWithDetails,
-        totalFeedbacks,
-        totalPages,
-        currentPage: page,
-        hasNextPage: page < totalPages,
-        hasPrevPage: page > 1,
-      },
-    };
+    return successResponse("Feedbacks retrieved successfully", {
+      feedbacks: feedbacksWithDetails,
+      ...buildPaginationResponse(feedbacksWithDetails, totalFeedbacks, page, limit),
+    });
   } catch (error) {
     console.error("Error fetching feedbacks:", error);
-    return { success: false, message: error.message || "Failed to fetch feedbacks" };
+    return errorResponse(error.message || "Failed to fetch feedbacks");
   }
 }
 

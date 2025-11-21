@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
-import * as z from "zod";
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -17,32 +16,13 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
-import MobileLogo from "@/components/mobile-logo";
+import MobileLogo from "@/components/layout/mobile-logo";
 import ResetPasswordLeftSection from "@/components/auth/reset-password-left-section";
 import {
   sendPasswordResetEmail,
   resetUserPassword,
 } from "@/actions/auth/password-management";
-// Validation schemas for each step
-const emailSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-});
-
-const passwordSchema = z
-  .object({
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-        "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character"
-      ),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+import { emailSchema, passwordSchema } from "@/schemas/auth/password";
 
 export default function ForgotPassword() {
   const [step, setStep] = useState(1);

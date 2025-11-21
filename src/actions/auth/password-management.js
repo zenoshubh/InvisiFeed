@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dbConnect from "@/lib/db-connect";
 import OwnerModel from "@/models/owner";
-import sendEmail from "@/utils/nodemailer-utility";
+import sendEmail from "@/utils/email/nodemailer-utility";
 
 export async function sendPasswordResetEmail(email) {
   try {

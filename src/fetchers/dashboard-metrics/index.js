@@ -3,9 +3,9 @@
 import dbConnect from "@/lib/db-connect";
 import FeedbackModel from "@/models/feedback";
 import InvoiceModel from "@/models/invoice";
-import OwnerModel from "@/models/owner";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getAuthenticatedOwner } from "@/lib/auth/session-utils";
+import { checkIsProPlan } from "@/utils/invoice/upload-limit";
+import { successResponse, errorResponse } from "@/utils/response";
 import {
   METRICS,
   calculateAverageRatings,
@@ -20,7 +20,7 @@ import {
   groupByMonth,
   calculateAverageResponseTime,
   groupSalesByDate,
-} from "@/utils/dashboard-utility";
+} from "@/utils/dashboard";
 
 export async function getDashboardMetrics({
   salesYear,
@@ -30,18 +30,11 @@ export async function getDashboardMetrics({
 }) {
   await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return { success: false, message: "Unauthorized" };
+    const ownerResult = await getAuthenticatedOwner();
+    if (!ownerResult.success) {
+      return errorResponse(ownerResult.message);
     }
-
-    const username = session?.user?.username;
-    const owner = await OwnerModel.findOne({ username });
-
-    if (!owner) {
-      return { success: false, message: "Business not found" };
-    }
+    const { owner } = ownerResult;
 
     const invoices = await InvoiceModel.find({ owner: owner._id });
     const totalSales = getTotalSales(invoices);
@@ -50,10 +43,8 @@ export async function getDashboardMetrics({
     const totalInvoices = invoices.length;
 
     // Get sales data based on sales view type
-    const isProPlan =
-      (owner?.plan?.planName === "pro" ||
-        owner?.plan?.planName === "pro-trial") &&
-      owner?.plan?.planEndDate > new Date();
+    const isProPlan = checkIsProPlan(owner) || 
+      (owner?.plan?.planName === "pro-trial" && owner?.plan?.planEndDate > new Date());
 
     let salesData = [];
 
@@ -164,10 +155,7 @@ export async function getDashboardMetrics({
       ].sort((a, b) => b - a);
     }
 
-    return {
-      success: true,
-      message: "Dashboard metrics retrieved successfully",
-      data: {
+    return successResponse("Dashboard metrics retrieved successfully", {
         feedbackRatio,
         averageOverallRating: averageRatings.overAllRating,
         totalFeedbacks,
@@ -189,10 +177,9 @@ export async function getDashboardMetrics({
         availableYearsForFeedbacks: isProPlan ? availableYearsForFeedbacks : [],
         averageResponseTime,
         salesData: isProPlan ? salesData : [],
-      },
-    };
+      });
   } catch (error) {
     console.error("Error getting dashboard metrics:", error);
-    return { success: false, message: "Internal server error" };
+    return errorResponse("Internal server error");
   }
 }

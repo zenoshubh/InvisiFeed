@@ -5,8 +5,8 @@ import { motion } from "motion/react";
 import { Check, ArrowRight } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-import ConfirmModal from "../confirm-modal";
-import LoadingScreen from "../loading-screen";
+import ConfirmModal from "@/components/modals/confirm-modal";
+import LoadingScreen from "@/components/common/loading-screen";
 import { useRouter } from "next/navigation";
 import {
   createOrder,

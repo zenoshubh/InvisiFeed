@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "motion/react";
-import UserNav from "../user-nav";
+import UserNav from "@/components/navigation/user-nav";
 
 export default function NavbarClient({ children }) {
   const { data: session, status } = useSession();

@@ -20,9 +20,9 @@ import {
   Receipt,
 } from "lucide-react";
 import GSTINVerificationDialog from "@/components/owner-page-components/gstin-verification-dialog";
-import LoadingScreen from "./loading-screen";
+import LoadingScreen from "@/components/common/loading-screen";
 import { MdMoney } from "react-icons/md";
-import { SubscriptionPopup } from "./subscription-popup";
+import { SubscriptionPopup } from "@/components/modals/subscription-popup";
 import { Lock } from "lucide-react";
 import Link from "next/link";
 

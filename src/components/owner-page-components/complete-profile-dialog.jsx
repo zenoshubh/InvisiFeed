@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
 import { useSession } from "next-auth/react";
-import LoadingScreen from "../loading-screen";
+import LoadingScreen from "@/components/common/loading-screen";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 

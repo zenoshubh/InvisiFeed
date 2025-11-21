@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/db-connect";
 import OwnerModel from "@/models/owner";
 import DeletedAccountModel from "@/models/deleted-account";
-import { deleteOldInvoicePdfs } from "@/utils/delete-old-invoices-from-cloudinary";
+import { deleteOldInvoicePdfs } from "@/utils/invoice/delete-old-invoices";
 
 export async function handleGoogleSignIn(user, profile) {
   try {

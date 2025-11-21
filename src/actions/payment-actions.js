@@ -1,34 +1,26 @@
 "use server";
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import dbConnect from "@/lib/db-connect";
-import OwnerModel from "@/models/owner";
-import crypto from "crypto";
 import {
   createRazorpayOrder,
   verifyRazorpaySignature,
 } from "@/lib/razorpay";
+import { getAuthenticatedOwnerDocument } from "@/lib/auth/session-utils";
+import { successResponse, errorResponse } from "@/utils/response";
 
 export async function createOrder() {
   await dbConnect();
 
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return { success: false, message: "Unauthorized" };
+    const ownerResult = await getAuthenticatedOwnerDocument();
+    if (!ownerResult.success) {
+      return errorResponse(ownerResult.message);
     }
-
-    const user = await OwnerModel.findById(session.user.id);
-
-    if (!user) {
-      return { success: false, message: "User not found" };
-    }
+    const { owner: user } = ownerResult;
 
     // Check if user already has a pro plan
     if (user.plan?.planName === "pro") {
-      return { success: false, message: "User already has a Pro plan" };
+      return errorResponse("User already has a Pro plan");
     }
 
     const amount = process.env.SUBSCRIPTION_AMOUNT;
@@ -42,19 +34,12 @@ export async function createOrder() {
 
     const order = await createRazorpayOrder(options);
 
-    return {
-      success: true,
-      message: "Order created successfully",
-      data: {
-        order,
-      },
-    };
+    return successResponse("Order created successfully", {
+      order,
+    });
   } catch (error) {
     console.error("Error creating order:", error);
-    return {
-      success: false,
-      message: "Failed to create order",
-    };
+    return errorResponse("Failed to create order");
   }
 }
 
@@ -66,11 +51,11 @@ export async function verifyPayment({
   await dbConnect();
 
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return { success: false, message: "Unauthorized" };
+    const ownerResult = await getAuthenticatedOwnerDocument();
+    if (!ownerResult.success) {
+      return errorResponse(ownerResult.message);
     }
+    const { owner: user } = ownerResult;
 
     // Verify payment signature
     const isValid = verifyRazorpaySignature(
@@ -80,14 +65,7 @@ export async function verifyPayment({
     );
 
     if (!isValid) {
-      return { success: false, message: "Invalid payment signature" };
-    }
-
-    // Update user plan
-    const user = await OwnerModel.findById(session.user.id);
-
-    if (!user) {
-      return { success: false, message: "User not found" };
+      return errorResponse("Invalid payment signature");
     }
 
     const planStartDate = new Date();
@@ -101,9 +79,7 @@ export async function verifyPayment({
 
     await user.save();
 
-    return {
-      success: true,
-      message: "Payment verified successfully",
+    return successResponse("Payment verified successfully", {
       user: {
         plan: {
           planName: user.plan.planName,
@@ -111,13 +87,10 @@ export async function verifyPayment({
           planEndDate: planEndDate.toISOString(),
         },
       },
-    };
+    });
   } catch (error) {
     console.error("Error verifying payment:", error);
-    return {
-      success: false,
-      message: "Failed to verify payment",
-    };
+    return errorResponse("Failed to verify payment");
   }
 }
 
@@ -125,25 +98,19 @@ export async function updatePlan({ planName }) {
   await dbConnect();
 
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return { success: false, message: "Unauthorized" };
+    const ownerResult = await getAuthenticatedOwnerDocument();
+    if (!ownerResult.success) {
+      return errorResponse(ownerResult.message);
     }
-
-    const user = await OwnerModel.findById(session.user.id);
-
-    if (!user) {
-      return { success: false, message: "User not found" };
-    }
+    const { owner: user } = ownerResult;
 
     if (planName === "pro-trial") {
       if (user.proTrialUsed) {
-        return { success: false, message: "Pro trial already used" };
+        return errorResponse("Pro trial already used");
       }
 
       if (user.plan?.planName === "pro-trial") {
-        return { success: false, message: "User already has a Pro trial" };
+        return errorResponse("User already has a Pro trial");
       }
 
       const planStartDate = new Date();
@@ -158,9 +125,7 @@ export async function updatePlan({ planName }) {
 
       await user.save();
 
-      return {
-        success: true,
-        message: "Successfully switched to Pro trial plan",
+      return successResponse("Successfully switched to Pro trial plan", {
         user: {
           plan: {
             planName: user.plan.planName,
@@ -169,16 +134,13 @@ export async function updatePlan({ planName }) {
           },
           proTrialUsed: user.proTrialUsed,
         },
-      };
+      });
     }
 
-    return { success: false, message: "Invalid plan name" };
+    return errorResponse("Invalid plan name");
   } catch (error) {
     console.error("Error updating plan:", error);
-    return {
-      success: false,
-      message: "Failed to update plan",
-    };
+    return errorResponse("Failed to update plan");
   }
 }
 
@@ -186,22 +148,13 @@ export async function getUserPlan() {
   await dbConnect();
 
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return { success: false, message: "Unauthorized" };
+    const ownerResult = await getAuthenticatedOwner();
+    if (!ownerResult.success) {
+      return errorResponse(ownerResult.message);
     }
+    const { owner: user } = ownerResult;
 
-    const user = await OwnerModel.findById(session.user.id).select(
-      "plan proTrialUsed businessName email phoneNumber"
-    );
-
-    if (!user) {
-      return { success: false, message: "User not found" };
-    }
-
-    return {
-      success: true,
+    return successResponse("User plan retrieved successfully", {
       user: {
         plan: user.plan
           ? {
@@ -215,12 +168,9 @@ export async function getUserPlan() {
         email: user.email,
         phoneNumber: user.phoneNumber,
       },
-    };
+    });
   } catch (error) {
     console.error("Error getting user plan:", error);
-    return {
-      success: false,
-      message: "Failed to get user plan",
-    };
+    return errorResponse("Failed to get user plan");
   }
 }

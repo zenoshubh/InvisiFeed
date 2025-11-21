@@ -1,89 +1,44 @@
 import { NextResponse } from "next/server";
-import OwnerModel from "@/models/owner";
 import dbConnect from "@/lib/db-connect";
 import crypto from "crypto";
 import { extractInvoiceNumberFromPdf } from "@/utils/upload-invoice-utils/extract-invoice-number";
 import { generateQrPdf } from "@/utils/upload-invoice-utils/generate-qr-pdf";
 import { mergePdfs } from "@/utils/upload-invoice-utils/merge-pdfs";
 import InvoiceModel from "@/models/invoice";
-import { authOptions } from "../auth/[...nextauth]/options";
-import { getServerSession } from "next-auth";
 import { uploadToCloudinary } from "@/lib/cloudinary";
-
-// Validate coupon data against schema
-function validateCouponData(couponData) {
-  if (!couponData) return null;
-
-  // Required fields validation
-  if (!couponData.couponCode || typeof couponData.couponCode !== "string") {
-    throw new Error("Invalid coupon code format");
-  }
-
-  if (couponData.couponCode.includes(" ")) {
-    throw new Error("Coupon code must not contain spaces");
-  }
-
-  if (!couponData.description || typeof couponData.description !== "string") {
-    throw new Error("Invalid coupon description format");
-  }
-
-  // Length validations
-  if (couponData.couponCode.length < 3 || couponData.couponCode.length > 10) {
-    throw new Error("Coupon code must be between 3 and 10 characters");
-  }
-
-  if (
-    couponData.description.length < 10 ||
-    couponData.description.length > 200
-  ) {
-    throw new Error("Coupon description must be between 10 and 200 characters");
-  }
-
-  // Expiry days validation
-  if (couponData.expiryDays < 1 || couponData.expiryDays > 365) {
-    throw new Error("Expiry days must be between 1 and 365");
-  }
-
-  // Format validations
-  if (!/^[A-Z0-9]+$/.test(couponData.couponCode)) {
-    throw new Error(
-      "Coupon code must contain only uppercase letters and numbers"
-    );
-  }
-
-  return true;
-}
+import { getAuthenticatedOwnerDocument } from "@/lib/auth/session-utils";
+import { parseAndValidateCouponData } from "@/schemas/coupon";
+import { checkDailyUploadLimit, incrementDailyUploadCount } from "@/utils/invoice/upload-limit";
 
 export async function POST(req) {
   await dbConnect();
 
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
+    // Get authenticated owner
+    const ownerResult = await getAuthenticatedOwnerDocument();
+    if (!ownerResult.success) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized" },
+        { success: false, message: ownerResult.message },
         { status: 401 }
       );
     }
+    const { owner, username } = ownerResult;
 
     const formData = await req.formData();
     const file = formData.get("file");
-    const username = session?.user?.username;
     const couponDataStr = formData.get("couponData");
 
+    // Validate coupon data if provided
     let couponData = null;
     if (couponDataStr) {
-      try {
-        couponData = JSON.parse(couponDataStr);
-        // Validate coupon data against schema
-        validateCouponData(couponData);
-      } catch (error) {
+      const couponValidation = parseAndValidateCouponData(couponDataStr);
+      if (!couponValidation.success) {
         return NextResponse.json(
-          { success: false, message: `Invalid coupon data: ${error.message}` },
+          { success: false, message: `Invalid coupon data: ${couponValidation.message}` },
           { status: 400 }
         );
       }
+      couponData = couponValidation.data;
     }
 
     if (!file) {
@@ -93,55 +48,17 @@ export async function POST(req) {
       );
     }
 
-    // Check owner exists or not
-    const owner = await OwnerModel.findOne({ username });
-    if (!owner) {
-      return NextResponse.json(
-        { success: false, message: "Owner not found" },
-        { status: 404 }
-      );
-    }
-
     // Check daily upload limit
-    const now = new Date();
-    const lastReset = new Date(owner.uploadedInvoiceCount.lastDailyReset);
-    const hoursSinceLastReset = (now - lastReset) / (1000 * 60 * 60);
-    const timeLeft = 24 - hoursSinceLastReset;
-    const hoursLeft = Math.ceil(timeLeft);
-
-    // Reset daily uploads if 24 hours have passed
-    if (hoursSinceLastReset >= 24) {
-      owner.uploadedInvoiceCount.dailyUploadCount = 0;
-      owner.uploadedInvoiceCount.lastDailyReset = now;
-    }
-
-    // Check if daily limit reached
-    const isProPlan =
-      owner?.plan?.planName === "pro" && owner?.plan?.planEndDate > new Date();
-    if (isProPlan) {
-      if (owner.uploadedInvoiceCount.dailyUploadCount >= 10) {
-        return NextResponse.json(
-          {
-            success: false,
-            message: `Daily upload limit reached. Please try again after ${hoursLeft} hours.`,
-            timeLeft: hoursLeft,
-          },
-          { status: 429 }
-        );
-      }
-    }
-
-    if (!isProPlan) {
-      if (owner.uploadedInvoiceCount.dailyUploadCount >= 3) {
-        return NextResponse.json(
-          {
-            success: false,
-            message: `Daily upload limit reached. Please try again after ${hoursLeft} hours. Upgrade to pro plan to increase daily upload limit`,
-            timeLeft: hoursLeft,
-          },
-          { status: 429 }
-        );
-      }
+    const limitCheck = await checkDailyUploadLimit(owner);
+    if (!limitCheck.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: limitCheck.message,
+          timeLeft: limitCheck.timeLeft,
+        },
+        { status: 429 }
+      );
     }
 
     const invoiceData = await extractInvoiceNumberFromPdf(file);
@@ -248,10 +165,8 @@ export async function POST(req) {
 
     await newInvoice.save();
 
-    // Update upload counts
-    owner.uploadedInvoiceCount.dailyUploadCount += 1;
-
-    await owner.save();
+    // Increment daily upload count
+    const uploadCountResult = await incrementDailyUploadCount(owner);
 
     return NextResponse.json(
       {
@@ -266,8 +181,8 @@ export async function POST(req) {
             ? parseFloat(invoiceData.totalAmount).toFixed(2)
             : null,
         feedbackUrl,
-        dailyUploadCount: owner.uploadedInvoiceCount.dailyUploadCount,
-        timeLeft: hoursLeft,
+        dailyUploadCount: uploadCountResult.dailyUploadCount,
+        dailyLimit: uploadCountResult.dailyLimit,
       },
       { status: 200 }
     );

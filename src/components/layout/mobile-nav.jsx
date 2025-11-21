@@ -15,7 +15,7 @@ import {
   Gem,
   Mail,
 } from "lucide-react";
-import LoadingScreen from "./loading-screen";
+import LoadingScreen from "@/components/common/loading-screen";
 import { MdMoney } from "react-icons/md";
 import Link from "next/link";
 

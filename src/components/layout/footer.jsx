@@ -12,8 +12,8 @@ import {
   Github,
   Coffee,
 } from "lucide-react";
-import SocialMediaPopup from "./social-media-popup";
-import LoadingScreen from "./loading-screen"; // Import the loading screen
+import SocialMediaPopup from "@/components/modals/social-media-popup";
+import LoadingScreen from "@/components/common/loading-screen";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 

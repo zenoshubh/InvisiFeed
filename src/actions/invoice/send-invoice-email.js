@@ -1,8 +1,8 @@
 "use server";
 
-import sendInvoiceToMail from "@/utils/send-invoice-to-mail";
+import sendInvoiceToMail from "@/utils/email/send-invoice-to-mail";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { authOptions } from "@/lib/auth/options";
 
 export async function sendInvoiceEmail({
   customerEmail,

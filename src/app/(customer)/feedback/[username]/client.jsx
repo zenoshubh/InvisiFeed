@@ -32,7 +32,7 @@ import {
   generateSuggestionsWithAI,
   submitFeedback,
 } from "@/actions/feedback";
-import LoadingScreen from "@/components/loading-screen";
+import LoadingScreen from "@/components/common/loading-screen";
 
 const emojiOptions = [
   { value: 1, emoji: <BsEmojiAngryFill />, label: "Very Dissatisfied" },

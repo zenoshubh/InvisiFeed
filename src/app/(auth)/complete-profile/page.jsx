@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth"; // Import from your next-auth config
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { authOptions } from "@/lib/auth/options";
 import ProfileCompletionForm from "./client"; // Client boundary
-import LoadingScreen from "@/components/loading-screen";
+import LoadingScreen from "@/components/common/loading-screen";
 import { Suspense } from "react";
 
 export default async function CompleteProfilePage() {

@@ -6,12 +6,13 @@ import { getFeedbacks } from "@/fetchers/feedbacks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Loader2,
-  ChevronLeft,
-  ChevronRight,
   Star,
   ArrowUpDown,
 } from "lucide-react";
+import LoadingState from "@/components/common/loading-state";
+import ErrorState from "@/components/common/error-state";
+import EmptyState from "@/components/common/empty-state";
+import PaginationControls from "@/components/common/pagination-controls";
 import { motion } from "motion/react";
 import { format } from "date-fns";
 import {
@@ -134,24 +135,20 @@ const CustomerFeedbacks = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="flex items-center space-x-2 text-yellow-400">
-          <Loader2 className="w-6 h-6 animate-spin" />
-          <span>Loading feedbacks...</span>
-        </div>
-      </div>
-    );
+    return <LoadingState message="Loading feedbacks..." fullScreen />;
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-400 mb-2">Error</h2>
-          <p className="text-gray-400">{error}</p>
-        </div>
-      </div>
+      <ErrorState
+        title="Error"
+        message={error}
+        fullScreen
+        onRetry={() => {
+          setError(null);
+          fetchFeedbacks(currentPage);
+        }}
+      />
     );
   }
 
@@ -159,16 +156,11 @@ const CustomerFeedbacks = () => {
     <div className="min-h-screen bg-[#0A0A0A] py-8 px-4">
       <div className="max-w-6xl mx-auto">
         {feedbacks.length === 0 ? (
-          <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-yellow-400 mb-2">
-                No Feedbacks Found
-              </h2>
-              <p className="text-gray-400">
-                This business hasn't received any feedbacks yet.
-              </p>
-            </div>
-          </div>
+          <EmptyState
+            title="No Feedbacks Found"
+            message="This business hasn't received any feedbacks yet."
+            fullScreen
+          />
         ) : (
           <>
             <div className="flex justify-between items-center mb-6">
@@ -301,27 +293,14 @@ const CustomerFeedbacks = () => {
               ))}
             </div>
 
-            <div className="flex justify-center items-center space-x-4 mt-8">
-              <Button
-                variant="outline"
-                onClick={handlePrevPage}
-                disabled={!hasPrevPage}
-                className="border-yellow-400/20 bg-gradient-to-r from-yellow-500 to-yellow-400 text-white hover:from-yellow-600 hover:to-yellow-500 transition-all duration-200 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30"
-              >
-                <ChevronLeft className="w-4 h-4 m-1" />
-              </Button>
-              <span className="text-gray-400">
-                Page {currentPage} of {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                onClick={handleNextPage}
-                disabled={!hasNextPage}
-                className="border-yellow-400/20 bg-gradient-to-r from-yellow-500 to-yellow-400 text-white hover:from-yellow-600 hover:to-yellow-500 transition-all duration-200 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30"
-              >
-                <ChevronRight className="w-4 h-4 m-1" />
-              </Button>
-            </div>
+            <PaginationControls
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              hasNextPage={hasNextPage}
+              hasPrevPage={hasPrevPage}
+              className="mt-8"
+            />
           </>
         )}
       </div>

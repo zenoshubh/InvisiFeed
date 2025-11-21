@@ -12,7 +12,7 @@ import { getCoupons } from "@/fetchers/coupons";
 import { deleteCoupon } from "@/actions/coupon";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import LoadingScreen from "@/components/loading-screen";
+import LoadingScreen from "@/components/common/loading-screen";
 import Link from "next/link";
 
 export default function ManageCoupons() {

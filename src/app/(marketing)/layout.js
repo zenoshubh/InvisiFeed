@@ -1,6 +1,6 @@
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
-import MobileNav from "@/components/mobile-nav";
+import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
+import MobileNav from "@/components/layout/mobile-nav";
 
 export const metadata = {
   title: "InvisiFeed - Marketing",

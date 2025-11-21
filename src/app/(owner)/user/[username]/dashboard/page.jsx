@@ -1,10 +1,10 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { authOptions } from "@/lib/auth/options";
 import { getDashboardMetrics } from "@/fetchers/dashboard-metrics";
 import DashboardContainer from "@/components/dashboard/dashboard-container";
 import UserRatingsGraph from "@/components/owner-page-components/user-ratings-graph";
-import ScrollToTop from "@/components/scroll-to-top";
+import ScrollToTop from "@/components/common/scroll-to-top";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);

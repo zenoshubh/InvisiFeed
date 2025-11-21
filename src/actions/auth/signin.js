@@ -3,8 +3,8 @@
 import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/db-connect";
 import OwnerModel from "@/models/owner";
-import { deleteOldInvoicePdfs } from "@/utils/delete-old-invoices-from-cloudinary";
-import sendVerificationEmail from "@/utils/send-verification-email";
+import { deleteOldInvoicePdfs } from "@/utils/invoice/delete-old-invoices";
+import sendVerificationEmail from "@/utils/email/send-verification-email";
 
 export async function signInUser(identifier, password) {
   try {

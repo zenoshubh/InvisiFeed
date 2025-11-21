@@ -2,10 +2,10 @@
 
 import dbConnect from "@/lib/db-connect";
 import InvoiceModel from "@/models/invoice";
-import OwnerModel from "@/models/owner";
 import FeedbackModel from "@/models/feedback";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getAuthenticatedOwner } from "@/lib/auth/session-utils";
+import { getPaginationParams, buildSortObject, SORT_CONFIGS, buildPaginationResponse } from "@/utils/pagination";
+import { successResponse, errorResponse } from "@/utils/response";
 
 export async function getInvoices({
   page = 1,
@@ -17,19 +17,11 @@ export async function getInvoices({
   await dbConnect();
 
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return { success: false, message: "Unauthorized" };
+    const ownerResult = await getAuthenticatedOwner();
+    if (!ownerResult.success) {
+      return errorResponse(ownerResult.message);
     }
-
-    const username = session?.user?.username;
-
-    // Find owner
-    const owner = await OwnerModel.findOne({ username });
-    if (!owner) {
-      return { success: false, message: "Business not found" };
-    }
+    const { owner } = ownerResult;
 
     // Build query
     let query = { owner: owner._id };
@@ -58,10 +50,13 @@ export async function getInvoices({
     }
 
     // Get paginated invoices
+    const { skip, limit: limitNum } = getPaginationParams(page, limit);
+    const sortObject = buildSortObject(sortBy, SORT_CONFIGS.invoices);
+    
     const invoices = await InvoiceModel.find(query)
-      .sort(sortBy === "newest" ? { createdAt: -1 } : { createdAt: 1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
+      .sort(sortObject)
+      .skip(skip)
+      .limit(limitNum)
       .lean();
 
     // Get feedbacks for the invoices
@@ -100,23 +95,14 @@ export async function getInvoices({
 
     // Get total count for pagination
     const totalInvoices = await InvoiceModel.countDocuments(query);
-    const totalPages = Math.ceil(totalInvoices / limit);
 
-    return {
-      success: true,
-      message: "Invoices retrieved successfully",
-      data: {
-        invoices: invoicesWithFeedback,
-        totalInvoices,
-        totalPages,
-        currentPage: page,
-        hasNextPage: page < totalPages,
-        hasPrevPage: page > 1,
-      },
-    };
+    return successResponse("Invoices retrieved successfully", {
+      invoices: invoicesWithFeedback,
+      ...buildPaginationResponse(invoicesWithFeedback, totalInvoices, page, limit),
+    });
   } catch (error) {
     console.error("Error fetching invoices:", error);
-    return { success: false, message: "Failed to fetch invoices" };
+    return errorResponse("Failed to fetch invoices");
   }
 }
 

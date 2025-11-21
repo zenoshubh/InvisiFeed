@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/db-connect";
 import OwnerModel from "@/models/owner";
 import DeletedAccountModel from "@/models/deleted-account";
-import sendVerificationEmail from "@/utils/send-verification-email";
+import sendVerificationEmail from "@/utils/email/send-verification-email";
 
 // ✅ Fix: Add prevState parameter for useActionState
 export async function registerUser(prevState, formData) {

@@ -12,11 +12,11 @@ import SecuritySection from "@/components/landing-page-components/security-secti
 import FAQSection from "@/components/landing-page-components/faq-section";
 import CTASection from "@/components/landing-page-components/cta-section";
 import GetStartedPopup from "@/components/landing-page-components/get-started-popup";
-import ScrollToTop from "@/components/scroll-to-top";
+import ScrollToTop from "@/components/common/scroll-to-top";
 import PricingSectionClient from "@/components/landing-page-components/pricing-section-client";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
-import MobileNav from "@/components/mobile-nav";
+import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
+import MobileNav from "@/components/layout/mobile-nav";
 
 export default function Home() {
   return (

@@ -3,7 +3,7 @@
 import dbConnect from "@/lib/db-connect";
 import OwnerModel from "@/models/owner";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { authOptions } from "@/lib/auth/options";
 
 // Example: Use fetch for external GSTIN API call
 export async function verifyGSTIN(gstinNumber) {

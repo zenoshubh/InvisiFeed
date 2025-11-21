@@ -7,3 +7,4 @@ export const authOptions = {
   callbacks: authCallbacks,
   ...authConfig,
 };
+

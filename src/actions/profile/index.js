@@ -1,26 +1,17 @@
 "use server";
 
 import dbConnect from "@/lib/db-connect";
-import OwnerModel from "@/models/owner";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getAuthenticatedOwnerDocument } from "@/lib/auth/session-utils";
+import { successResponse, errorResponse } from "@/utils/response";
 
 export async function updateProfile(profileData) {
   try {
     await dbConnect();
-    const session = await getServerSession(authOptions);
-    const username = session?.user?.username;
-
-    if (!username) {
-      return { success: false, message: "Unauthorized" };
+    const ownerResult = await getAuthenticatedOwnerDocument();
+    if (!ownerResult.success) {
+      return errorResponse(ownerResult.message);
     }
-
-    // Find the user
-    const user = await OwnerModel.findOne({ username });
-
-    if (!user) {
-      return { success: false, message: "User not found" };
-    }
+    const { owner: user } = ownerResult;
 
     // Update user fields
     if (profileData?.businessName) {
@@ -62,27 +53,23 @@ export async function updateProfile(profileData) {
     }
 
     // Save the updated user
-    const updatedUser = await user.save();
+    await user.save();
 
     // Return success response
-    return {
-      success: true,
-      message: "Profile updated successfully",
-      data: {
-        user: {
-          id: user._id,
-          email: user.email,
-          username: user.username,
-          businessName: user.businessName,
-          phoneNumber: user.phoneNumber,
-          address: user.address,
-          isProfileCompleted: user.isProfileCompleted,
-        },
+    return successResponse("Profile updated successfully", {
+      user: {
+        id: user._id,
+        email: user.email,
+        username: user.username,
+        businessName: user.businessName,
+        phoneNumber: user.phoneNumber,
+        address: user.address,
+        isProfileCompleted: user.isProfileCompleted,
       },
-    };
+    });
   } catch (error) {
     console.error("Error updating profile:", error);
-    return { success: false, message: "Error updating profile" };
+    return errorResponse("Error updating profile");
   }
 }
 

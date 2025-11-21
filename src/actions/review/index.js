@@ -2,21 +2,19 @@
 
 import dbConnect from "@/lib/db-connect";
 import InvisifeedReviewModel from "@/models/invisifeed-review";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getAuthenticatedSession } from "@/lib/auth/session-utils";
+import { successResponse, errorResponse } from "@/utils/response";
 
 export async function submitReview(review) {
   await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-    const username = session?.user?.username;
-
-    if (!username) {
-      return { success: false, message: "Unauthorized" };
+    const sessionResult = await getAuthenticatedSession();
+    if (!sessionResult.success) {
+      return errorResponse(sessionResult.message);
     }
 
     if (!review) {
-      return { success: false, message: "Missing review" };
+      return errorResponse("Missing review");
     }
 
     const newReview = new InvisifeedReviewModel({
@@ -25,10 +23,10 @@ export async function submitReview(review) {
 
     await newReview.save();
 
-    return { success: true, message: "Review sent successfully" };
+    return successResponse("Review sent successfully");
   } catch (error) {
     console.error("Error adding review:", error);
-    return { success: false, message: "Failed to add review" };
+    return errorResponse("Failed to add review");
   }
 }
 

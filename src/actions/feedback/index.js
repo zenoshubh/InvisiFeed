@@ -2,23 +2,20 @@
 
 import dbConnect from "@/lib/db-connect";
 import InvoiceModel from "@/models/invoice";
-import OwnerModel from "@/models/owner";
 import FeedbackModel from "@/models/feedback";
 import { getGenerativeModel } from "@/lib/google-ai";
+import OwnerModel from "@/models/owner";
+import { successResponse, errorResponse } from "@/utils/response";
 
 export async function checkInvoiceValidity(username, invoiceNumber) {
   await dbConnect();
   try {
-    const owner = await OwnerModel.findOne({ username });
+    const owner = await OwnerModel.findOne({ username }).lean();
 
     if (!owner) {
-      return {
-        success: false,
-        message: "Business not found",
-        data: {
-          businessName: null,
-        },
-      };
+      return errorResponse("Business not found", {
+        businessName: null,
+      });
     }
 
     const invoice = await InvoiceModel.findOne({
@@ -27,41 +24,29 @@ export async function checkInvoiceValidity(username, invoiceNumber) {
     });
 
     if (!invoice) {
-      return {
-        success: false,
-        message: "Invalid invoice",
-        data: {
-          businessName: owner.businessName,
-        },
-      };
+      return errorResponse("Invalid invoice", {
+        businessName: owner.businessName,
+      });
     }
 
     const feedbackSubmitted = await FeedbackModel.findOne({
       invoiceId: invoice._id,
-    });
+    }).lean();
 
     if (feedbackSubmitted) {
-      return {
-        success: false,
-        message: "Feedback already submitted for this invoice",
-        data: {
-          businessName: owner.businessName,
-          alreadySubmitted: true,
-        },
-      };
+      return errorResponse("Feedback already submitted for this invoice", {
+        businessName: owner.businessName,
+        alreadySubmitted: true,
+      });
     }
 
-    return {
-      success: true,
-      message: "Invoice is valid",
-      data: {
-        businessName: owner.businessName,
-        aiUsageCount: invoice.AIuseCount || 0,
-      },
-    };
+    return successResponse("Invoice is valid", {
+      businessName: owner.businessName,
+      aiUsageCount: invoice.AIuseCount || 0,
+    });
   } catch (error) {
     console.error("Error checking invoice validity:", error);
-    return { success: false, message: "Internal server error" };
+    return errorResponse("Internal server error");
   }
 }
 
@@ -72,10 +57,10 @@ export async function generateFeedbackWithAI(
 ) {
   await dbConnect();
   try {
-    const owner = await OwnerModel.findOne({ username });
+    const owner = await OwnerModel.findOne({ username }).lean();
 
     if (!owner) {
-      return { success: false, message: "Business not found" };
+      return errorResponse("Business not found");
     }
 
     const invoice = await InvoiceModel.findOne({
@@ -84,14 +69,11 @@ export async function generateFeedbackWithAI(
     });
 
     if (!invoice) {
-      return { success: false, message: "Invoice not found" };
+      return errorResponse("Invoice not found");
     }
 
     if (invoice.AIuseCount >= 3) {
-      return {
-        success: false,
-        message: "AI usage limit reached for this invoice",
-      };
+      return errorResponse("AI usage limit reached for this invoice");
     }
 
     let prompt = `
@@ -123,17 +105,13 @@ export async function generateFeedbackWithAI(
     invoice.AIuseCount += 1;
     await invoice.save();
 
-    return {
-      success: true,
-      message: "Feedback generated successfully",
-      data: {
-        feedback,
-        aiUsageCount: invoice.AIuseCount,
-      },
-    };
+    return successResponse("Feedback generated successfully", {
+      feedback,
+      aiUsageCount: invoice.AIuseCount,
+    });
   } catch (error) {
     console.error("Error generating feedback:", error);
-    return { success: false, message: "Failed to generate feedback" };
+    return errorResponse("Failed to generate feedback");
   }
 }
 
@@ -144,10 +122,10 @@ export async function generateSuggestionsWithAI(
 ) {
   await dbConnect();
   try {
-    const owner = await OwnerModel.findOne({ username });
+    const owner = await OwnerModel.findOne({ username }).lean();
 
     if (!owner) {
-      return { success: false, message: "Business not found" };
+      return errorResponse("Business not found");
     }
 
     const invoice = await InvoiceModel.findOne({
@@ -156,11 +134,11 @@ export async function generateSuggestionsWithAI(
     });
 
     if (!invoice) {
-      return { success: false, message: "Invoice not found" };
+      return errorResponse("Invoice not found");
     }
 
     if (invoice.AIuseCount >= 3) {
-      return { success: false, message: "AI usage limit reached" };
+      return errorResponse("AI usage limit reached");
     }
 
     let prompt = `Based on these ratings:
@@ -183,17 +161,13 @@ export async function generateSuggestionsWithAI(
     invoice.AIuseCount += 1;
     await invoice.save();
 
-    return {
-      success: true,
-      message: "Suggestions generated successfully",
-      data: {
-        suggestions,
-        aiUsageCount: invoice.AIuseCount,
-      },
-    };
+    return successResponse("Suggestions generated successfully", {
+      suggestions,
+      aiUsageCount: invoice.AIuseCount,
+    });
   } catch (error) {
     console.error("Error generating suggestions:", error);
-    return { success: false, message: "Failed to generate suggestions" };
+    return errorResponse("Failed to generate suggestions");
   }
 }
 
@@ -203,7 +177,7 @@ export async function submitFeedback(formData, username, invoiceNumber) {
     const owner = await OwnerModel.findOne({ username });
 
     if (!owner) {
-      return { success: false, message: "Business not found" };
+      return errorResponse("Business not found");
     }
 
     const invoice = await InvoiceModel.findOne({
@@ -212,7 +186,7 @@ export async function submitFeedback(formData, username, invoiceNumber) {
     });
 
     if (!invoice) {
-      return { success: false, message: "Invoice not found" };
+      return errorResponse("Invoice not found");
     }
 
     const {
@@ -271,14 +245,12 @@ export async function submitFeedback(formData, username, invoiceNumber) {
       .substr(2, 9)
       .toUpperCase()}`;
 
-    return {
-      success: true,
-      message: "Feedback submitted successfully",
+    return successResponse("Feedback submitted successfully", {
       couponCode,
       couponDiscount: 10,
-    };
+    });
   } catch (error) {
     console.error("Error submitting feedback:", error);
-    return { success: false, message: "Failed to submit feedback" };
+    return errorResponse("Failed to submit feedback");
   }
 }

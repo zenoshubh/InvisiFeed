@@ -1,22 +1,11 @@
 "use server";
 
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { authOptions } from "@/lib/auth/options";
 import dbConnect from "@/lib/db-connect";
 import OwnerModel from "@/models/owner";
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
-
-// Validation schema matching the form data structure
-const completeProfileSchema = z.object({
-  businessName: z.string().min(1, "Business name is required"),
-  phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
-  localAddress: z.string().min(1, "Local address is required"),
-  city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  country: z.string().min(1, "Country is required"),
-  pincode: z.string().min(1, "Pincode is required"),
-});
+import { completeProfileSchema } from "@/schemas/profile/complete-profile";
 
 export async function completeUserProfile(prevState, formData) {
   try {

@@ -52,3 +52,4 @@ export const registerSchema = z
     message: "Passwords do not match",
     path: ["confirmPassword"], // Ye confirmPassword field pe error show karega
   });
+
