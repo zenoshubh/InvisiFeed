@@ -8,9 +8,13 @@ import { toast } from "sonner";
 import ConfirmModal from "../ConfirmModal";
 import LoadingScreen from "../LoadingScreen";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import {
+  createOrder,
+  verifyPayment,
+  updatePlan,
+} from "@/actions/payment-actions";
 
-const PricingSection = () => {
+const PricingSectionClient = () => {
   const { data: session, update } = useSession();
   const user = session?.user;
   const router = useRouter();
@@ -28,17 +32,13 @@ const PricingSection = () => {
           return;
         }
         setIsProTrialLoading(true);
-        const response = await axios.post("/api/update-plan", {
-          planName: "pro-trial",
-        });
+        const result = await updatePlan({ planName: "pro-trial" });
 
-        const data = await response.data;
-
-        if (data.success) {
+        if (result.success) {
           await update({
             user: {
               ...session.user,
-              plan: data.user.plan,
+              plan: result.user.plan,
               proTrialUsed: true,
             },
           });
@@ -46,14 +46,12 @@ const PricingSection = () => {
           toast.success("Successfully switched to Pro trial plan");
           setShowConfirmModal(false);
           setConfirming(false);
-          setIsProTrialLoading(false);
         } else {
-          setIsProTrialLoading(true);
-          toast.error(data.message || "Failed to update plan");
+          toast.error(result.message || "Failed to update plan");
         }
       } catch (error) {
         console.error("Error updating plan:", error);
-        toast.error(error?.response?.data?.message || "Failed to update plan");
+        toast.error("Failed to update plan");
       } finally {
         setIsProTrialLoading(false);
         setShowConfirmModal(false);
@@ -63,48 +61,44 @@ const PricingSection = () => {
 
     try {
       setIsProLoading(true);
-      const response = await axios.post("/api/create-order");
+      const result = await createOrder();
 
-      const data = await response.data;
-
-      if (!data.success) {
-        throw new Error(data.message || "Failed to create order");
+      if (!result.success) {
+        throw new Error(result.message || "Failed to create order");
       }
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
-        amount: data.order.amount,
-        currency: data.order.currency,
+        amount: result.order.amount,
+        currency: result.order.currency,
         name: "InvisiFeed",
         description: "Pro Plan Subscription",
-        order_id: data.order.id,
+        order_id: result.order.id,
         handler: async function (response) {
           try {
-            const verifyResponse = await axios.post("/api/verify-payment", {
+            const verifyResult = await verifyPayment({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
             });
 
-            const verifyData = await verifyResponse.data;
-
-            if (verifyData.success) {
+            if (verifyResult.success) {
               await update({
                 user: {
                   ...session.user,
-                  plan: verifyData.user.plan,
+                  plan: verifyResult.user.plan,
                 },
               });
 
               toast.success("You've successfully upgraded to Pro Plan!");
             } else {
-              toast.error(verifyData.message || "Payment verification failed");
+              toast.error(
+                verifyResult.message || "Payment verification failed"
+              );
             }
           } catch (error) {
             console.error("Error verifying payment:", error);
-            toast.error(
-              error?.response?.data?.message || "Failed to verify payment"
-            );
+            toast.error("Failed to verify payment");
           }
         },
         prefill: {
@@ -316,8 +310,6 @@ const PricingSection = () => {
               </motion.button>
             </div>
           </motion.div>
-
-          {/* Add this container to center the pro-trial info */}
         </div>
 
         <motion.div
@@ -358,6 +350,7 @@ const PricingSection = () => {
         </motion.div>
         {showConfirmModal && (
           <ConfirmModal
+            isOpen={showConfirmModal}
             message="Are you sure you want to switch to Pro trial?"
             onConfirm={() => handlePayment("pro-trial")}
             confirming={confirming}
@@ -369,4 +362,4 @@ const PricingSection = () => {
   );
 };
 
-export default PricingSection;
+export default PricingSectionClient;

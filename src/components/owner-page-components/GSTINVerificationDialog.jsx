@@ -12,8 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
-import axios from "axios";
 import Link from "next/link";
+import { verifyGSTIN, saveGSTIN } from "@/actions/gstin";
 
 export default function GSTINVerificationDialog({ open, onOpenChange }) {
   const [gstinNumber, setGstinNumber] = useState("");
@@ -26,66 +26,49 @@ export default function GSTINVerificationDialog({ open, onOpenChange }) {
       toast.error("Please enter GSTIN number");
       return;
     }
-
     setIsLoading(true);
     try {
-      // Using our new API endpoint
-      const response = await axios.get(
-        `/api/get-gstin-details?gstinNumber=${gstinNumber}`
-      );
-      const data = response.data.data;
+      const result = await verifyGSTIN(gstinNumber);
 
-      if (data.taxpayerInfo === null) {
-        setVerificationResult({ valid: false, message: "Invalid GSTIN" });
+      if (!result.success || !result.valid) {
+        setVerificationResult({ valid: false, message: result.message });
       } else {
         setVerificationResult({
           valid: true,
-          tradeName: data.taxpayerInfo.tradeNam,
+          tradeName: result.tradeName,
+          taxpayerInfo: result.taxpayerInfo,
         });
       }
     } catch (error) {
-      console.error("Error verifying GSTIN:", error);
-      if (error.response) {
-        toast.error(error.response.data.message || "Error verifying GSTIN");
-      } else if (error.request) {
-        toast.error("No response received from GSTIN verification service");
-      } else {
-        toast.error("Error setting up GSTIN verification request");
-      }
+      toast.error("Error verifying GSTIN");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleConfirm = async () => {
-    if (!verificationResult.valid) return;
-
+    if (!verificationResult?.valid) return;
     setIsLoading(true);
     try {
-      const response = await axios.post("/api/save-gstin", {
+      const result = await saveGSTIN(
         gstinNumber,
-      });
-
-      if (response.data.success) {
+        verificationResult.taxpayerInfo
+      );
+      if (result.success) {
         toast.success("GSTIN verified successfully");
         await update({
           ...session,
           user: {
             ...session.user,
-            gstinDetails: response.data.gstinDetails,
+            gstinDetails: result.gstinDetails,
           },
         });
         onOpenChange(false);
       } else {
-        toast.error(response.data.message || "Failed to verify GSTIN");
+        toast.error(result.message || "Failed to verify GSTIN");
       }
     } catch (error) {
-      console.error("Error confirming GSTIN:", error);
-      if (error.response) {
-        toast.error(error.response.data.message || "Error confirming GSTIN");
-      } else {
-        toast.error("Error confirming GSTIN");
-      }
+      toast.error("Error confirming GSTIN");
     } finally {
       setIsLoading(false);
     }

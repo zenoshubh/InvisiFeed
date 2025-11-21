@@ -27,7 +27,7 @@ import { Lock } from "lucide-react";
 import Link from "next/link";
 
 function UserNav({ isMobile = false }) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const owner = session?.user;
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [isNavigatingToSignIn, setIsNavigatingToSignIn] = useState(false);
@@ -89,16 +89,11 @@ function UserNav({ isMobile = false }) {
     return <LoadingScreen />;
   }
 
+  // Show "Get Started" even if status is "loading"
   if (!owner) {
     return (
-      <Link
-        href="/sign-in"
-        onClick={(e) => {
-          handleNavigation("/sign-in");
-        }}
-      >
+      <Link href="/sign-in">
         <Button
-          disabled={isNavigatingToSignIn}
           className={`${
             isMobile ? "" : "hidden md:flex"
           } bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-medium shadow-lg shadow-yellow-500/20 cursor-pointer min-w-[120px]`}

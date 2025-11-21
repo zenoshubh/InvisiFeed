@@ -2,14 +2,13 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-export async function extractInvoiceNumberFromPdf(file) {
+export async function extractInvoiceNumberFromPdf(buffer) {
   try {
     const model = genAI.getGenerativeModel({
       model: "gemini-2.0-flash",
     });
 
-    const bytes = await file.arrayBuffer();
-    const pdfBuffer = Buffer.from(bytes);
+    const pdfBuffer = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer);
 
     const result = await model.generateContent([
       {
@@ -37,32 +36,34 @@ export async function extractInvoiceNumberFromPdf(file) {
     ]);
 
     const responseText = result.response.text().trim();
-    
+
     // Clean up the response text by removing markdown code blocks and any extra whitespace
     const cleanedText = responseText
-      .replace(/```json\s*|\s*```/g, '') // Remove markdown code blocks
-      .replace(/^\s+|\s+$/g, ''); // Remove leading/trailing whitespace
-
+      .replace(/```json\s*|\s*```/g, "") // Remove markdown code blocks
+      .replace(/^\s+|\s+$/g, ""); // Remove leading/trailing whitespace
 
     try {
       const extractedData = JSON.parse(cleanedText);
-      
+
       // Clean up total amount to ensure it's a pure number
-      if (extractedData.totalAmount && extractedData.totalAmount !== "Not Found") {
+      if (
+        extractedData.totalAmount &&
+        extractedData.totalAmount !== "Not Found"
+      ) {
         // Remove any currency symbols, commas, and whitespace
         extractedData.totalAmount = extractedData.totalAmount
-          .replace(/[^\d.-]/g, '') // Remove everything except digits, decimal point, and minus sign
-          .replace(/^0+/, '') // Remove leading zeros
-          .replace(/^\./, '0.') // Add leading zero if starts with decimal point
-          .replace(/\.$/, '') // Remove trailing decimal point
-          .replace(/\.(?=.*\.)/g, ''); // Remove all but last decimal point
-        
+          .replace(/[^\d.-]/g, "") // Remove everything except digits, decimal point, and minus sign
+          .replace(/^0+/, "") // Remove leading zeros
+          .replace(/^\./, "0.") // Add leading zero if starts with decimal point
+          .replace(/\.$/, "") // Remove trailing decimal point
+          .replace(/\.(?=.*\.)/g, ""); // Remove all but last decimal point
+
         // If the result is empty or invalid, set to "Not Found"
         if (!extractedData.totalAmount || isNaN(extractedData.totalAmount)) {
           extractedData.totalAmount = "Not Found";
         }
       }
-      
+
       return extractedData;
     } catch (error) {
       console.error("Failed to parse extracted data:", error);
@@ -72,7 +73,7 @@ export async function extractInvoiceNumberFromPdf(file) {
         invoiceId: "Not Found",
         customerName: "Not Found",
         customerEmail: "Not Found",
-        totalAmount: "Not Found"
+        totalAmount: "Not Found",
       };
     }
   } catch (error) {
@@ -81,7 +82,7 @@ export async function extractInvoiceNumberFromPdf(file) {
       invoiceId: "Extraction Failed",
       customerName: "Extraction Failed",
       customerEmail: "Extraction Failed",
-      totalAmount: "Extraction Failed"
+      totalAmount: "Extraction Failed",
     };
   }
 }

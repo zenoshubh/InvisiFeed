@@ -1,18 +1,11 @@
 "use client";
 
 import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { getDashboardMetrics } from "@/actions/dashboard-actions";
 import { motion } from "framer-motion";
 import {
-  LayoutDashboard,
-  Activity,
-  FileText,
-  Users,
-  Settings,
-  TrendingUp,
-  TrendingDown,
   Lightbulb,
   Star,
-  Calendar,
   Clock,
   Repeat,
   TrendingUpDown,
@@ -22,12 +15,10 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { useSession } from "next-auth/react";
-import axios from "axios";
 import { Loader2 } from "lucide-react";
 import {
   Label,
@@ -39,12 +30,10 @@ import {
   YAxis,
   CartesianGrid,
   ResponsiveContainer,
-  LabelList,
   LineChart,
   Line,
 } from "recharts";
 import {
-  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
@@ -57,7 +46,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MdMoney } from "react-icons/md";
 import { usePathname, useRouter } from "next/navigation";
 import LoadingScreen from "../LoadingScreen";
 import Link from "next/link";
@@ -140,11 +128,9 @@ const Dashboard = () => {
   const { data: session } = useSession();
   const owner = session?.user;
 
-  const router = useRouter();
-
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isPricingLoading , setIsPricingLoading] = useState(false);
+  const [isPricingLoading, setIsPricingLoading] = useState(false);
   const [error, setError] = useState(null);
   const [salesSelectedYear, setSalesSelectedYear] = useState("");
   const [salesViewType, setSalesViewType] = useState("currentYear");
@@ -155,20 +141,17 @@ const Dashboard = () => {
 
   const handleNavigation = (route) => {
     if (route === pathname) {
-      // Same route, no loading screen
       return;
     }
     setIsPricingLoading(true);
-    
   };
 
   useEffect(() => {
     return () => {
-      setIsPricingLoading(false); 
+      setIsPricingLoading(false);
     };
   }, [pathname]);
 
-  
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 640);
@@ -191,19 +174,22 @@ const Dashboard = () => {
     return number.toFixed(2); // Default decimal format
   };
 
+  // Replace axios with server action
   const fetchMetrics = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const params = new URLSearchParams();
-      // Add both sales and ratings parameters
-      params.append("salesYear", salesSelectedYear ? salesSelectedYear : new Date().getFullYear());
-      params.append("salesViewType", salesViewType);
-      params.append("ratingsYear", ratingsSelectedYear);
-      params.append("ratingsViewType", ratingsViewType);
-
-      const response = await axios.get(
-        `/api/get-dashboard-metrics?${params.toString()}`
-      );
-      setMetrics(response.data.data);
+      const response = await getDashboardMetrics({
+        salesYear: salesSelectedYear || new Date().getFullYear(),
+        salesViewType,
+        ratingsYear: ratingsSelectedYear,
+        ratingsViewType,
+      });
+      if (response?.success) {
+        setMetrics(response.data);
+      } else {
+        setError(response?.message || "Failed to fetch dashboard metrics");
+      }
     } catch (error) {
       setError("Failed to fetch dashboard metrics");
       console.error("Error fetching metrics:", error);
@@ -302,7 +288,7 @@ const Dashboard = () => {
 
   if (loading) return <LoadingState />;
   if (error) return <ErrorState error={error} />;
-  if(isPricingLoading) return <LoadingScreen />;
+  if (isPricingLoading) return <LoadingScreen />;
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] p-2 sm:p-4">
@@ -549,12 +535,13 @@ const Dashboard = () => {
                 <div className="text-yellow-400">
                   <Lock size={32} />
                 </div>
-                <Link href="/pricing" onClick={() => handleNavigation("/pricing")}>
-                <button
-                  className="bg-yellow-400 text-black px-4 py-2 rounded-md text-sm font-semibold hover:bg-yellow-300 cursor-pointer"
+                <Link
+                  href="/pricing"
+                  onClick={() => handleNavigation("/pricing")}
                 >
-                  Subscribe for Sales Analysis
-                </button>
+                  <button className="bg-yellow-400 text-black px-4 py-2 rounded-md text-sm font-semibold hover:bg-yellow-300 cursor-pointer">
+                    Subscribe for Sales Analysis
+                  </button>
                 </Link>
               </div>
             )}
@@ -670,25 +657,18 @@ const Dashboard = () => {
                           />
                           <ChartTooltip
                             cursor={false}
-                            content={
-                              <ChartTooltipContent indicator="dot" />
-                            }
-                            formatter={(value, name, props) => [
-                              `₹${value }`,
-                              
-                            ]}
+                            content={<ChartTooltipContent indicator="dot" />}
+                            formatter={(value, name, props) => [`₹${value}`]}
                             labelClassName="font-bold text-sm"
                             wrapperClassName="[&_.recharts-tooltip-item]:!text-yellow-400"
-                           className="bg-[#fff] border-yellow-400/20  "
+                            className="bg-[#fff] border-yellow-400/20  "
                           />
                           <Bar
                             dataKey="value"
                             fill="#FACC15"
                             radius={[4, 4, 0, 0]}
                             maxBarSize={isMobile ? 30 : 40}
-                          >
-                            
-                          </Bar>
+                          ></Bar>
                         </BarChart>
                       </ResponsiveContainer>
                     </ChartContainer>
@@ -706,12 +686,13 @@ const Dashboard = () => {
                 <div className="text-yellow-400">
                   <Lock size={32} />
                 </div>
-                <Link href="/pricing" onClick={() => handleNavigation("/pricing")}>
-                <button
-                  className="bg-yellow-400 text-black px-4 py-2 rounded-md text-sm font-semibold hover:bg-yellow-300 cursor-pointer"
+                <Link
+                  href="/pricing"
+                  onClick={() => handleNavigation("/pricing")}
                 >
-                  Subscribe for Rating Trends
-                </button>
+                  <button className="bg-yellow-400 text-black px-4 py-2 rounded-md text-sm font-semibold hover:bg-yellow-300 cursor-pointer">
+                    Subscribe for Rating Trends
+                  </button>
                 </Link>
               </div>
             )}

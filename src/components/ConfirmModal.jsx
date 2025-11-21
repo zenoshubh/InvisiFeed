@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 
-const ConfirmModal = ({ message, onConfirm, confirming, onCancel }) => {
+const ConfirmModal = ({ isOpen, message, onConfirm, confirming, onCancel }) => {
+  if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <motion.div
