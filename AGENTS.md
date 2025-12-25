@@ -2,6 +2,115 @@
 
 InvisiFeed is a fullstack SaaS platform that enables freelancers and agencies to generate smart invoices with embedded feedback forms, collect anonymous client feedback, and analyze performance using AI — all powered by Next.js, MongoDB, and Google Generative AI.
 
+• **MongoDB Cost Optimization (TOP PRIORITY)**
+
+**CRITICAL: Always follow these practices to minimize database costs and improve performance. These are mandatory for all database queries.**
+
+1. **Always use `.lean()` for read-only queries**
+   - Returns plain JS objects (faster, less memory)
+   - Use: `await Model.find({}).lean()`
+   - Never use Mongoose documents for read operations unless you need document methods
+
+2. **Always use `.select()` to fetch only needed fields**
+   - Only fetch required fields: `await Model.findById(id).select('field1 field2').lean()`
+   - Never fetch entire documents when you only need a few fields
+
+3. **Always use indexes for query fields**
+   - Ensure all query fields are indexed in the model schema
+   - Use compound indexes for multi-field queries: `Schema.index({ field1: 1, field2: -1 })`
+   - Never query on non-indexed fields (causes full collection scans)
+
+4. **Use aggregation pipelines instead of loading all data**
+   - Let database do the work: `Model.aggregate([{ $match: {} }, { $group: {} }])`
+   - Never load all documents and process in memory
+
+5. **Always use pagination for lists**
+   - Always use `.skip()` and `.limit()` for list queries
+   - Never load all documents: `await Model.find({}).skip(0).limit(10).lean()`
+
+6. **Use `countDocuments()` efficiently**
+   - Use indexed fields: `await Model.countDocuments({ indexedField: value })`
+   - Never load all documents just to count them
+
+7. **Avoid N+1 queries - batch populate**
+   - Use `.populate()` in single query: `Model.find({}).populate('field').lean()`
+   - Never loop and query inside loops
+
+8. **Use `$in` for multiple ID lookups**
+   - Single query: `Model.find({ _id: { $in: ids } }).lean()`
+   - Never use multiple individual queries
+
+9. **Cache frequently accessed data**
+   - Use AnalyticsSnapshot model for dashboard metrics
+   - Check cache first, calculate only if missing
+
+10. **Use `findOneAndUpdate` for atomic operations**
+    - Single atomic operation: `Model.findOneAndUpdate({}, { $inc: {} }, { upsert: true })`
+    - Never use separate find + update operations
+
+11. **Use projection in aggregation**
+    - Only project needed fields: `{ $project: { field1: 1, field2: 1 } }`
+
+12. **Use `$lookup` instead of manual joins**
+    - Database join: `{ $lookup: { from: 'collection', localField: 'field', foreignField: '_id', as: 'result' } }`
+
+13. **Limit array operations**
+    - Use `.select()` to limit array fields fetched
+    - Never fetch large arrays unnecessarily
+
+14. **Use `findOne()` with specific fields**
+    - Returns first match, stops searching: `Model.findOne({}).select('field').lean()`
+    - Use instead of `.find().limit(1)` when you only need one result
+
+15. **Avoid regex on non-indexed fields**
+    - Only use regex on indexed fields
+    - Consider text indexes for search functionality
+
+16. **Use `$exists` efficiently**
+    - Only on indexed fields: `Model.find({ indexedField: { $exists: true } })`
+
+17. **Batch writes when possible**
+    - Use `insertMany()` for multiple inserts
+    - Never loop and insert individually
+
+18. **Use connection pooling efficiently**
+    - Configure maxPoolSize and minPoolSize in dbConnect()
+    - Reuse connections, don't create new ones per request
+
+19. **Use `hint()` to force index usage when needed**
+    - Force specific index: `Model.find({}).hint({ field: 1 })`
+
+20. **Monitor and remove unused indexes**
+    - Only create indexes you actually use in queries
+    - Remove unused indexes to save storage and improve write performance
+
+21. **Use `$slice` for large arrays**
+    - Limit array elements: `.select({ arrayField: { $slice: 10 } })`
+
+22. **Use `explain()` to analyze queries during development**
+    - Check execution stats: `Model.find({}).explain('executionStats')`
+    - Monitor executionTimeMillis and totalDocsExamined
+
+23. **Use TTL indexes for auto-cleanup**
+    - Auto-delete old data: `Schema.index({ createdAt: 1 }, { expireAfterSeconds: 86400 })`
+
+24. **Use `estimatedDocumentCount()` for approximate counts when exact count not needed**
+    - Fast approximate: `Model.estimatedDocumentCount()`
+    - Use when exact count is not critical
+
+25. **Always use compound indexes that match query patterns**
+    - Index order matters: `Schema.index({ field1: 1, field2: -1 })` matches `find({ field1: value }).sort({ field2: -1 })`
+
+**Priority Actions for All Database Queries:**
+- ✅ Add `.lean()` to ALL read queries
+- ✅ Use `.select()` to limit fields fetched
+- ✅ Use aggregation pipelines for analytics/dashboard
+- ✅ Use AnalyticsSnapshot for caching dashboard metrics
+- ✅ Batch populate instead of N+1 queries
+- ✅ Ensure all query fields are indexed
+- ✅ Always use pagination for lists
+- ✅ Use `countDocuments()` instead of loading all to count
+
 • Code Style
 
 - Write concise, technical JavaScript code (not TypeScript)
