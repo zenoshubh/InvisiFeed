@@ -126,7 +126,7 @@ InvisiFeed is a fullstack SaaS platform that enables freelancers and agencies to
 • App Router Structure (Next.js 15)
 
 - Every page.jsx should be a server component by default, use client.jsx for client component within the same folder if necessary
-- Use route groups (folders with parentheses) to organize routes without affecting URL structure: (auth), (owner), (customer), (marketing)
+- Use route groups (folders with parentheses) to organize routes without affecting URL structure: (auth), (business), (customer), (marketing)
 - Server components should handle data fetching directly
 - Use async/await for all server components that fetch data
 - Leverage Next.js 15 features: streaming, Suspense boundaries, and server components
@@ -174,7 +174,7 @@ InvisiFeed is a fullstack SaaS platform that enables freelancers and agencies to
 - All custom hooks must be defined within /hooks folder (if needed)
 - Always add css/scss files to /styles folder (if needed)
 - Always add any third-party providers to /providers folder and use it in /providers/index.jsx file (if needed)
-- Use route groups for organizing pages: (auth)/sign-in/page.jsx, (owner)/user/page.jsx
+- Use route groups for organizing pages: (auth)/sign-in/page.jsx, (business)/user/page.jsx
 - Use loading.jsx files for route-level loading states
 - Use error.jsx files for route-level error boundaries
 - Use not-found.jsx files for 404 handling

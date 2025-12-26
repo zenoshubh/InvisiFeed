@@ -3,7 +3,7 @@
 import dbConnect from "@/lib/db-connect";
 import FeedbackModel from "@/models/feedback";
 import InvoiceModel from "@/models/invoice";
-import { getAuthenticatedOwner } from "@/lib/auth/session-utils";
+import { getAuthenticatedBusiness } from "@/lib/auth/session-utils";
 import { checkIsProPlan } from "@/utils/invoice/upload-limit";
 import { successResponse, errorResponse } from "@/utils/response";
 import {
@@ -30,22 +30,69 @@ export async function getDashboardMetrics({
 }) {
   await dbConnect();
   try {
-    const ownerResult = await getAuthenticatedOwner();
-    if (!ownerResult.success) {
-      return errorResponse(ownerResult.message);
+    const businessResult = await getAuthenticatedBusiness();
+    if (!businessResult.success) {
+      return errorResponse(businessResult.message);
     }
-    const { owner } = ownerResult;
+    const { business } = businessResult;
 
-    const invoices = await InvoiceModel.find({ owner: owner._id });
-    const totalSales = getTotalSales(invoices);
-    const feedbacks = await FeedbackModel.find({ givenTo: owner._id });
-    const totalFeedbacks = feedbacks.length;
-    const totalInvoices = invoices.length;
+    // Use aggregation for counts (more efficient than loading all documents)
+    const [invoiceStats, feedbackStats] = await Promise.all([
+      InvoiceModel.aggregate([
+        { $match: { business: business._id } },
+        {
+          $group: {
+            _id: null,
+            totalInvoices: { $sum: 1 },
+            totalSales: {
+              $sum: {
+                $ifNull: ["$customerDetails.amount", 0],
+              },
+            },
+          },
+        },
+      ]),
+      FeedbackModel.aggregate([
+        { $match: { givenTo: business._id } },
+        {
+          $group: {
+            _id: null,
+            totalFeedbacks: { $sum: 1 },
+          },
+        },
+      ]),
+    ]);
+
+    const totalInvoices = invoiceStats[0]?.totalInvoices || 0;
+    const totalSales = invoiceStats[0]?.totalSales || 0;
+    const totalFeedbacks = feedbackStats[0]?.totalFeedbacks || 0;
+
+    // Load invoices and feedbacks only if needed for detailed calculations
+    // For Pro plans, we need the full data for filtering/grouping
+    const isProPlan = checkIsProPlan(business) || 
+      (business?.plan?.planName === "pro-trial" && business?.plan?.planEndDate > new Date());
+
+    let invoices = [];
+    let feedbacks = [];
+
+    if (isProPlan) {
+      // Load full data only for Pro users (they get detailed analytics)
+      [invoices, feedbacks] = await Promise.all([
+        InvoiceModel.find({ business: business._id })
+          .select("createdAt customerDetails")
+          .lean(),
+        FeedbackModel.find({ givenTo: business._id })
+          .select("satisfactionRating communicationRating qualityOfServiceRating valueForMoneyRating recommendRating overAllRating createdAt")
+          .lean(),
+      ]);
+    } else {
+      // For free users, load minimal data needed for basic metrics
+      feedbacks = await FeedbackModel.find({ givenTo: business._id })
+        .select("satisfactionRating communicationRating qualityOfServiceRating valueForMoneyRating recommendRating overAllRating")
+        .lean();
+    }
 
     // Get sales data based on sales view type
-    const isProPlan = checkIsProPlan(owner) || 
-      (owner?.plan?.planName === "pro-trial" && owner?.plan?.planEndDate > new Date());
-
     let salesData = [];
 
     if (isProPlan) {
@@ -71,17 +118,24 @@ export async function getDashboardMetrics({
       }
     }
 
-    const invoiceWithFeedbackSubmitted = await InvoiceModel.find({
-      owner: owner._id,
-      isFeedbackSubmitted: true,
-    });
+    // Only load if needed for average response time calculation
+    const invoiceWithFeedbackSubmitted = isProPlan
+      ? await InvoiceModel.find({
+          business: business._id,
+          isFeedbackSubmitted: true,
+        })
+          .select("sentAt feedbackSubmittedAt createdAt")
+          .lean()
+      : [];
 
     const averageResponseTime = calculateAverageResponseTime(
       invoiceWithFeedbackSubmitted
     );
 
-    const averageRevisitFrequency =
-      await getAverageRevisitFrequencyFromInvoices(invoices);
+    // Calculate average revisit frequency only if we have invoice data
+    const averageRevisitFrequency = isProPlan
+      ? await getAverageRevisitFrequencyFromInvoices(invoices)
+      : 0;
 
     const feedbackRatio = Number(
       ((totalFeedbacks / totalInvoices) * 100 || 0).toFixed(2)
@@ -135,24 +189,34 @@ export async function getDashboardMetrics({
       }
     }
 
+    // Use aggregation for available years (more efficient)
     let availableYearsForSales = [];
-    if (isProPlan) {
-      availableYearsForSales = [
-        ...new Set(
-          invoices.map((invoice) => new Date(invoice.createdAt).getFullYear())
-        ),
-      ].sort((a, b) => b - a);
+    let availableYearsForFeedbacks = [];
+
+    if (isProPlan && totalInvoices > 0) {
+      const salesYearsResult = await InvoiceModel.aggregate([
+        { $match: { business: business._id } },
+        {
+          $group: {
+            _id: { $year: "$createdAt" },
+          },
+        },
+        { $sort: { _id: -1 } },
+      ]);
+      availableYearsForSales = salesYearsResult.map((r) => r._id);
     }
 
-    let availableYearsForFeedbacks = [];
-    if (isProPlan) {
-      availableYearsForFeedbacks = [
-        ...new Set(
-          feedbacks.map((feedback) =>
-            new Date(feedback.createdAt).getFullYear()
-          )
-        ),
-      ].sort((a, b) => b - a);
+    if (isProPlan && totalFeedbacks > 0) {
+      const feedbackYearsResult = await FeedbackModel.aggregate([
+        { $match: { givenTo: business._id } },
+        {
+          $group: {
+            _id: { $year: "$createdAt" },
+          },
+        },
+        { $sort: { _id: -1 } },
+      ]);
+      availableYearsForFeedbacks = feedbackYearsResult.map((r) => r._id);
     }
 
     return successResponse("Dashboard metrics retrieved successfully", {
@@ -165,8 +229,8 @@ export async function getDashboardMetrics({
         totalSales,
         bestPerforming,
         worstPerforming,
-        improvements: owner.currentRecommendedActions?.improvements || [],
-        strengths: owner.currentRecommendedActions?.strengths || [],
+        improvements: [], // Will be populated from RecommendedAction model
+        strengths: [], // Will be populated from RecommendedAction model
         positivePercentage,
         positiveFeedbacks,
         negativeFeedbacks,

@@ -19,7 +19,7 @@ import {
   CheckCircle2,
   Receipt,
 } from "lucide-react";
-import GSTINVerificationDialog from "@/components/owner-page-components/gstin-verification-dialog";
+import GSTINVerificationDialog from "@/components/business-page-components/gstin-verification-dialog";
 import LoadingScreen from "@/components/common/loading-screen";
 import { MdMoney } from "react-icons/md";
 import { SubscriptionPopup } from "@/components/modals/subscription-popup";
@@ -28,7 +28,7 @@ import Link from "next/link";
 
 function UserNav({ isMobile = false }) {
   const { data: session, status } = useSession();
-  const owner = session?.user;
+  const business = session?.user;
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [isNavigatingToSignIn, setIsNavigatingToSignIn] = useState(false);
   const [isSubscriptionPopupOpen, setIsSubscriptionPopupOpen] = useState(false);
@@ -46,15 +46,15 @@ function UserNav({ isMobile = false }) {
   };
 
   const onManageProfile = () => {
-    handleNavigation(`/user/${owner?.username}/update-profile`);
+    handleNavigation(`/user/${business?.username}/update-profile`);
   };
 
   const onManageInvoice = () => {
-    handleNavigation(`/user/${owner?.username}/show-invoices`);
+    handleNavigation(`/user/${business?.username}/show-invoices`);
   };
 
   const onManageCoupons = () => {
-    handleNavigation(`/user/${owner?.username}/manage-coupons`);
+    handleNavigation(`/user/${business?.username}/manage-coupons`);
   };
 
   const handleSignOut = async () => {
@@ -73,7 +73,7 @@ function UserNav({ isMobile = false }) {
 
   const handleUsernameClick = () => {
     setIsDropdownOpen(false); // Close dropdown
-    handleNavigation(`/user/${owner?.username}/generate`);
+    handleNavigation(`/user/${business?.username}/generate`);
   };
 
   const pathname = usePathname();
@@ -90,7 +90,7 @@ function UserNav({ isMobile = false }) {
   }
 
   // Show "Get Started" even if status is "loading"
-  if (!owner) {
+  if (!business) {
     return (
       <Link href="/sign-in">
         <Button
@@ -124,18 +124,18 @@ function UserNav({ isMobile = false }) {
             <div className="flex items-center justify-start p-2">
               <div className="flex flex-col space-y-1 leading-none">
                 <Link
-                  href={`/user/${owner?.username}/generate`}
+                  href={`/user/${business?.username}/generate`}
                   className="font-medium text-yellow-400 cursor-pointer"
                   onClick={handleUsernameClick} // Close dropdown when username is clicked
                 >
-                  {owner?.username}
+                  {business?.username}
                 </Link>
-                <p className="text-sm text-gray-400">{owner?.email}</p>
+                <p className="text-sm text-gray-400">{business?.email}</p>
               </div>
             </div>
             <DropdownMenuSeparator className="bg-yellow-400/10" />
             <Link
-              href={`/user/${owner?.username}/update-profile`}
+              href={`/user/${business?.username}/update-profile`}
               onClick={onManageProfile}
             >
               <DropdownMenuItem className="text-gray-300 hover:text-yellow-400 hover:bg-yellow-400/5 focus:bg-yellow-400/5 focus:text-yellow-400 cursor-pointer">
@@ -145,11 +145,11 @@ function UserNav({ isMobile = false }) {
             </Link>
 
             <Link
-              href={`/user/${owner?.username}/show-invoices`}
+              href={`/user/${business?.username}/show-invoices`}
               onClick={(e) => {
                 if (
-                  owner?.plan?.planName === "free" ||
-                  owner?.plan?.planEndDate < new Date()
+                  business?.plan?.planName === "free" ||
+                  business?.plan?.planEndDate < new Date()
                 ) {
                   e.preventDefault();
                   setIsSubscriptionPopupOpen(true);
@@ -160,24 +160,24 @@ function UserNav({ isMobile = false }) {
             >
               <DropdownMenuItem
                 className={`text-gray-300 hover:text-yellow-400 hover:bg-yellow-400/5 focus:bg-yellow-400/5 focus:text-yellow-400 cursor-pointer ${
-                  owner?.plan?.planName === "free" ? "relative" : ""
+                  business?.plan?.planName === "free" ? "relative" : ""
                 }`}
               >
                 <Receipt className="mr-2 h-4 w-4 text-yellow-400" />
                 <span>Show Invoices</span>
-                {(owner?.plan?.planName === "free" ||
-                  owner?.plan?.planEndDate < new Date()) && (
+                {(business?.plan?.planName === "free" ||
+                  business?.plan?.planEndDate < new Date()) && (
                   <Lock className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 )}
               </DropdownMenuItem>
             </Link>
 
             <Link
-              href={`/user/${owner?.username}/manage-coupons`}
+              href={`/user/${business?.username}/manage-coupons`}
               onClick={(e) => {
                 if (
-                  owner?.plan?.planName === "free" ||
-                  owner?.plan?.planEndDate < new Date()
+                  business?.plan?.planName === "free" ||
+                  business?.plan?.planEndDate < new Date()
                 ) {
                   e.preventDefault();
                   setIsSubscriptionPopupOpen(true);
@@ -188,19 +188,19 @@ function UserNav({ isMobile = false }) {
             >
               <DropdownMenuItem
                 className={`text-gray-300 hover:text-yellow-400 hover:bg-yellow-400/5 focus:bg-yellow-400/5 focus:text-yellow-400 cursor-pointer ${
-                  owner?.plan?.planName === "free" ? "relative" : ""
+                  business?.plan?.planName === "free" ? "relative" : ""
                 }`}
               >
                 <Ticket className="mr-2 h-4 w-4 text-yellow-400" />
                 <span>Manage Coupons</span>
-                {(owner?.plan?.planName === "free" ||
-                  owner?.plan?.planEndDate < new Date()) && (
+                {(business?.plan?.planName === "free" ||
+                  business?.plan?.planEndDate < new Date()) && (
                   <Lock className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 )}
               </DropdownMenuItem>
             </Link>
 
-            {!owner?.gstinDetails?.gstinVerificationStatus && (
+            {!business?.gstinDetails?.gstinVerificationStatus && (
               <DropdownMenuItem
                 className="text-gray-300 hover:text-yellow-400 hover:bg-yellow-400/5 focus:bg-yellow-400/5 focus:text-yellow-400 cursor-pointer"
                 onClick={() => setIsGSTINDialogOpen(true)}

@@ -35,7 +35,7 @@ import Link from "next/link";
 
 export default function ShowInvoicesPage({ params }) {
   const { data: session } = useSession();
-  const owner = session?.user;
+  const business = session?.user;
 
   const pathname = usePathname();
   const [invoices, setInvoices] = useState([]);
@@ -119,8 +119,8 @@ export default function ShowInvoicesPage({ params }) {
   }, [pathname]);
 
   if (
-    owner?.plan?.planName === "free" ||
-    owner?.plan?.planEndDate < new Date()
+    business?.plan?.planName === "free" ||
+    business?.plan?.planEndDate < new Date()
   ) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-4">

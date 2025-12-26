@@ -2,12 +2,13 @@
 
 import dbConnect from "@/lib/db-connect";
 import InvoiceModel from "@/models/invoice";
+import CouponModel from "@/models/coupon";
 import crypto from "crypto";
 import { extractInvoiceNumberFromPdf } from "@/utils/upload-invoice-utils/extract-invoice-number";
 import { generateQrPdf } from "@/utils/upload-invoice-utils/generate-qr-pdf";
 import { mergePdfs } from "@/utils/upload-invoice-utils/merge-pdfs";
 import { uploadToCloudinary } from "@/lib/cloudinary";
-import { getAuthenticatedOwnerDocument } from "@/lib/auth/session-utils";
+import { getAuthenticatedBusinessDocument, getAuthenticatedBusiness } from "@/lib/auth/session-utils";
 import { parseAndValidateCouponData } from "@/schemas/coupon";
 import { checkDailyUploadLimit, incrementDailyUploadCount, getDailyUploadLimit, checkAndResetDailyUploads } from "@/utils/invoice/upload-limit";
 import { successResponse, errorResponse } from "@/utils/response";
@@ -16,12 +17,12 @@ export async function uploadInvoice(formData) {
   await dbConnect();
 
   try {
-    // Get authenticated owner
-    const ownerResult = await getAuthenticatedOwnerDocument();
-    if (!ownerResult.success) {
-      return errorResponse(ownerResult.message);
+    // Get authenticated business
+    const businessResult = await getAuthenticatedBusinessDocument();
+    if (!businessResult.success) {
+      return errorResponse(businessResult.message);
     }
-    const { owner, username } = ownerResult;
+    const { business, username } = businessResult;
 
     const file = formData.get("file");
     const couponDataStr = formData.get("couponData");
@@ -41,7 +42,7 @@ export async function uploadInvoice(formData) {
     }
 
     // Check daily upload limit
-    const limitCheck = await checkDailyUploadLimit(owner);
+    const limitCheck = await checkDailyUploadLimit(business);
     if (!limitCheck.success) {
       return errorResponse(limitCheck.message, {
         timeLeft: limitCheck.timeLeft,
@@ -53,23 +54,47 @@ export async function uploadInvoice(formData) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    // Validate PDF buffer - check for PDF header
+    if (buffer.length === 0) {
+      return errorResponse("Uploaded file is empty");
+    }
+
+    // Check if buffer starts with PDF header (%PDF) - allow some flexibility
+    // Some PDFs might have whitespace or different encoding
+    const firstBytes = buffer.slice(0, 10).toString('ascii', 0, 10);
+    const hasPdfHeader = firstBytes.includes('%PDF');
+    
+    if (!hasPdfHeader) {
+      // Also check file extension as fallback
+      const fileName = file.name || '';
+      const isPdfExtension = fileName.toLowerCase().endsWith('.pdf');
+      
+      if (!isPdfExtension) {
+        return errorResponse("Invalid file type. Please upload a PDF file.");
+      }
+      // If it has .pdf extension but no header, still try to process it
+      // (might be a corrupted but recoverable PDF)
+    }
+
     // Extract invoice details including customer info
     const extractedData = await extractInvoiceNumberFromPdf(buffer);
 
-    if (!extractedData || !extractedData.invoiceId) {
-      return {
-        success: false,
-        message: "Failed to extract invoice number from PDF",
-      };
+    if (!extractedData || !extractedData.invoiceId || extractedData.invoiceId === "Extraction Failed" || extractedData.invoiceId === "Extraction Failed - Invalid PDF") {
+      const errorMessage = extractedData?.invoiceId === "Extraction Failed - Invalid PDF"
+        ? "Invalid PDF file. Please ensure the file is a valid PDF document."
+        : "Failed to extract invoice number from PDF. Please ensure the PDF contains invoice information.";
+      return errorResponse(errorMessage);
     }
 
     const extractedInvoiceNumber = extractedData.invoiceId;
 
-    // Check for duplicate invoice
+    // Check for duplicate invoice (read-only check)
     const existingInvoice = await InvoiceModel.findOne({
-      owner: owner._id,
+      business: business._id,
       invoiceId: extractedInvoiceNumber,
-    });
+    })
+      .select("_id")
+      .lean();
 
     if (existingInvoice) {
       return errorResponse(`Invoice ${extractedInvoiceNumber} already exists`);
@@ -80,7 +105,7 @@ export async function uploadInvoice(formData) {
     if (couponData) {
       const hash = crypto
         .createHash("sha256")
-        .update(couponData.couponCode + owner._id.toString())
+        .update(couponData.couponCode + business._id.toString())
         .digest("hex")
         .substring(0, 8);
       modifiedCouponCodeforURL = `${couponData.couponCode.substring(
@@ -94,7 +119,7 @@ export async function uploadInvoice(formData) {
       extractedInvoiceNumber,
       username,
       modifiedCouponCodeforURL,
-      owner
+      business
     );
 
     // Merge PDFs
@@ -108,10 +133,37 @@ export async function uploadInvoice(formData) {
       format: "pdf",
     });
 
+    // Create coupon document if coupon data is provided
+    let couponId = null;
+    if (couponData) {
+      // Generate coupon code for database (matching API route format)
+      const invoiceCount = await InvoiceModel.countDocuments({}).lean();
+      const dbCouponCode = `${couponData.couponCode}${invoiceCount + 1}`;
+      
+      // Calculate expiry date
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + parseInt(couponData.expiryDays));
+
+      // Create coupon document
+      const newCoupon = new CouponModel({
+        business: business._id,
+        couponCode: dbCouponCode,
+        description: couponData.description,
+        expiryDate: expiryDate,
+        isActive: true,
+        isUsed: false,
+        usageCount: 0,
+        maxUsage: 1,
+      });
+
+      const savedCoupon = await newCoupon.save();
+      couponId = savedCoupon._id;
+    }
+
     // Create invoice in database
     const newInvoice = new InvoiceModel({
       invoiceId: extractedInvoiceNumber,
-      owner: owner._id,
+      business: business._id,
       customerDetails: {
         customerName:
           extractedData.customerName !== "Not Found" &&
@@ -131,21 +183,20 @@ export async function uploadInvoice(formData) {
             : null,
       },
       mergedPdfUrl: uploadResult.secure_url,
-      coupon: couponData
-        ? {
-            couponCode: couponData.couponCode,
-            couponDescription: couponData.description,
-            couponExpiryDate: new Date(
-              Date.now() + parseInt(couponData.expiryDays) * 24 * 60 * 60 * 1000
-            ),
-          }
-        : null,
+      coupon: couponId, // Use Coupon ObjectId instead of object
     });
 
     await newInvoice.save();
 
+    // Update coupon with invoice reference if coupon exists
+    if (couponId) {
+      await CouponModel.findByIdAndUpdate(couponId, {
+        invoice: newInvoice._id,
+      }).lean();
+    }
+
     // Increment daily upload count
-    const uploadCountResult = await incrementDailyUploadCount(owner);
+    const uploadCountResult = await incrementDailyUploadCount(business);
 
     return successResponse("Invoice uploaded successfully", {
       invoiceNumber: extractedInvoiceNumber,
@@ -167,15 +218,24 @@ export async function getUploadCount() {
   await dbConnect();
 
   try {
-    const ownerResult = await getAuthenticatedOwnerDocument();
-    if (!ownerResult.success) {
-      return errorResponse(ownerResult.message);
+    // Use lean version since we only need to read data
+    const businessResult = await getAuthenticatedBusiness();
+    if (!businessResult.success) {
+      return errorResponse(businessResult.message);
     }
-    const { owner } = ownerResult;
+    const { business } = businessResult;
 
-    const resetResult = await checkAndResetDailyUploads(owner);
-    const dailyLimit = getDailyUploadLimit(owner);
-    const currentCount = owner.uploadedInvoiceCount.dailyUploadCount;
+    const resetResult = await checkAndResetDailyUploads(business);
+    const dailyLimit = getDailyUploadLimit(business);
+    
+    // Get current count from UsageTracker
+    const UsageTrackerModel = (await import("@/models/usage-tracker")).default;
+    const tracker = await UsageTrackerModel.findOne({
+      business: business._id,
+      usageType: "invoice-upload",
+    }).lean();
+    
+    const currentCount = tracker?.dailyUploadCount || 0;
 
     // Calculate time left if limit is reached
     let timeLeft = null;

@@ -27,7 +27,7 @@ import Link from "next/link";
 
 export default function InvoiceManagement() {
   const { data: session } = useSession();
-  const owner = session?.user;
+  const business = session?.user;
 
   const pathname = usePathname();
 
@@ -59,7 +59,7 @@ export default function InvoiceManagement() {
   const [showCreateInvoice, setShowCreateInvoice] = useState(false);
 
   const [dailyLimit, setDailyLimit] = useState(
-    owner?.plan?.planName === "pro" && owner?.plan?.planEndDate > new Date()
+    business?.plan?.planName === "pro" && business?.plan?.planEndDate > new Date()
       ? 10
       : 3
   );
@@ -91,17 +91,17 @@ export default function InvoiceManagement() {
     {
       id: 3,
       name: "Sample Invoice 3",
-      url: "https://res.cloudinary.com/dqma4eudc/image/upload/v1746254651/SampleInvoice3_lipycq.pdf ",
+      url: "https://res.cloudinary.com/dqma4eudc/image/upload/v1746254651/SampleInvoice3_lipycq.pdf",
     },
     {
       id: 4,
       name: "Sample Invoice 4",
-      url: "https://res.cloudinary.com/dqma4eudc/image/upload/v1746254651/SampleInvoice4_wrzovq.pdf ",
+      url: "https://res.cloudinary.com/dqma4eudc/image/upload/v1746254651/SampleInvoice4_wrzovq.pdf",
     },
     {
       id: 5,
       name: "Sample Invoice 5",
-      url: "https://res.cloudinary.com/dqma4eudc/image/upload/v1746254651/SampleInvoice5_tlgyuw.pdf ",
+      url: "https://res.cloudinary.com/dqma4eudc/image/upload/v1746254651/SampleInvoice5_tlgyuw.pdf",
     },
   ];
 
@@ -118,7 +118,7 @@ export default function InvoiceManagement() {
   // Fetch initial upload count
   useEffect(() => {
     const fetchUploadCount = async () => {
-      if (!owner?.username) return;
+      if (!business?.username) return;
 
       try {
         const { getUploadCount } = await import("@/fetchers/upload-count");
@@ -142,7 +142,7 @@ export default function InvoiceManagement() {
     };
 
     fetchUploadCount();
-  }, [owner?.username]);
+  }, [business?.username]);
 
   const handleConfirm = (message, action) => {
     setConfirmAction(() => action);
@@ -150,7 +150,7 @@ export default function InvoiceManagement() {
   };
 
   const handleShowCreateInvoice = () => {
-    if (owner?.isProfileCompleted !== "completed") {
+    if (business?.isProfileCompleted !== "completed") {
       setShowCompleteProfileDialog(true);
       return;
     }
@@ -257,7 +257,14 @@ export default function InvoiceManagement() {
     const formData = new FormData();
     formData.append("file", fileToUpload);
     if (couponSaved) {
-      formData.append("couponData", JSON.stringify(couponData));
+      // Ensure expiryDays is a number before stringifying
+      const couponDataToSend = {
+        ...couponData,
+        expiryDays: typeof couponData.expiryDays === 'string' 
+          ? parseInt(couponData.expiryDays, 10) 
+          : couponData.expiryDays,
+      };
+      formData.append("couponData", JSON.stringify(couponDataToSend));
     }
     // Check if this is a sample invoice
     const isSampleInvoice = sampleInvoices.some(
@@ -308,8 +315,8 @@ export default function InvoiceManagement() {
   };
   const handleUploadInvoiceFreePlanClick = (e) => {
     if (
-      owner?.plan?.planName === "free" ||
-      owner?.plan?.planEndDate < new Date()
+      business?.plan?.planName === "free" ||
+      business?.plan?.planEndDate < new Date()
     ) {
       e.preventDefault(); // prevent file dialog from opening
       setIsSubscriptionPopupOpen(true); // show popup instead
@@ -330,7 +337,7 @@ export default function InvoiceManagement() {
         invoiceNumber,
         pdfUrl,
         feedbackUrl,
-        companyName: owner?.businessName || "Your Company",
+        companyName: business?.businessName || "Your Company",
       });
 
       if (result.success) {
@@ -422,7 +429,7 @@ export default function InvoiceManagement() {
       const result = await createInvoice(invoiceData);
 
       if (result.success) {
-        setPdfUrl(result.data.url);
+        setPdfUrl(result.data.pdfUrl);
         setFeedbackUrl(result.data.feedbackUrl);
         setInvoiceNumber(result.data.invoiceNumber);
         setCustomerName(result.data.customerName);
@@ -545,8 +552,8 @@ export default function InvoiceManagement() {
                     You have reached your daily upload limit. Please try again
                     in {timeLeft}h.
                   </p>
-                  {owner?.plan?.planName === "free" ||
-                  owner?.plan?.planEndDate < new Date() ? (
+                  {business?.plan?.planName === "free" ||
+                  business?.plan?.planEndDate < new Date() ? (
                     <Link
                       href="/pricing"
                       onClick={() => handleNavigation("/pricing")}
@@ -625,8 +632,8 @@ export default function InvoiceManagement() {
                   id="file-upload"
                   disabled={
                     initialLoading ||
-                    owner?.plan?.planName === "free" ||
-                    owner?.plan?.planEndDate < new Date()
+                    business?.plan?.planName === "free" ||
+                    business?.plan?.planEndDate < new Date()
                   }
                 />
 
@@ -645,9 +652,9 @@ export default function InvoiceManagement() {
                 {/* Create Coupon Button */}
                 {file &&
                   !couponSaved &&
-                  (owner?.plan?.planName !== "free" ||
-                    (owner?.plan?.planEndDate &&
-                      new Date(owner?.plan?.planEndDate) > new Date())) && (
+                  (business?.plan?.planName !== "free" ||
+                    (business?.plan?.planEndDate &&
+                      new Date(business?.plan?.planEndDate) > new Date())) && (
                     <button
                       onClick={() => setShowCouponForm(true)}
                       className="w-full max-w-md flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-white to-gray-200 hover:from-white hover:to-gray-400 text-black font-medium rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30 cursor-pointer"
@@ -814,7 +821,7 @@ export default function InvoiceManagement() {
                           const blob = await response.blob();
                           const file = new File(
                             [blob],
-                            `Invoice by ${owner?.businessName}.pdf`,
+                            `Invoice by ${business?.businessName}.pdf`,
                             {
                               type: "application/pdf",
                             }

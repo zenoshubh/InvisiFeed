@@ -40,7 +40,7 @@ export default function CreateInvoiceForm({
   saving,
 }) {
   const { data: session } = useSession();
-  const owner = session?.user;
+  const business = session?.user;
   const [showVerifyGstinDialog, setShowVerifyGstinDialog] = useState(false);
   const [charCount, setCharCount] = useState(129);
   const maxLength = 200;
@@ -63,18 +63,18 @@ export default function CreateInvoiceForm({
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      businessName: owner?.businessName || "",
-      businessEmail: owner?.email || "",
-      businessPhone: owner?.phoneNumber || "",
-      businessAddress: owner?.address
-        ? `${owner.address.localAddress || ""}, ${owner.address.city || ""}, ${
-            owner.address.state || ""
-          }, ${owner.address.country || ""}, ${
-            owner.address.pincode || ""
+      businessName: business?.businessName || "",
+      businessEmail: business?.email || "",
+      businessPhone: business?.phoneNumber || "",
+      businessAddress: business?.address
+        ? `${business.address.localAddress || ""}, ${business.address.city || ""}, ${
+            business.address.state || ""
+          }, ${business.address.country || ""}, ${
+            business.address.pincode || ""
           }`.trim()
         : "",
-      gstin: owner?.gstinDetails?.gstinNumber || "Unregistered",
-      gstinHolderName: owner?.gstinDetails?.gstinHolderName || "",
+      gstin: business?.gstinDetails?.gstinNumber || "Unregistered",
+      gstinHolderName: business?.gstinDetails?.gstinHolderName || "",
       customerName: "",
       customerEmail: "",
       customerPhone: "",
@@ -255,7 +255,7 @@ export default function CreateInvoiceForm({
                           )}
                         />
 
-                        {owner?.gstinDetails?.gstinVerificationStatus ===
+                        {business?.gstinDetails?.gstinVerificationStatus ===
                         true ? (
                           <FormField
                             control={form.control}
@@ -291,7 +291,7 @@ export default function CreateInvoiceForm({
                           </div>
                         )}
 
-                        {owner?.gstinDetails?.gstinVerificationStatus ===
+                        {business?.gstinDetails?.gstinVerificationStatus ===
                           true && (
                           <FormField
                             control={form.control}
@@ -863,9 +863,9 @@ export default function CreateInvoiceForm({
                         Add-ons
                       </h3>
                       <div className="space-y-4">
-                        {(owner?.plan?.planName === "pro" ||
-                          owner?.plan?.planName === "pro-trial" ||
-                          owner?.plan?.planEndDate > new Date()) && (
+                        {(business?.plan?.planName === "pro" ||
+                          business?.plan?.planName === "pro-trial" ||
+                          business?.plan?.planEndDate > new Date()) && (
                           <>
                             <FormField
                               control={form.control}
@@ -965,8 +965,8 @@ export default function CreateInvoiceForm({
                           </>
                         )}
 
-                        {owner?.plan?.planName === "free" &&
-                          owner?.plan?.planEndDate < new Date() && (
+                        {business?.plan?.planName === "free" &&
+                          business?.plan?.planEndDate < new Date() && (
                             <Link
                               className="text-gray-100 cursor-pointer hover:text-yellow-500 text-sm"
                               href="/pricing"

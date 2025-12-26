@@ -8,14 +8,12 @@ const AccountSchema = new Schema(
       required: [true, "Email is required"],
       unique: true,
       match: [/.+\@.+\..+/, "Please use a valid email address"],
-      index: true,
     },
     username: {
       type: String,
       required: [true, "Username is required"],
       trim: true,
       unique: true,
-      index: true,
     },
     password: {
       type: String,
@@ -32,7 +30,6 @@ const AccountSchema = new Schema(
     isVerified: {
       type: Boolean,
       default: false,
-      index: true,
     },
     isGoogleAuth: {
       type: Boolean,
@@ -53,8 +50,7 @@ const AccountSchema = new Schema(
 );
 
 // Performance Indexes
-AccountSchema.index({ email: 1 });
-AccountSchema.index({ username: 1 });
+// Note: email and username indexes are automatically created by unique: true
 AccountSchema.index({ isVerified: 1 });
 AccountSchema.index({ createdAt: -1 });
 

@@ -6,7 +6,7 @@ import { generateQrPdf } from "@/utils/upload-invoice-utils/generate-qr-pdf";
 import { mergePdfs } from "@/utils/upload-invoice-utils/merge-pdfs";
 import InvoiceModel from "@/models/invoice";
 import { uploadToCloudinary } from "@/lib/cloudinary";
-import { getAuthenticatedOwnerDocument } from "@/lib/auth/session-utils";
+import { getAuthenticatedBusinessDocument } from "@/lib/auth/session-utils";
 import { parseAndValidateCouponData } from "@/schemas/coupon";
 import { checkDailyUploadLimit, incrementDailyUploadCount } from "@/utils/invoice/upload-limit";
 
@@ -14,15 +14,15 @@ export async function POST(req) {
   await dbConnect();
 
   try {
-    // Get authenticated owner
-    const ownerResult = await getAuthenticatedOwnerDocument();
-    if (!ownerResult.success) {
+    // Get authenticated business
+    const businessResult = await getAuthenticatedBusinessDocument();
+    if (!businessResult.success) {
       return NextResponse.json(
-        { success: false, message: ownerResult.message },
+        { success: false, message: businessResult.message },
         { status: 401 }
       );
     }
-    const { owner, username } = ownerResult;
+    const { business, username } = businessResult;
 
     const formData = await req.formData();
     const file = formData.get("file");
@@ -49,7 +49,7 @@ export async function POST(req) {
     }
 
     // Check daily upload limit
-    const limitCheck = await checkDailyUploadLimit(owner);
+    const limitCheck = await checkDailyUploadLimit(business);
     if (!limitCheck.success) {
       return NextResponse.json(
         {
@@ -61,21 +61,52 @@ export async function POST(req) {
       );
     }
 
-    const invoiceData = await extractInvoiceNumberFromPdf(file);
+    // Convert file to buffer first
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    // Validate PDF buffer - check for PDF header
+    if (buffer.length === 0) {
+      return NextResponse.json(
+        { success: false, message: "Uploaded file is empty" },
+        { status: 400 }
+      );
+    }
+
+    // Check file extension as primary validation (more reliable than MIME type)
+    const fileName = file.name || '';
+    const isPdfExtension = fileName.toLowerCase().endsWith('.pdf');
+    
+    // Also check for PDF header, but be lenient
+    const firstBytes = buffer.slice(0, 10).toString('ascii', 0, 10);
+    const hasPdfHeader = firstBytes.includes('%PDF');
+    
+    if (!isPdfExtension && !hasPdfHeader) {
+      return NextResponse.json(
+        { success: false, message: "Invalid file type. Please upload a PDF file." },
+        { status: 400 }
+      );
+    }
+
+    const invoiceData = await extractInvoiceNumberFromPdf(buffer);
     if (
       !invoiceData.invoiceId ||
       invoiceData.invoiceId === "Not Found" ||
-      invoiceData.invoiceId === "Extraction Failed"
+      invoiceData.invoiceId === "Extraction Failed" ||
+      invoiceData.invoiceId === "Extraction Failed - Invalid PDF"
     ) {
+      const errorMessage = invoiceData.invoiceId === "Extraction Failed - Invalid PDF"
+        ? "Invalid PDF file. Please ensure the file is a valid PDF document."
+        : "Failed to extract invoice number from PDF. Please ensure the PDF contains invoice information.";
       return NextResponse.json(
-        { success: false, message: "Invoice number not found" },
+        { success: false, message: errorMessage },
         { status: 400 }
       );
     }
 
     const existedInvoice = await InvoiceModel.findOne({
       invoiceId: invoiceData.invoiceId,
-      owner: owner._id,
+      business: business._id,
     });
 
     if (existedInvoice) {
@@ -85,9 +116,7 @@ export async function POST(req) {
       );
     }
 
-    // If all checks pass, proceed with Cloudinary upload
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    // Buffer already created above for validation
 
     // Handle coupon data if provided
     let modifiedCouponCodeforURL = null;
@@ -118,7 +147,7 @@ export async function POST(req) {
       invoiceData.invoiceId,
       username,
       modifiedCouponCodeforURL,
-      owner
+      business
     );
     const mergedPdfBuffer = await mergePdfs(buffer, pdf);
 
@@ -142,7 +171,7 @@ export async function POST(req) {
     // Add new invoice with initial AIuseCount, coupon if provided, and PDF URLs
     const newInvoice = new InvoiceModel({
       invoiceId: invoiceData.invoiceId,
-      owner: owner._id,
+      business: business._id,
       customerDetails: {
         customerName: invoiceData.customerName,
         customerEmail: invoiceData.customerEmail,
@@ -166,7 +195,7 @@ export async function POST(req) {
     await newInvoice.save();
 
     // Increment daily upload count
-    const uploadCountResult = await incrementDailyUploadCount(owner);
+    const uploadCountResult = await incrementDailyUploadCount(business);
 
     return NextResponse.json(
       {

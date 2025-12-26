@@ -21,7 +21,7 @@ import Link from "next/link";
 
 function MobileNav() {
   const { data: session } = useSession();
-  const owner = session?.user;
+  const business = session?.user;
   const pathname = usePathname();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -123,12 +123,12 @@ function MobileNav() {
                 </span>
               </div>
             </>
-          ) : owner ? (
+          ) : business ? (
             <>
               <Link
-                href={`/user/${owner?.username}/generate`}
+                href={`/user/${business?.username}/generate`}
                 onClick={() =>
-                  handleNavigation(`/user/${owner?.username}/generate`)
+                  handleNavigation(`/user/${business?.username}/generate`)
                 }
                 className="flex flex-col items-center space-y-1"
               >
@@ -138,9 +138,9 @@ function MobileNav() {
                 </span>
               </Link>
               <Link
-                href={`/user/${owner?.username}/dashboard`}
+                href={`/user/${business?.username}/dashboard`}
                 onClick={() =>
-                  handleNavigation(`/user/${owner?.username}/dashboard`)
+                  handleNavigation(`/user/${business?.username}/dashboard`)
                 }
                 className="flex flex-col items-center space-y-1"
               >
@@ -150,9 +150,9 @@ function MobileNav() {
                 </span>
               </Link>
               <Link
-                href={`/user/${owner?.username}/feedbacks`}
+                href={`/user/${business?.username}/feedbacks`}
                 onClick={() =>
-                  handleNavigation(`/user/${owner?.username}/feedbacks`)
+                  handleNavigation(`/user/${business?.username}/feedbacks`)
                 }
                 className="flex flex-col items-center space-y-1"
               >

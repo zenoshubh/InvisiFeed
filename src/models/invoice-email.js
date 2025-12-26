@@ -6,7 +6,6 @@ const InvoiceEmailSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Invoice",
       required: true,
-      index: true,
     },
     business: {
       type: Schema.Types.ObjectId,
@@ -18,7 +17,6 @@ const InvoiceEmailSchema = new Schema(
       type: String,
       required: true,
       trim: true,
-      index: true,
     },
     subject: {
       type: String,
@@ -29,13 +27,11 @@ const InvoiceEmailSchema = new Schema(
       type: Date,
       required: true,
       default: Date.now,
-      index: true,
     },
     deliveryStatus: {
       type: String,
       enum: ["sent", "delivered", "bounced", "failed"],
       default: "sent",
-      index: true,
     },
     openedAt: {
       type: Date,

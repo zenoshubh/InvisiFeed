@@ -10,7 +10,7 @@ import EmptyState from "@/components/common/empty-state";
 
 export default function UserRatingsGraph() {
   const { data: session } = useSession();
-  const owner = session?.user;
+  const business = session?.user;
   const [ratings, setRatings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,10 +35,10 @@ export default function UserRatingsGraph() {
   };
 
   useEffect(() => {
-    if (owner?.username) {
+    if (business?.username) {
       fetchRatings();
     }
-  }, [owner]);
+  }, [business]);
 
   if (loading) {
     return <LoadingState message="Loading ratings..." fullScreen />;
@@ -53,7 +53,7 @@ export default function UserRatingsGraph() {
         onRetry={() => {
           setError(null);
           setLoading(true);
-          if (owner?.username) {
+          if (business?.username) {
             fetchRatings();
           }
         }}
@@ -87,7 +87,7 @@ export default function UserRatingsGraph() {
         <div className="relative">
           <CardHeader className="border-b border-yellow-400/20 px-3 sm:px-6">
             <CardTitle className="text-base sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-yellow-500 to-yellow-400 bg-clip-text text-transparent text-center sm:text-left">
-              Average Ratings for {owner.businessName}
+              Average Ratings for {business.businessName}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3 sm:p-6">

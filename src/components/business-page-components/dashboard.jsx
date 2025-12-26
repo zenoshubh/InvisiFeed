@@ -126,7 +126,7 @@ const StatCard = ({ title, value, subtitle, icon: Icon, delay }) => (
 
 const Dashboard = () => {
   const { data: session } = useSession();
-  const owner = session?.user;
+  const business = session?.user;
 
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -197,7 +197,7 @@ const Dashboard = () => {
       setLoading(false);
     }
   }, [
-    owner?.username,
+    business?.username,
     salesSelectedYear,
     salesViewType,
     ratingsSelectedYear,
@@ -205,10 +205,10 @@ const Dashboard = () => {
   ]);
 
   useEffect(() => {
-    if (owner?.username) {
+    if (business?.username) {
       fetchMetrics();
     }
-  }, [owner?.username, fetchMetrics]);
+  }, [business?.username, fetchMetrics]);
 
   // Memoized data calculations
   const feedbackRatioData = useMemo(() => {
@@ -530,7 +530,7 @@ const Dashboard = () => {
           <Card className="bg-gradient-to-br from-[#0A0A0A]/80 to-[#0A0A0A]/50 backdrop-blur-sm border-yellow-400/10 hover:border-yellow-400/20 transition-colors group relative overflow-hidden flex flex-col">
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-            {owner?.plan?.planName === "free" && (
+            {business?.plan?.planName === "free" && (
               <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 text-center space-y-4 z-10 ">
                 <div className="text-yellow-400">
                   <Lock size={32} />
@@ -681,7 +681,7 @@ const Dashboard = () => {
           {/* Rating Trend Line Chart */}
           <Card className="bg-gradient-to-br from-[#0A0A0A]/80 to-[#0A0A0A]/50 backdrop-blur-sm border-yellow-400/10 hover:border-yellow-400/20 transition-colors group relative overflow-hidden flex flex-col">
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            {owner?.plan?.planName === "free" && (
+            {business?.plan?.planName === "free" && (
               <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 text-center space-y-4 z-10">
                 <div className="text-yellow-400">
                   <Lock size={32} />

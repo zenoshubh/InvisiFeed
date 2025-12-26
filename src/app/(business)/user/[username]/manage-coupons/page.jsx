@@ -17,7 +17,7 @@ import Link from "next/link";
 
 export default function ManageCoupons() {
   const { data: session } = useSession();
-  const owner = session?.user;
+  const business = session?.user;
   const pathname = usePathname();
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,10 +30,10 @@ export default function ManageCoupons() {
   const couponsPerPage = 10;
 
   useEffect(() => {
-    if (owner?.username) {
+    if (business?.username) {
       fetchCoupons();
     }
-  }, [owner?.username]);
+  }, [business?.username]);
 
   const fetchCoupons = async () => {
     try {
@@ -120,8 +120,8 @@ export default function ManageCoupons() {
   }
 
   if (
-    owner?.plan?.planName === "free" ||
-    owner?.plan?.planEndDate < new Date()
+    business?.plan?.planName === "free" ||
+    business?.plan?.planEndDate < new Date()
   ) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-4">

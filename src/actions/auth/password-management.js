@@ -3,19 +3,19 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dbConnect from "@/lib/db-connect";
-import OwnerModel from "@/models/owner";
+import AccountModel from "@/models/account";
 import sendEmail from "@/utils/email/nodemailer-utility";
 
 export async function sendPasswordResetEmail(email) {
   try {
     await dbConnect();
 
-    const user = await OwnerModel.findOne({ email });
-    if (!user) {
+    const account = await AccountModel.findOne({ email }).lean();
+    if (!account) {
       return { success: false, message: "User not found" };
     }
 
-    if (user.isGoogleAuth) {
+    if (account.isGoogleAuth) {
       return {
         success: false,
         message:
@@ -24,14 +24,15 @@ export async function sendPasswordResetEmail(email) {
     }
 
     const resetToken = jwt.sign(
-      { userId: user._id },
+      { userId: account._id },
       process.env.RESET_TOKEN_SECRET,
       { expiresIn: "1h" }
     );
 
-    user.resetToken = resetToken;
-    user.resetTokenExpiry = new Date(Date.now() + 3600000);
-    await user.save();
+    await AccountModel.findByIdAndUpdate(account._id, {
+      resetToken,
+      resetTokenExpiry: new Date(Date.now() + 3600000),
+    });
 
     const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/forgot-password?token=${resetToken}`;
 
@@ -65,22 +66,23 @@ export async function resetUserPassword(token, newPassword) {
 
     const decoded = jwt.verify(token, process.env.RESET_TOKEN_SECRET);
 
-    const user = await OwnerModel.findOne({
+    const account = await AccountModel.findOne({
       _id: decoded.userId,
       resetToken: token,
       resetTokenExpiry: { $gt: Date.now() },
-    });
+    }).lean();
 
-    if (!user) {
+    if (!account) {
       return { success: false, message: "Invalid or expired reset token" };
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    user.password = hashedPassword;
-    user.resetToken = undefined;
-    user.resetTokenExpiry = undefined;
-    await user.save();
+    await AccountModel.findByIdAndUpdate(account._id, {
+      password: hashedPassword,
+      resetToken: null,
+      resetTokenExpiry: null,
+    });
 
     return { success: true, message: "Password reset successfully" };
   } catch (error) {

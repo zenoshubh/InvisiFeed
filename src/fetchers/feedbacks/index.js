@@ -3,7 +3,7 @@
 import dbConnect from "@/lib/db-connect";
 import FeedbackModel from "@/models/feedback";
 import InvoiceModel from "@/models/invoice";
-import { getAuthenticatedOwner } from "@/lib/auth/session-utils";
+import { getAuthenticatedBusiness } from "@/lib/auth/session-utils";
 import { getPaginationParams, buildSortObject, SORT_CONFIGS, buildPaginationResponse } from "@/utils/pagination";
 import { successResponse, errorResponse } from "@/utils/response";
 
@@ -15,15 +15,15 @@ export async function getFeedbacks({
   await dbConnect();
 
   try {
-    const ownerResult = await getAuthenticatedOwner();
-    if (!ownerResult.success) {
-      return errorResponse(ownerResult.message);
+    const businessResult = await getAuthenticatedBusiness();
+    if (!businessResult.success) {
+      return errorResponse(businessResult.message);
     }
-    const { owner } = ownerResult;
+    const { business } = businessResult;
 
     // Get total count for pagination
     const totalFeedbacks = await FeedbackModel.countDocuments({
-      givenTo: owner._id,
+      givenTo: business._id,
     });
 
     // Get pagination params and sort object
@@ -31,42 +31,65 @@ export async function getFeedbacks({
     const sortObject = buildSortObject(sortBy, SORT_CONFIGS.feedbacks);
 
     // Get paginated feedbacks with customer details
-    const feedbacks = await FeedbackModel.find({ givenTo: owner._id })
+    const feedbacks = await FeedbackModel.find({ givenTo: business._id })
       .sort(sortObject)
       .skip(skip)
       .limit(limitNum)
+      .select("invoice satisfactionRating communicationRating qualityOfServiceRating valueForMoneyRating recommendRating overAllRating feedbackContent suggestionContent isAnonymous createdAt")
       .lean();
 
-    // Populate customer details for each feedback
-    const feedbacksWithDetails = await Promise.all(
-      feedbacks.map(async (feedback) => {
-        if (feedback.invoiceId) {
-          const invoice = await InvoiceModel.findById(feedback.invoiceId).select(
-            "customerDetails"
-          );
-          if (invoice && invoice.customerDetails) {
-            return {
-              ...feedback,
-              customerDetails: {
-                customerName:
-                  invoice.customerDetails.customerName || "Not Available",
-                customerEmail:
-                  invoice.customerDetails.customerEmail || "Not Available",
-                amount: invoice.customerDetails.amount || null,
-              },
-            };
-          }
-        }
-        return {
-          ...feedback,
-          customerDetails: {
-            customerName: "Not Available",
-            customerEmail: "Not Available",
-            amount: null,
-          },
-        };
-      })
-    );
+    // Batch fetch invoices for customer details (avoid N+1)
+    const invoiceIds = feedbacks
+      .map((f) => f.invoice)
+      .filter((id) => id !== null && id !== undefined);
+
+    const invoices = invoiceIds.length > 0
+      ? await InvoiceModel.find({ _id: { $in: invoiceIds } })
+          .select("customerDetails")
+          .lean()
+      : [];
+
+    // Create map for O(1) lookup
+    const invoiceMap = invoices.reduce((acc, invoice) => {
+      acc[invoice._id.toString()] = invoice.customerDetails || null;
+      return acc;
+    }, {});
+
+    // Map feedbacks with customer details and serialize for client component
+    const feedbacksWithDetails = feedbacks.map((feedback) => {
+      const customerDetails = feedback.invoice
+        ? invoiceMap[feedback.invoice.toString()]
+        : null;
+
+      // Serialize feedback data (convert ObjectIds to strings, Dates to ISO strings)
+      return {
+        _id: feedback._id.toString(),
+        invoice: feedback.invoice?.toString() || null,
+        satisfactionRating: feedback.satisfactionRating || null,
+        communicationRating: feedback.communicationRating || null,
+        qualityOfServiceRating: feedback.qualityOfServiceRating || null,
+        valueForMoneyRating: feedback.valueForMoneyRating || null,
+        recommendRating: feedback.recommendRating || null,
+        overAllRating: feedback.overAllRating || null,
+        feedbackContent: feedback.feedbackContent || null,
+        suggestionContent: feedback.suggestionContent || null,
+        isAnonymous: feedback.isAnonymous || false,
+        createdAt: feedback.createdAt 
+          ? new Date(feedback.createdAt).toISOString() 
+          : null,
+        customerDetails: customerDetails
+          ? {
+              customerName: customerDetails.customerName || "Not Available",
+              customerEmail: customerDetails.customerEmail || "Not Available",
+              amount: customerDetails.amount || null,
+            }
+          : {
+              customerName: "Not Available",
+              customerEmail: "Not Available",
+              amount: null,
+            },
+      };
+    });
 
     return successResponse("Feedbacks retrieved successfully", {
       feedbacks: feedbacksWithDetails,

@@ -2,7 +2,9 @@
 
 import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/db-connect";
-import OwnerModel from "@/models/owner";
+import AccountModel from "@/models/account";
+import BusinessModel from "@/models/business";
+import SubscriptionModel from "@/models/subscription";
 import { deleteOldInvoicePdfs } from "@/utils/invoice/delete-old-invoices";
 import sendVerificationEmail from "@/utils/email/send-verification-email";
 import { generateOTP } from "@/utils/common/generate-otp";
@@ -11,33 +13,34 @@ export async function signInUser(identifier, password) {
   try {
     await dbConnect();
 
-    const user = await OwnerModel.findOne({
+    // Find account by email or username
+    const account = await AccountModel.findOne({
       $or: [{ email: identifier }, { username: identifier }],
-    }).lean(); // Use lean for better performance
+    }).lean();
 
-    if (!user) {
+    if (!account) {
       return {
         success: false,
         message: "User not found with this email or username",
       };
     }
 
-    if (user.isGoogleAuth) {
+    if (account.isGoogleAuth) {
       return {
         success: false,
         message: "You have signed up with Google. Please sign in using Google.",
       };
     }
 
-    if (!user.isVerified) {
+    if (!account.isVerified) {
       const verifyCode = generateOTP();
 
-      await OwnerModel.findByIdAndUpdate(user._id, {
+      await AccountModel.findByIdAndUpdate(account._id, {
         verifyCode,
         verifyCodeExpiry: new Date(Date.now() + 3600000),
       });
 
-      const emailResponse = await sendVerificationEmail(user.email, verifyCode);
+      const emailResponse = await sendVerificationEmail(account.email, verifyCode);
 
       if (!emailResponse.success) {
         return { success: false, message: emailResponse.message };
@@ -45,18 +48,49 @@ export async function signInUser(identifier, password) {
 
       return {
         success: false,
-        message: `UNVERIFIED_USER:${user.username}`,
+        message: `UNVERIFIED_USER:${account.username}`,
       };
     }
 
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    const isPasswordCorrect = await bcrypt.compare(password, account.password);
 
     if (!isPasswordCorrect) {
       return { success: false, message: "Incorrect password" };
     }
 
+    // Get business and subscription data
+    const business = await BusinessModel.findOne({
+      account: account._id,
+    }).lean();
+
+    const subscription = await SubscriptionModel.findOne({
+      business: business?._id,
+      status: "active",
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Merge data for backward compatibility
+    const user = {
+      ...account,
+      ...business,
+      _id: business?._id || account._id,
+      plan: subscription
+        ? {
+            planName: subscription.planType,
+            planStartDate: subscription.startDate,
+            planEndDate: subscription.endDate,
+          }
+        : {
+            planName: "free",
+            planStartDate: null,
+            planEndDate: null,
+          },
+      proTrialUsed: business?.proTrialUsed || false,
+    };
+
     // Background task - don't await
-    deleteOldInvoicePdfs(user.username).catch(console.error);
+    deleteOldInvoicePdfs(account.username).catch(console.error);
 
     return {
       success: true,
@@ -64,7 +98,7 @@ export async function signInUser(identifier, password) {
       data: {
         user: {
           ...user,
-          id: user._id.toString(),
+          id: business?._id?.toString() || account._id.toString(),
         },
       },
     };

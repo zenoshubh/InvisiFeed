@@ -1,7 +1,8 @@
 "use server";
 
 import dbConnect from "@/lib/db-connect";
-import OwnerModel from "@/models/owner";
+import AccountModel from "@/models/account";
+import BusinessModel from "@/models/business";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 
@@ -39,18 +40,32 @@ export async function saveGSTIN(gstinNumber, taxpayerInfo) {
   }
   await dbConnect();
 
+  // Find account by username
+  const account = await AccountModel.findOne({
+    username: session.user.username,
+  }).lean();
+
+  if (!account) {
+    return { success: false, message: "Account not found" };
+  }
+
+  // Find business by account
+  const business = await BusinessModel.findOne({
+    account: account._id,
+  });
+
+  if (!business) {
+    return { success: false, message: "Business not found" };
+  }
+
   const gstinDetails = {
     gstinNumber,
     gstinVerificationStatus: true,
-    tradeName: taxpayerInfo.tradeNam,
-    taxpayerInfo,
+    gstinHolderName: taxpayerInfo.tradeNam || "",
   };
 
-  await OwnerModel.findOneAndUpdate(
-    { username: session.user.username },
-    { gstinDetails },
-    { new: true }
-  );
+  business.gstinDetails = gstinDetails;
+  await business.save();
 
   return { success: true, gstinDetails };
 }

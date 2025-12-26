@@ -2,7 +2,9 @@
 
 import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/db-connect";
-import OwnerModel from "@/models/owner";
+import AccountModel from "@/models/account";
+import BusinessModel from "@/models/business";
+import SubscriptionModel from "@/models/subscription";
 import DeletedAccountModel from "@/models/deleted-account";
 import { deleteOldInvoicePdfs } from "@/utils/invoice/delete-old-invoices";
 
@@ -10,25 +12,59 @@ export async function handleGoogleSignIn(user, profile) {
   try {
     await dbConnect();
 
-    const existingUser = await OwnerModel.findOne({ email: user.email }).lean();
+    // Find account by email
+    const existingAccount = await AccountModel.findOne({
+      email: user.email,
+    }).lean();
 
-    if (existingUser) {
+    if (existingAccount) {
       // Check if user originally signed up with credentials
-      if (!existingUser.isGoogleAuth) {
+      if (!existingAccount.isGoogleAuth) {
         return {
           success: false,
           redirectUrl: "/sign-in?error=DIFFERENT_SIGNIN_METHOD",
         };
       }
 
+      // Get business data
+      const business = await BusinessModel.findOne({
+        account: existingAccount._id,
+      }).lean();
+
+      const subscription = await SubscriptionModel.findOne({
+        business: business?._id,
+        status: "active",
+      })
+        .sort({ createdAt: -1 })
+        .lean();
+
+      // Merge data for backward compatibility
+      const mergedUser = {
+        ...existingAccount,
+        ...business,
+        _id: business?._id || existingAccount._id,
+        plan: subscription
+          ? {
+              planName: subscription.planType,
+              planStartDate: subscription.startDate,
+              planEndDate: subscription.endDate,
+            }
+          : {
+              planName: "free",
+              planStartDate: null,
+              planEndDate: null,
+            },
+        proTrialUsed: business?.proTrialUsed || false,
+      };
+
       // Background cleanup
-      deleteOldInvoicePdfs(existingUser.username).catch(console.error);
+      deleteOldInvoicePdfs(existingAccount.username).catch(console.error);
 
       return {
         success: true,
         user: {
-          ...existingUser,
-          id: existingUser._id.toString(),
+          ...mergedUser,
+          id: business?._id?.toString() || existingAccount._id.toString(),
         },
       };
     }
@@ -36,7 +72,7 @@ export async function handleGoogleSignIn(user, profile) {
     // Check deleted accounts
     const deletedAccount = await DeletedAccountModel.findOne({
       email: user.email,
-    });
+    }).lean();
     if (deletedAccount?.deletionDate) {
       const timeDiff = Date.now() - deletedAccount.deletionDate.getTime();
       const fifteenDays = 15 * 24 * 60 * 60 * 1000;
@@ -54,19 +90,23 @@ export async function handleGoogleSignIn(user, profile) {
       }
     }
 
-    // Create new user
+    // Create new account
     const username = await generateUniqueUsername(user.email);
 
-    const newUser = await OwnerModel.create({
+    const newAccount = await AccountModel.create({
       email: user.email,
-      businessName: user.name || "",
       username,
       password: await bcrypt.hash(Math.random().toString(36), 10),
       verifyCode: "GOOGLE_AUTH",
       verifyCodeExpiry: new Date(),
       isVerified: true,
       isGoogleAuth: true,
-      isProfileCompleted: "pending",
+    });
+
+    // Create business for the account
+    const newBusiness = await BusinessModel.create({
+      account: newAccount._id,
+      businessName: user.name || "",
       phoneNumber: "",
       address: {
         localAddress: "",
@@ -75,20 +115,44 @@ export async function handleGoogleSignIn(user, profile) {
         country: "",
         pincode: "",
       },
+      isProfileCompleted: "pending",
+      proTrialUsed: false,
       gstinDetails: {
         gstinVerificationStatus: false,
         gstinNumber: "",
-        gstinVerificationResponse: null,
+        gstinHolderName: "",
       },
     });
+
+    // Create free subscription
+    await SubscriptionModel.create({
+      business: newBusiness._id,
+      planType: "free",
+      status: "active",
+      startDate: new Date(),
+      endDate: null,
+    });
+
+    // Merge data for response
+    const mergedUser = {
+      ...newAccount.toObject(),
+      ...newBusiness.toObject(),
+      _id: newBusiness._id,
+      plan: {
+        planName: "free",
+        planStartDate: null,
+        planEndDate: null,
+      },
+      proTrialUsed: false,
+    };
 
     return {
       success: true,
       message: "Google sign-in successful",
       data: {
         user: {
-          ...newUser.toObject(),
-          id: newUser._id.toString(),
+          ...mergedUser,
+          id: newBusiness._id.toString(),
         },
       },
     };
@@ -103,7 +167,7 @@ async function generateUniqueUsername(email) {
   let username = baseUsername;
   let counter = 1;
 
-  while (await OwnerModel.findOne({ username }).lean()) {
+  while (await AccountModel.findOne({ username }).lean()) {
     username = `${baseUsername}${counter}`;
     counter++;
   }

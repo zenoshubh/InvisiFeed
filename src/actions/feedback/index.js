@@ -4,15 +4,28 @@ import dbConnect from "@/lib/db-connect";
 import InvoiceModel from "@/models/invoice";
 import FeedbackModel from "@/models/feedback";
 import { getGenerativeModel } from "@/lib/google-ai";
-import OwnerModel from "@/models/owner";
+import AccountModel from "@/models/account";
+import BusinessModel from "@/models/business";
 import { successResponse, errorResponse } from "@/utils/response";
 
 export async function checkInvoiceValidity(username, invoiceNumber) {
   await dbConnect();
   try {
-    const owner = await OwnerModel.findOne({ username }).lean();
+    // Find account by username
+    const account = await AccountModel.findOne({ username }).lean();
 
-    if (!owner) {
+    if (!account) {
+      return errorResponse("Business not found", {
+        businessName: null,
+      });
+    }
+
+    // Find business by account
+    const business = await BusinessModel.findOne({
+      account: account._id,
+    }).lean();
+
+    if (!business) {
       return errorResponse("Business not found", {
         businessName: null,
       });
@@ -20,28 +33,28 @@ export async function checkInvoiceValidity(username, invoiceNumber) {
 
     const invoice = await InvoiceModel.findOne({
       invoiceId: invoiceNumber,
-      owner: owner._id,
-    });
+      business: business._id,
+    }).lean();
 
     if (!invoice) {
       return errorResponse("Invalid invoice", {
-        businessName: owner.businessName,
+        businessName: business.businessName,
       });
     }
 
     const feedbackSubmitted = await FeedbackModel.findOne({
-      invoiceId: invoice._id,
+      invoice: invoice._id,
     }).lean();
 
     if (feedbackSubmitted) {
       return errorResponse("Feedback already submitted for this invoice", {
-        businessName: owner.businessName,
+        businessName: business.businessName,
         alreadySubmitted: true,
       });
     }
 
     return successResponse("Invoice is valid", {
-      businessName: owner.businessName,
+      businessName: business.businessName,
       aiUsageCount: invoice.AIuseCount || 0,
     });
   } catch (error) {
@@ -57,15 +70,25 @@ export async function generateFeedbackWithAI(
 ) {
   await dbConnect();
   try {
-    const owner = await OwnerModel.findOne({ username }).lean();
+    // Find account by username
+    const account = await AccountModel.findOne({ username }).lean();
 
-    if (!owner) {
+    if (!account) {
+      return errorResponse("Business not found");
+    }
+
+    // Find business by account
+    const business = await BusinessModel.findOne({
+      account: account._id,
+    }).lean();
+
+    if (!business) {
       return errorResponse("Business not found");
     }
 
     const invoice = await InvoiceModel.findOne({
       invoiceId: invoiceNumber,
-      owner: owner._id,
+      business: business._id,
     });
 
     if (!invoice) {
@@ -122,15 +145,25 @@ export async function generateSuggestionsWithAI(
 ) {
   await dbConnect();
   try {
-    const owner = await OwnerModel.findOne({ username }).lean();
+    // Find account by username
+    const account = await AccountModel.findOne({ username }).lean();
 
-    if (!owner) {
+    if (!account) {
+      return errorResponse("Business not found");
+    }
+
+    // Find business by account
+    const business = await BusinessModel.findOne({
+      account: account._id,
+    }).lean();
+
+    if (!business) {
       return errorResponse("Business not found");
     }
 
     const invoice = await InvoiceModel.findOne({
       invoiceId: invoiceNumber,
-      owner: owner._id,
+      business: business._id,
     });
 
     if (!invoice) {
@@ -174,15 +207,29 @@ export async function generateSuggestionsWithAI(
 export async function submitFeedback(formData, username, invoiceNumber) {
   await dbConnect();
   try {
-    const owner = await OwnerModel.findOne({ username });
+    // Find account by username
+    const account = await AccountModel.findOne({ username }).lean();
 
-    if (!owner) {
+    if (!account) {
       return errorResponse("Business not found");
     }
 
+    // Find business by account (need document for saving feedback, but check first)
+    const businessCheck = await BusinessModel.findOne({
+      account: account._id,
+    })
+      .select("_id")
+      .lean();
+
+    if (!businessCheck) {
+      return errorResponse("Business not found");
+    }
+
+    // Get business document for saving (we need to update invoice)
+    const business = await BusinessModel.findById(businessCheck._id);
     const invoice = await InvoiceModel.findOne({
       invoiceId: invoiceNumber,
-      owner: owner._id,
+      business: business._id,
     });
 
     if (!invoice) {
@@ -213,7 +260,8 @@ export async function submitFeedback(formData, username, invoiceNumber) {
         overAllRating,
         feedbackContent,
         suggestionContent,
-        givenTo: owner._id,
+        givenTo: business._id,
+        isAnonymous: true,
       });
     } else {
       feedback = await FeedbackModel.create({
@@ -225,29 +273,41 @@ export async function submitFeedback(formData, username, invoiceNumber) {
         overAllRating,
         feedbackContent,
         suggestionContent,
-        givenTo: owner._id,
-        invoiceId: invoice._id,
+        givenTo: business._id,
+        invoice: invoice._id,
+        invoiceId: invoice._id, // Keep for backward compatibility
+        isAnonymous: false,
       });
     }
-
-    await feedback.save();
 
     invoice.isFeedbackSubmitted = true;
     invoice.feedbackSubmittedAt = new Date();
     await invoice.save();
 
-    owner.feedbacks.push(feedback._id);
-    await owner.save();
+    // Look up coupon from invoice if it exists
+    let couponCode = null;
+    
+    if (invoice.coupon) {
+      const CouponModel = (await import("@/models/coupon")).default;
+      const coupon = await CouponModel.findById(invoice.coupon)
+        .select("couponCode")
+        .lean();
+      
+      if (coupon) {
+        couponCode = coupon.couponCode;
+      }
+    }
 
-    // Generate coupon code if needed
-    const couponCode = `THANK${Math.random()
-      .toString(36)
-      .substr(2, 9)
-      .toUpperCase()}`;
+    // If no coupon found, generate a default thank you code
+    if (!couponCode) {
+      couponCode = `THANK${Math.random()
+        .toString(36)
+        .substr(2, 9)
+        .toUpperCase()}`;
+    }
 
     return successResponse("Feedback submitted successfully", {
       couponCode,
-      couponDiscount: 10,
     });
   } catch (error) {
     console.error("Error submitting feedback:", error);

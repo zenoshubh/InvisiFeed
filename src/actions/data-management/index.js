@@ -1,11 +1,13 @@
 "use server";
 
 import dbConnect from "@/lib/db-connect";
-import OwnerModel from "@/models/owner";
+import AccountModel from "@/models/account";
+import BusinessModel from "@/models/business";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 import FeedbackModel from "@/models/feedback";
 import InvoiceModel from "@/models/invoice";
+import RecommendedActionModel from "@/models/recommended-action";
 
 export async function resetData() {
   try {
@@ -17,26 +19,34 @@ export async function resetData() {
       return { success: false, message: "Unauthorized" };
     }
 
-    const owner = await OwnerModel.findOne({ username });
-    if (!owner) {
-      return { success: false, message: "Owner not found" };
+    // Find account by username
+    const account = await AccountModel.findOne({ username }).lean();
+
+    if (!account) {
+      return { success: false, message: "Account not found" };
     }
 
-    // Reset data
-    owner.currentRecommendedActions = {
-      improvements: [],
-      strengths: [],
-    };
+    // Find business by account
+    const business = await BusinessModel.findOne({
+      account: account._id,
+    }).lean();
 
-    await FeedbackModel.deleteMany({
-      givenTo: owner._id,
+    if (!business) {
+      return { success: false, message: "Business not found" };
+    }
+
+    // Delete recommended actions
+    await RecommendedActionModel.deleteMany({
+      business: business._id,
     });
 
-    owner.feedbacks = [];
+    // Delete feedbacks
+    await FeedbackModel.deleteMany({
+      givenTo: business._id,
+    });
 
-    await InvoiceModel.deleteMany({ owner: owner._id });
-
-    await owner.save();
+    // Delete invoices
+    await InvoiceModel.deleteMany({ business: business._id });
 
     return {
       success: true,
@@ -53,20 +63,33 @@ export async function deleteAccount() {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session) {
+    if (!session?.user?.email) {
       return { success: false, message: "Unauthorized" };
     }
 
-    const owner = await OwnerModel.findOne({ email: session.user.email });
-    if (!owner) {
-      return { success: false, message: "Owner not found" };
+    // Find account by email
+    const account = await AccountModel.findOne({
+      email: session.user.email,
+    }).lean();
+
+    if (!account) {
+      return { success: false, message: "Account not found" };
+    }
+
+    // Find business by account
+    const business = await BusinessModel.findOne({
+      account: account._id,
+    }).lean();
+
+    if (!business) {
+      return { success: false, message: "Business not found" };
     }
 
     const DeletedAccountModel = (await import("@/models/deleted-account"))
       .default;
 
     const deletedAccount = await DeletedAccountModel.create({
-      email: owner.email,
+      email: account.email,
       deletionDate: new Date(),
     });
 
@@ -74,9 +97,13 @@ export async function deleteAccount() {
       return { success: false, message: "Failed to delete account" };
     }
 
-    await OwnerModel.findByIdAndDelete(owner._id);
-    await InvoiceModel.deleteMany({ owner: owner._id });
-    await FeedbackModel.deleteMany({ givenTo: owner._id });
+    // Delete all related data
+    await Promise.all([
+      AccountModel.findByIdAndDelete(account._id),
+      BusinessModel.findByIdAndDelete(business._id),
+      InvoiceModel.deleteMany({ business: business._id }),
+      FeedbackModel.deleteMany({ givenTo: business._id }),
+    ]);
 
     return { success: true, message: "Account deleted successfully" };
   } catch (error) {

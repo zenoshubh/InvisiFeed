@@ -5,7 +5,9 @@ import {
   createRazorpayOrder,
   verifyRazorpaySignature,
 } from "@/lib/razorpay";
-import { getAuthenticatedOwnerDocument, getAuthenticatedOwner } from "@/lib/auth/session-utils";
+import { getAuthenticatedBusinessDocument, getAuthenticatedBusiness } from "@/lib/auth/session-utils";
+import SubscriptionModel from "@/models/subscription";
+import BusinessModel from "@/models/business";
 import { successResponse, errorResponse } from "@/utils/response";
 import { addDaysToDate } from "@/utils/common/date-helpers";
 
@@ -13,14 +15,14 @@ export async function createOrder() {
   await dbConnect();
 
   try {
-    const ownerResult = await getAuthenticatedOwnerDocument();
-    if (!ownerResult.success) {
-      return errorResponse(ownerResult.message);
+    const businessResult = await getAuthenticatedBusinessDocument();
+    if (!businessResult.success) {
+      return errorResponse(businessResult.message);
     }
-    const { owner: user } = ownerResult;
+    const { business } = businessResult;
 
-    // Check if user already has a pro plan
-    if (user.plan?.planName === "pro") {
+    // Check if business already has a pro plan
+    if (business.plan?.planName === "pro") {
       return errorResponse("User already has a Pro plan");
     }
 
@@ -52,11 +54,11 @@ export async function verifyPayment({
   await dbConnect();
 
   try {
-    const ownerResult = await getAuthenticatedOwnerDocument();
-    if (!ownerResult.success) {
-      return errorResponse(ownerResult.message);
+    const businessResult = await getAuthenticatedBusinessDocument();
+    if (!businessResult.success) {
+      return errorResponse(businessResult.message);
     }
-    const { owner: user } = ownerResult;
+    const { business, businessData } = businessResult;
 
     // Verify payment signature
     const isValid = verifyRazorpaySignature(
@@ -69,21 +71,28 @@ export async function verifyPayment({
       return errorResponse("Invalid payment signature");
     }
 
+    // Deactivate existing subscriptions
+    await SubscriptionModel.updateMany(
+      { business: businessData._id, status: "active" },
+      { status: "expired" }
+    );
+
+    // Create new pro subscription
     const planStartDate = new Date();
     const planEndDate = addDaysToDate(30);
 
-    user.plan = {
-      planName: "pro",
-      planStartDate,
-      planEndDate,
-    };
-
-    await user.save();
+    const newSubscription = await SubscriptionModel.create({
+      business: businessData._id,
+      planType: "pro",
+      status: "active",
+      startDate: planStartDate,
+      endDate: planEndDate,
+    });
 
     return successResponse("Payment verified successfully", {
       user: {
         plan: {
-          planName: user.plan.planName,
+          planName: newSubscription.planType,
           planStartDate: planStartDate.toISOString(),
           planEndDate: planEndDate.toISOString(),
         },
@@ -99,41 +108,52 @@ export async function updatePlan({ planName }) {
   await dbConnect();
 
   try {
-    const ownerResult = await getAuthenticatedOwnerDocument();
-    if (!ownerResult.success) {
-      return errorResponse(ownerResult.message);
+    const businessResult = await getAuthenticatedBusinessDocument();
+    if (!businessResult.success) {
+      return errorResponse(businessResult.message);
     }
-    const { owner: user } = ownerResult;
+    const { business, businessData } = businessResult;
 
     if (planName === "pro-trial") {
-      if (user.proTrialUsed) {
+      if (business.proTrialUsed) {
         return errorResponse("Pro trial already used");
       }
 
-      if (user.plan?.planName === "pro-trial") {
+      if (business.plan?.planName === "pro-trial") {
         return errorResponse("User already has a Pro trial");
       }
+
+      // Deactivate existing subscriptions
+      await SubscriptionModel.updateMany(
+        { business: businessData._id, status: "active" },
+        { status: "expired" }
+      );
 
       const planStartDate = new Date();
       const planEndDate = addDaysToDate(7);
 
-      user.plan = {
-        planName: "pro-trial",
-        planStartDate,
-        planEndDate,
-      };
-      user.proTrialUsed = true;
+      // Create new pro-trial subscription
+      const newSubscription = await SubscriptionModel.create({
+        business: businessData._id,
+        planType: "pro-trial",
+        status: "active",
+        startDate: planStartDate,
+        endDate: planEndDate,
+      });
 
-      await user.save();
+      // Update business proTrialUsed
+      await BusinessModel.findByIdAndUpdate(businessData._id, {
+        proTrialUsed: true,
+      });
 
       return successResponse("Successfully switched to Pro trial plan", {
         user: {
           plan: {
-            planName: user.plan.planName,
+            planName: newSubscription.planType,
             planStartDate: planStartDate.toISOString(),
             planEndDate: planEndDate.toISOString(),
           },
-          proTrialUsed: user.proTrialUsed,
+          proTrialUsed: true,
         },
       });
     }
@@ -149,25 +169,25 @@ export async function getUserPlan() {
   await dbConnect();
 
   try {
-    const ownerResult = await getAuthenticatedOwner();
-    if (!ownerResult.success) {
-      return errorResponse(ownerResult.message);
+    const businessResult = await getAuthenticatedBusiness();
+    if (!businessResult.success) {
+      return errorResponse(businessResult.message);
     }
-    const { owner: user } = ownerResult;
+    const { business, account } = businessResult;
 
     return successResponse("User plan retrieved successfully", {
       user: {
-        plan: user.plan
+        plan: business.plan
           ? {
-              planName: user.plan.planName,
-              planStartDate: user.plan.planStartDate?.toISOString(),
-              planEndDate: user.plan.planEndDate?.toISOString(),
+              planName: business.plan.planName,
+              planStartDate: business.plan.planStartDate?.toISOString(),
+              planEndDate: business.plan.planEndDate?.toISOString(),
             }
           : null,
-        proTrialUsed: user.proTrialUsed,
-        businessName: user.businessName,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
+        proTrialUsed: business.proTrialUsed,
+        businessName: business.businessName,
+        email: account.email,
+        phoneNumber: business.phoneNumber,
       },
     });
   } catch (error) {

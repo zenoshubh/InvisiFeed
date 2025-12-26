@@ -13,14 +13,14 @@ import CreateInvoiceModal from "./create-invoice-modal";
 import CouponFormModal from "./coupon-form-modal";
 import SampleInvoicesModal from "./sample-invoices-modal";
 import ConfirmModal from "@/components/modals/confirm-modal";
-import CompleteProfileDialog from "@/components/owner-page-components/complete-profile-dialog";
+import CompleteProfileDialog from "@/components/business-page-components/complete-profile-dialog";
 import { SubscriptionPopup } from "@/components/modals/subscription-popup";
 
 export default function InvoiceManagementContainer({ initialData }) {
   const {
     dailyUploadCount: initialCount,
     dailyLimit: initialLimit,
-    owner,
+    business,
   } = initialData;
 
   const [file, setFile] = useState(null);
@@ -87,7 +87,7 @@ export default function InvoiceManagementContainer({ initialData }) {
       return;
     }
 
-    if (owner?.isProfileCompleted !== "completed") {
+    if (business?.isProfileCompleted !== "completed") {
       setShowCompleteProfileDialog(true);
       return;
     }
@@ -99,7 +99,14 @@ export default function InvoiceManagementContainer({ initialData }) {
       formData.append("file", file);
 
       if (couponSaved && couponData.couponCode) {
-        formData.append("couponData", JSON.stringify(couponData));
+        // Ensure expiryDays is a number before stringifying
+        const couponDataToSend = {
+          ...couponData,
+          expiryDays: typeof couponData.expiryDays === 'string' 
+            ? parseInt(couponData.expiryDays, 10) 
+            : couponData.expiryDays,
+        };
+        formData.append("couponData", JSON.stringify(couponDataToSend));
       }
 
       const result = await uploadInvoice(formData);
@@ -151,7 +158,7 @@ export default function InvoiceManagementContainer({ initialData }) {
         customerEmail,
         invoiceNumber,
         pdfUrl,
-        companyName: owner?.companyName || "Your Company",
+        companyName: business?.businessName || "Your Company",
         feedbackUrl,
       });
 
@@ -172,9 +179,19 @@ export default function InvoiceManagementContainer({ initialData }) {
     setLoading(true);
 
     try {
+      // Ensure expiryDays is a number if coupon data exists
+      const couponDataToSend = couponSaved && couponData.couponCode
+        ? {
+            ...couponData,
+            expiryDays: typeof couponData.expiryDays === 'string' 
+              ? parseInt(couponData.expiryDays, 10) 
+              : couponData.expiryDays,
+          }
+        : null;
+      
       const result = await createInvoice({
         ...invoiceData,
-        couponData: couponSaved ? couponData : null,
+        couponData: couponDataToSend,
       });
 
       if (result.success) {
@@ -247,7 +264,7 @@ export default function InvoiceManagementContainer({ initialData }) {
   };
 
   const handleShowCreateInvoice = () => {
-    if (owner?.isProfileCompleted !== "completed") {
+    if (business?.isProfileCompleted !== "completed") {
       setShowCompleteProfileDialog(true);
       return;
     }
@@ -283,8 +300,69 @@ export default function InvoiceManagementContainer({ initialData }) {
     setShowSampleInvoices(false);
 
     try {
-      const response = await fetch(sampleInvoice.url);
+      // Fetch the sample invoice - use original URL as-is
+      // Cloudinary should serve PDFs correctly even from /image/upload/
+      const response = await fetch(sampleInvoice.url, {
+        method: 'GET',
+        mode: 'cors', // Ensure CORS is handled
+      });
+      
+      // Check if response is ok
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error(`Sample invoice not found. The file may have been removed from Cloudinary. Please contact support or use a different sample invoice.`);
+        }
+        throw new Error(`Failed to fetch sample invoice: ${response.status} ${response.statusText}`);
+      }
+
+      // Get the blob
       const blob = await response.blob();
+      
+      // Check content type if available
+      const contentType = response.headers.get('content-type');
+      if (contentType && !contentType.includes('pdf') && !contentType.includes('octet-stream')) {
+        console.warn(`Unexpected content type: ${contentType}`);
+      }
+      
+      // Validate blob is not empty
+      if (blob.size === 0) {
+        throw new Error("Sample invoice file is empty");
+      }
+
+      // Convert blob to ArrayBuffer to validate PDF header (browser-compatible)
+      const arrayBuffer = await blob.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+      
+      // Validate PDF header - check first 4 bytes for "%PDF"
+      const pdfHeader = String.fromCharCode(
+        uint8Array[0],
+        uint8Array[1],
+        uint8Array[2],
+        uint8Array[3]
+      );
+      
+      if (pdfHeader !== "%PDF") {
+        // Check if it might be in the first 10 bytes (some PDFs have whitespace)
+        let hasPdfHeader = false;
+        for (let i = 0; i < Math.min(10, uint8Array.length); i++) {
+          const checkHeader = String.fromCharCode(
+            uint8Array[i],
+            uint8Array[i + 1] || 0,
+            uint8Array[i + 2] || 0,
+            uint8Array[i + 3] || 0
+          );
+          if (checkHeader === "%PDF") {
+            hasPdfHeader = true;
+            break;
+          }
+        }
+        
+        if (!hasPdfHeader) {
+          throw new Error("Invalid PDF file. The sample invoice does not appear to be a valid PDF.");
+        }
+      }
+
+      // Create File object from the validated blob
       const file = new File([blob], `${sampleInvoice.name}.pdf`, {
         type: "application/pdf",
       });
@@ -293,7 +371,14 @@ export default function InvoiceManagementContainer({ initialData }) {
       formData.append("file", file);
 
       if (couponSaved && couponData.couponCode) {
-        formData.append("couponData", JSON.stringify(couponData));
+        // Ensure expiryDays is a number before stringifying
+        const couponDataToSend = {
+          ...couponData,
+          expiryDays: typeof couponData.expiryDays === 'string' 
+            ? parseInt(couponData.expiryDays, 10) 
+            : couponData.expiryDays,
+        };
+        formData.append("couponData", JSON.stringify(couponDataToSend));
       }
 
       const result = await uploadInvoice(formData);
@@ -319,7 +404,8 @@ export default function InvoiceManagementContainer({ initialData }) {
         toast.error(result.message);
       }
     } catch (error) {
-      toast.error("Failed to process sample invoice");
+      console.error("Error processing sample invoice:", error);
+      toast.error(error.message || "Failed to process sample invoice");
     } finally {
       setLoading(false);
     }
@@ -336,7 +422,7 @@ export default function InvoiceManagementContainer({ initialData }) {
           dailyLimit={dailyLimit}
           couponSaved={couponSaved}
           couponData={couponData}
-          owner={owner}
+          business={business}
           showCreateInvoice={showCreateInvoice}
           onFileChange={handleFileChange}
           onUpload={handleUpload}
@@ -375,7 +461,7 @@ export default function InvoiceManagementContainer({ initialData }) {
             customerAmount={customerAmount}
             emailSent={emailSent}
             sendingEmail={sendingEmail}
-            owner={owner}
+            business={business}
             onCustomerEmailChange={setCustomerEmail}
             onSendEmail={handleSendEmail}
             onReset={() => {

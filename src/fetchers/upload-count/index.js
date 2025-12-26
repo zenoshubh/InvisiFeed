@@ -1,22 +1,30 @@
 "use server";
 
 import dbConnect from "@/lib/db-connect";
-import { getAuthenticatedOwnerDocument } from "@/lib/auth/session-utils";
+import { getAuthenticatedBusiness } from "@/lib/auth/session-utils";
+import UsageTrackerModel from "@/models/usage-tracker";
 import { checkAndResetDailyUploads, getDailyUploadLimit } from "@/utils/invoice/upload-limit";
 import { successResponse, errorResponse } from "@/utils/response";
 
 export async function getUploadCount() {
   await dbConnect();
   try {
-    const ownerResult = await getAuthenticatedOwnerDocument();
-    if (!ownerResult.success) {
-      return errorResponse(ownerResult.message);
+    const businessResult = await getAuthenticatedBusiness();
+    if (!businessResult.success) {
+      return errorResponse(businessResult.message);
     }
-    const { owner } = ownerResult;
+    const { business } = businessResult;
 
-    const resetResult = await checkAndResetDailyUploads(owner);
-    const dailyLimit = getDailyUploadLimit(owner);
-    const currentCount = owner.uploadedInvoiceCount.dailyUploadCount;
+    const resetResult = await checkAndResetDailyUploads(business);
+    const dailyLimit = getDailyUploadLimit(business);
+    
+    // Get current count from UsageTracker
+    const tracker = await UsageTrackerModel.findOne({
+      business: business._id,
+      usageType: "invoice-upload",
+    }).lean();
+    
+    const currentCount = tracker?.dailyUploadCount || 0;
 
     // Calculate time left if limit is reached
     let timeLeft = null;

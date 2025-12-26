@@ -3,7 +3,9 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 import dbConnect from "@/lib/db-connect";
-import OwnerModel from "@/models/owner";
+import AccountModel from "@/models/account";
+import BusinessModel from "@/models/business";
+import SubscriptionModel from "@/models/subscription";
 import { addDaysToDate } from "@/utils/common/date-helpers";
 
 export async function updatePlan(planName) {
@@ -18,13 +20,32 @@ export async function updatePlan(planName) {
     }
 
     await dbConnect();
-    const user = await OwnerModel.findById(session.user.id);
+    
+    // Find account by username
+    const account = await AccountModel.findOne({
+      username: session.user.username,
+    }).lean();
 
-    if (!user) {
-      return { success: false, message: "User not found" };
+    if (!account) {
+      return { success: false, message: "Account not found" };
     }
 
-    if (user.plan?.planName === "pro") {
+    // Find business
+    const business = await BusinessModel.findOne({
+      account: account._id,
+    }).lean();
+
+    if (!business) {
+      return { success: false, message: "Business not found" };
+    }
+
+    // Check active subscription
+    const activeSubscription = await SubscriptionModel.findOne({
+      business: business._id,
+      status: "active",
+    }).lean();
+
+    if (activeSubscription?.planType === "pro") {
       return {
         success: false,
         message: "You're already on Pro Plan",
@@ -32,22 +53,30 @@ export async function updatePlan(planName) {
     }
 
     if (planName === "pro-trial") {
-      user.plan = {
-        planName: "pro-trial",
-        planStartDate: new Date(),
-        planEndDate: addDaysToDate(7),
-      };
-      user.proTrialUsed = true;
-    }
+      // Deactivate existing subscriptions
+      await SubscriptionModel.updateMany(
+        { business: business._id, status: "active" },
+        { status: "expired" }
+      );
 
-    await user.save();
+      // Create new pro-trial subscription
+      await SubscriptionModel.create({
+        business: business._id,
+        planType: "pro-trial",
+        status: "active",
+        startDate: new Date(),
+        endDate: addDaysToDate(7),
+      });
+
+      // Update business proTrialUsed
+      await BusinessModel.findByIdAndUpdate(business._id, {
+        proTrialUsed: true,
+      });
+    }
 
     return {
       success: true,
       message: "Plan updated successfully",
-      data: {
-        user,
-      },
     };
   } catch (error) {
     console.error("Error updating plan:", error);
@@ -59,25 +88,58 @@ export async function startProTrial() {
   await dbConnect();
   try {
     const session = await getServerSession(authOptions);
-    const user = await OwnerModel.findById(session?.user?.id);
-
-    if (!user) {
-      return { success: false, message: "User not found" };
+    
+    if (!session?.user?.username) {
+      return { success: false, message: "Unauthorized" };
     }
 
-    if (user.plan?.planName === "pro-trial") {
+    // Find account by username
+    const account = await AccountModel.findOne({
+      username: session.user.username,
+    }).lean();
+
+    if (!account) {
+      return { success: false, message: "Account not found" };
+    }
+
+    // Find business
+    const business = await BusinessModel.findOne({
+      account: account._id,
+    }).lean();
+
+    if (!business) {
+      return { success: false, message: "Business not found" };
+    }
+
+    // Check active subscription
+    const activeSubscription = await SubscriptionModel.findOne({
+      business: business._id,
+      status: "active",
+    }).lean();
+
+    if (activeSubscription?.planType === "pro-trial") {
       return { success: false, message: "User already has a Pro trial" };
     }
 
-    user.plan = {
-      planName: "pro-trial",
-      planStartDate: new Date(),
-      planEndDate: addDaysToDate(7),
-    };
+    // Deactivate existing subscriptions
+    await SubscriptionModel.updateMany(
+      { business: business._id, status: "active" },
+      { status: "expired" }
+    );
 
-    user.proTrialUsed = true;
+    // Create new pro-trial subscription
+    await SubscriptionModel.create({
+      business: business._id,
+      planType: "pro-trial",
+      status: "active",
+      startDate: new Date(),
+      endDate: addDaysToDate(7),
+    });
 
-    await user.save();
+    // Update business proTrialUsed
+    await BusinessModel.findByIdAndUpdate(business._id, {
+      proTrialUsed: true,
+    });
 
     return {
       success: true,

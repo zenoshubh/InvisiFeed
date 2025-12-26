@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db-connect";
-import OwnerModel from "@/models/owner";
+import AccountModel from "@/models/account";
+import BusinessModel from "@/models/business";
+import SubscriptionModel from "@/models/subscription";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 import { verifyRazorpaySignature } from "@/lib/razorpay";
@@ -31,42 +33,76 @@ export async function POST(req) {
       );
     }
 
-    // Update user's plan
     await dbConnect();
-    const user = await OwnerModel.findById(session.user.id);
     
-    if (!user) {
+    // Find account by username
+    const account = await AccountModel.findOne({
+      username: session.user.username,
+    }).lean();
+
+    if (!account) {
       return NextResponse.json(
-        { success: false, message: "User not found" },
+        { success: false, message: "Account not found" },
         { status: 404 }
       );
     }
 
-    // Check if user already has a pro plan
-    if (user.plan?.planName === "pro") {
+    // Find business
+    const business = await BusinessModel.findOne({
+      account: account._id,
+    }).lean();
+
+    if (!business) {
+      return NextResponse.json(
+        { success: false, message: "Business not found" },
+        { status: 404 }
+      );
+    }
+
+    // Check if business already has a pro plan
+    const activeSubscription = await SubscriptionModel.findOne({
+      business: business._id,
+      status: "active",
+      planType: "pro",
+    }).lean();
+
+    if (activeSubscription) {
       return NextResponse.json(
         { success: false, message: "User already has a Pro plan" },
         { status: 400 }
       );
     }
 
+    // Deactivate existing subscriptions
+    await SubscriptionModel.updateMany(
+      { business: business._id, status: "active" },
+      { status: "expired" }
+    );
+
     // Set plan to Pro for 30 days
     const now = new Date();
     const thirtyDaysLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-    user.plan = {
-      planName: "pro",
-      planStartDate: now,
-      planEndDate: thirtyDaysLater,
-    };
-
-    await user.save();
+    // Create new pro subscription
+    const newSubscription = await SubscriptionModel.create({
+      business: business._id,
+      planType: "pro",
+      status: "active",
+      startDate: now,
+      endDate: thirtyDaysLater,
+    });
 
     return NextResponse.json({
       success: true,
       message: "Payment verified and plan updated successfully",
-      user
-    } , {status:200});
+      user: {
+        plan: {
+          planName: newSubscription.planType,
+          planStartDate: now,
+          planEndDate: thirtyDaysLater,
+        },
+      },
+    }, {status:200});
   } catch (error) {
     console.error("Error verifying payment:", error);
     return NextResponse.json(

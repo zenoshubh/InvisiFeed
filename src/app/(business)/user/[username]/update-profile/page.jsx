@@ -33,7 +33,7 @@ import { updateProfileSchema as formSchema } from "@/schemas/profile/update-prof
 
 function UpdateProfilePage() {
   const { data: session, update } = useSession();
-  const owner = session?.user;
+  const business = session?.user;
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -67,12 +67,12 @@ function UpdateProfilePage() {
         const fetchedCountries = Country.getAllCountries();
         setCountries(fetchedCountries);
 
-        form.reset(owner);
+        form.reset(business);
 
         // If user has country selected, fetch states
-        if (owner?.address?.country) {
+        if (business?.address?.country) {
           const countryCode = fetchedCountries.find(
-            (c) => c.name === owner.address.country
+            (c) => c.name === business.address.country
           )?.isoCode;
 
           if (countryCode) {
@@ -80,9 +80,9 @@ function UpdateProfilePage() {
             setStates(fetchedStates);
 
             // If user has state selected, fetch cities
-            if (owner?.address?.state) {
+            if (business?.address?.state) {
               const stateCode = fetchedStates.find(
-                (s) => s.name === owner.address.state
+                (s) => s.name === business.address.state
               )?.isoCode;
 
               if (stateCode) {
@@ -93,9 +93,9 @@ function UpdateProfilePage() {
                 setCities(fetchedCities);
               }
             }
-            if (owner?.address?.city) {
+            if (business?.address?.city) {
               const cityCode = fetchedCities.find(
-                (s) => s.name === owner.address.city
+                (s) => s.name === business.address.city
               )?.isoCode;
               form.setValue("address.city", cityCode);
             }
@@ -107,10 +107,10 @@ function UpdateProfilePage() {
       }
     };
 
-    if (owner?.username) {
+    if (business?.username) {
       fetchData();
     }
-  }, [owner?.username, form]);
+  }, [business?.username, form]);
 
   const handleCountryChange = (countryName) => {
     const countryCode = countries.find((c) => c.name === countryName)?.isoCode;
@@ -175,15 +175,25 @@ function UpdateProfilePage() {
       const result = await updateProfile(payload.data);
 
       if (result.success) {
-        // Update session with new data
+        // Update session with new data (ensure all fields are serializable)
+        // Convert id to string if it's an ObjectId
+        const userId = result.data.user.id 
+          ? (typeof result.data.user.id === 'object' && result.data.user.id.toString ? result.data.user.id.toString() : String(result.data.user.id))
+          : (typeof session.user.id === 'object' && session.user.id.toString ? session.user.id.toString() : String(session.user.id));
+        
         await update({
           user: {
-            ...session.user,
+            id: userId,
+            email: session.user.email,
+            username: session.user.username,
             businessName:
               result.data.user.businessName || session.user.businessName,
-            phoneNumber: result.data.user.phoneNumber,
+            phoneNumber: result.data.user.phoneNumber || session.user.phoneNumber,
             address: result.data.user.address || session.user.address,
-            isProfileCompleted: result.data.user.isProfileCompleted,
+            isProfileCompleted: result.data.user.isProfileCompleted || session.user.isProfileCompleted,
+            gstinDetails: session.user.gstinDetails,
+            plan: session.user.plan,
+            proTrialUsed: session.user.proTrialUsed,
           },
         });
 
@@ -228,19 +238,19 @@ function UpdateProfilePage() {
     control: form.control,
   });
 
-  // Function to compare form values with `owner`
-  const isFormUnchanged = (formData, ownerData) => {
-    return JSON.stringify(formData) === JSON.stringify(ownerData);
+  // Function to compare form values with `business`
+  const isFormUnchanged = (formData, businessData) => {
+    return JSON.stringify(formData) === JSON.stringify(businessData);
   };
 
   // Use effect to enable/disable the save button based on changes
   useEffect(() => {
     const currentFormValues = form.getValues();
-    if (owner) {
-      const unchanged = isFormUnchanged(currentFormValues, owner);
+    if (business) {
+      const unchanged = isFormUnchanged(currentFormValues, business);
       setIsSaveDisabled(unchanged);
     }
-  }, [watchedValues, owner]);
+  }, [watchedValues, business]);
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">

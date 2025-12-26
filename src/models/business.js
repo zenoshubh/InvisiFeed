@@ -7,7 +7,6 @@ const BusinessSchema = new Schema(
       ref: "Account",
       required: true,
       unique: true,
-      index: true,
     },
     businessName: {
       type: String,
@@ -55,7 +54,6 @@ const BusinessSchema = new Schema(
       type: String,
       enum: ["pending", "skipped", "completed"],
       default: "pending",
-      index: true,
     },
     gstinDetails: {
       gstinNumber: {
@@ -84,7 +82,7 @@ const BusinessSchema = new Schema(
 );
 
 // Performance Indexes
-BusinessSchema.index({ account: 1 }, { unique: true });
+// Note: account index is automatically created by unique: true
 BusinessSchema.index({ isProfileCompleted: 1 });
 BusinessSchema.index({ createdAt: -1 });
 

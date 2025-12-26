@@ -8,7 +8,7 @@ import UserNav from "@/components/navigation/user-nav";
 
 function Navbar() {
   const { data: session, status } = useSession();
-  const owner = session?.user;
+  const business = session?.user;
   const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -83,22 +83,22 @@ function Navbar() {
                 Contact
               </motion.div>
             </>
-          ) : owner ? (
+          ) : business ? (
             <>
               <Link
-                href={`/user/${owner?.username}/generate`}
+                href={`/user/${business?.username}/generate`}
                 className="text-gray-300 hover:text-yellow-400 transition-colors cursor-pointer"
               >
                 Generate
               </Link>
               <Link
-                href={`/user/${owner?.username}/dashboard`}
+                href={`/user/${business?.username}/dashboard`}
                 className="text-gray-300 hover:text-yellow-400 transition-colors cursor-pointer"
               >
                 Dashboard
               </Link>
               <Link
-                href={`/user/${owner?.username}/feedbacks`}
+                href={`/user/${business?.username}/feedbacks`}
                 className="text-gray-300 hover:text-yellow-400 transition-colors cursor-pointer"
               >
                 Feedbacks

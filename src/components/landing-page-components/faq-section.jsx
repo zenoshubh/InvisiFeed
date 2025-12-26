@@ -22,7 +22,7 @@ const faqs = [
   {
     question: "Is feedback completely anonymous?",
     answer:
-      "Yes, feedback is completely anonymous. We don't collect or store any personal information from your customers when they submit feedback. This encourages honest and candid responses. If they wish to submit feedback non-anonymously , we will fetch customer details from respective invoice and will show it to the business owner dashboard.",
+      "Yes, feedback is completely anonymous. We don't collect or store any personal information from your customers when they submit feedback. This encourages honest and candid responses. If they wish to submit feedback non-anonymously , we will fetch customer details from respective invoice and will show it to the business dashboard.",
   },
   {
     question: "Are coupons required?",

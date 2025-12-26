@@ -6,13 +6,11 @@ const DeletedAccountSchema = new Schema(
       type: String,
       required: true,
       unique: true,
-      index: true,
     },
     deletionDate: {
       type: Date,
       required: true,
       default: Date.now,
-      index: true,
     },
   },
   {
@@ -21,7 +19,7 @@ const DeletedAccountSchema = new Schema(
 );
 
 // Performance Indexes
-DeletedAccountSchema.index({ email: 1 });
+// Note: email index is automatically created by unique: true
 DeletedAccountSchema.index({ deletionDate: -1 });
 
 const DeletedAccountModel =

@@ -1,70 +1,85 @@
 "use server";
 
 import dbConnect from "@/lib/db-connect";
-import { getAuthenticatedOwnerDocument } from "@/lib/auth/session-utils";
+import { getAuthenticatedBusinessDocument } from "@/lib/auth/session-utils";
+import BusinessModel from "@/models/business";
 import { successResponse, errorResponse } from "@/utils/response";
 
 export async function updateProfile(profileData) {
   try {
     await dbConnect();
-    const ownerResult = await getAuthenticatedOwnerDocument();
-    if (!ownerResult.success) {
-      return errorResponse(ownerResult.message);
+    const businessResult = await getAuthenticatedBusinessDocument();
+    if (!businessResult.success) {
+      return errorResponse(businessResult.message);
     }
-    const { owner: user } = ownerResult;
+    const { businessData, account } = businessResult;
 
-    // Update user fields
+    // Update business fields
+    const updateData = {};
+    
     if (profileData?.businessName) {
-      user.businessName = profileData.businessName;
+      updateData.businessName = profileData.businessName;
     }
     if (
       profileData?.phoneNumber !== undefined &&
       profileData?.phoneNumber !== null
     ) {
-      user.phoneNumber = profileData.phoneNumber;
+      updateData.phoneNumber = profileData.phoneNumber;
     }
     if (profileData?.address) {
-      user.address = profileData.address;
+      updateData.address = profileData.address;
     }
 
     // Check if all required fields are filled
     const hasBusinessName =
-      user.businessName && user.businessName.trim() !== "";
-    const hasPhoneNumber = user.phoneNumber && user.phoneNumber.trim() !== "";
+      (updateData.businessName || businessData.businessName) &&
+      (updateData.businessName || businessData.businessName).trim() !== "";
+    const hasPhoneNumber =
+      (updateData.phoneNumber !== undefined
+        ? updateData.phoneNumber
+        : businessData.phoneNumber) &&
+      (updateData.phoneNumber !== undefined
+        ? updateData.phoneNumber
+        : businessData.phoneNumber).trim() !== "";
 
+    const address = updateData.address || businessData.address;
     const hasAddress =
-      user.address &&
-      user.address.localAddress &&
-      user.address.localAddress.trim() !== "" &&
-      user.address.city &&
-      user.address.city.trim() !== "" &&
-      user.address.state &&
-      user.address.state.trim() !== "" &&
-      user.address.country &&
-      user.address.country.trim() !== "" &&
-      user.address.pincode &&
-      user.address.pincode.trim() !== "";
+      address &&
+      address.localAddress &&
+      address.localAddress.trim() !== "" &&
+      address.city &&
+      address.city.trim() !== "" &&
+      address.state &&
+      address.state.trim() !== "" &&
+      address.country &&
+      address.country.trim() !== "" &&
+      address.pincode &&
+      address.pincode.trim() !== "";
 
     // Update profile completion status
     if (hasBusinessName && hasPhoneNumber && hasAddress) {
-      user.isProfileCompleted = "completed";
+      updateData.isProfileCompleted = "completed";
     } else {
-      user.isProfileCompleted = "skipped";
+      updateData.isProfileCompleted = "skipped";
     }
 
-    // Save the updated user
-    await user.save();
+    // Update business
+    const updatedBusiness = await BusinessModel.findByIdAndUpdate(
+      businessData._id,
+      updateData,
+      { new: true }
+    ).lean();
 
-    // Return success response
+    // Return success response (ensure id is a string)
     return successResponse("Profile updated successfully", {
       user: {
-        id: user._id,
-        email: user.email,
-        username: user.username,
-        businessName: user.businessName,
-        phoneNumber: user.phoneNumber,
-        address: user.address,
-        isProfileCompleted: user.isProfileCompleted,
+        id: updatedBusiness._id.toString(),
+        email: account.email,
+        username: account.username,
+        businessName: updatedBusiness.businessName,
+        phoneNumber: updatedBusiness.phoneNumber,
+        address: updatedBusiness.address,
+        isProfileCompleted: updatedBusiness.isProfileCompleted,
       },
     });
   } catch (error) {

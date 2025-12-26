@@ -3,23 +3,35 @@
 import dbConnect from "@/lib/db-connect";
 import FeedbackModel from "@/models/feedback";
 import InvoiceModel from "@/models/invoice";
-import OwnerModel from "@/models/owner";
+import AccountModel from "@/models/account";
+import BusinessModel from "@/models/business";
+import RecommendedActionModel from "@/models/recommended-action";
 import { getGenerativeModel } from "@/lib/google-ai";
 
 export async function setRecommendedActions(username, invoiceNumber) {
   await dbConnect();
 
   try {
-    const owner = await OwnerModel.findOne({ username: username });
+    // Find account by username
+    const account = await AccountModel.findOne({ username }).lean();
 
-    if (!owner) {
+    if (!account) {
+      return { success: false, message: "Account not found" };
+    }
+
+    // Find business by account
+    const business = await BusinessModel.findOne({
+      account: account._id,
+    }).lean();
+
+    if (!business) {
       return { success: false, message: "Business not found" };
     }
 
     const invoice = await InvoiceModel.findOne({
       invoiceId: invoiceNumber,
-      owner: owner._id,
-    });
+      business: business._id,
+    }).lean();
 
     if (!invoice) {
       return { success: false, message: "Invoice not found" };
@@ -32,26 +44,43 @@ export async function setRecommendedActions(username, invoiceNumber) {
       };
     }
 
-    const feedbacks = await FeedbackModel.find({ givenTo: owner._id });
-    const totalNumberOfFeedbacks = feedbacks.length;
+    // Use aggregation pipeline to calculate averages (much faster than loading all)
+    const averageRatingsResult = await FeedbackModel.aggregate([
+      { $match: { givenTo: business._id } },
+      {
+        $group: {
+          _id: null,
+          satisfactionRating: { $avg: "$satisfactionRating" },
+          communicationRating: { $avg: "$communicationRating" },
+          qualityOfServiceRating: { $avg: "$qualityOfServiceRating" },
+          valueForMoneyRating: { $avg: "$valueForMoneyRating" },
+          recommendRating: { $avg: "$recommendRating" },
+          overAllRating: { $avg: "$overAllRating" },
+          totalFeedbacks: { $sum: 1 },
+        },
+      },
+    ]);
 
-    const metrics = {
-      satisfactionRating: "Satisfaction",
-      communicationRating: "Communication",
-      qualityOfServiceRating: "Quality of Service",
-      valueForMoneyRating: "Value for Money",
-      recommendRating: "Recommendation",
-      overAllRating: "Overall Rating",
-    };
+    const totalNumberOfFeedbacks =
+      averageRatingsResult[0]?.totalFeedbacks || 0;
 
-    const averageRatings = {};
-    Object.keys(metrics).forEach((key) => {
-      averageRatings[key] =
-        totalNumberOfFeedbacks > 0
-          ? feedbacks.reduce((sum, feedback) => sum + feedback[key], 0) /
-            totalNumberOfFeedbacks
-          : 0;
-    });
+    const averageRatings = totalNumberOfFeedbacks > 0
+      ? {
+          satisfactionRating: averageRatingsResult[0].satisfactionRating || 0,
+          communicationRating: averageRatingsResult[0].communicationRating || 0,
+          qualityOfServiceRating: averageRatingsResult[0].qualityOfServiceRating || 0,
+          valueForMoneyRating: averageRatingsResult[0].valueForMoneyRating || 0,
+          recommendRating: averageRatingsResult[0].recommendRating || 0,
+          overAllRating: averageRatingsResult[0].overAllRating || 0,
+        }
+      : {
+          satisfactionRating: 0,
+          communicationRating: 0,
+          qualityOfServiceRating: 0,
+          valueForMoneyRating: 0,
+          recommendRating: 0,
+          overAllRating: 0,
+        };
 
     const model = getGenerativeModel("gemini-2.0-flash");
 
@@ -84,16 +113,25 @@ export async function setRecommendedActions(username, invoiceNumber) {
       .map((point) => point.replace(/[*#\-•]/g, "").trim())
       .slice(0, 3);
 
-    owner.currentRecommendedActions = {
+    // Deactivate old recommended actions
+    await RecommendedActionModel.updateMany(
+      { business: business._id, isActive: true },
+      { isActive: false }
+    );
+
+    // Create new recommended action
+    await RecommendedActionModel.create({
+      business: business._id,
+      invoice: invoice._id,
       improvements,
       strengths,
-    };
+      isActive: true,
+    });
 
-    if (invoice.updatedRecommendedActions === false) {
-      invoice.updatedRecommendedActions = true;
-    }
-    await invoice.save();
-    await owner.save();
+    // Update invoice
+    await InvoiceModel.findByIdAndUpdate(invoice._id, {
+      updatedRecommendedActions: true,
+    });
 
     return {
       success: true,

@@ -1,7 +1,7 @@
 "use server";
 
 import dbConnect from "@/lib/db-connect";
-import OwnerModel from "@/models/owner";
+import AccountModel from "@/models/account";
 import jwt from "jsonwebtoken";
 import sendEmail from "@/utils/email/nodemailer-utility";
 
@@ -9,13 +9,13 @@ export async function forgotPassword(email) {
   try {
     await dbConnect();
 
-    // Find user by email
-    const user = await OwnerModel.findOne({ email });
-    if (!user) {
+    // Find account by email
+    const account = await AccountModel.findOne({ email }).lean();
+    if (!account) {
       return { success: false, message: "User not found" };
     }
 
-    if (user.isGoogleAuth) {
+    if (account.isGoogleAuth) {
       return {
         success: false,
         message:
@@ -25,15 +25,16 @@ export async function forgotPassword(email) {
 
     // Generate reset token
     const resetToken = jwt.sign(
-      { userId: user._id },
+      { userId: account._id },
       process.env.RESET_TOKEN_SECRET,
       { expiresIn: "1h" }
     );
 
-    // Store reset token in user document
-    user.resetToken = resetToken;
-    user.resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour expiry
-    await user.save();
+    // Store reset token in account document
+    await AccountModel.findByIdAndUpdate(account._id, {
+      resetToken,
+      resetTokenExpiry: new Date(Date.now() + 3600000), // 1 hour expiry
+    });
 
     // Create reset link
     const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/forgot-password?token=${resetToken}`;
@@ -74,14 +75,14 @@ export async function resetPassword(token, password) {
     // Verify token
     const decoded = jwt.verify(token, process.env.RESET_TOKEN_SECRET);
 
-    // Find user with valid reset token
-    const user = await OwnerModel.findOne({
+    // Find account with valid reset token
+    const account = await AccountModel.findOne({
       _id: decoded.userId,
       resetToken: token,
       resetTokenExpiry: { $gt: Date.now() },
-    });
+    }).lean();
 
-    if (!user) {
+    if (!account) {
       return { success: false, message: "Invalid or expired reset token" };
     }
 
@@ -90,10 +91,11 @@ export async function resetPassword(token, password) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Update password and clear reset token
-    user.password = hashedPassword;
-    user.resetToken = undefined;
-    user.resetTokenExpiry = undefined;
-    await user.save();
+    await AccountModel.findByIdAndUpdate(account._id, {
+      password: hashedPassword,
+      resetToken: null,
+      resetTokenExpiry: null,
+    });
 
     return { success: true, message: "Password reset successfully" };
   } catch (error) {

@@ -12,7 +12,7 @@ import Link from "next/link";
 export default function CompleteProfileDialog({ open, onOpenChange }) {
 
   const { data: session } = useSession();
-  const owner = session?.user;
+  const business = session?.user;
   const [loading,setLoading] = useState(false);
 
   const handleNavigation = (route) => {
@@ -50,7 +50,7 @@ export default function CompleteProfileDialog({ open, onOpenChange }) {
             whileTap={{ scale: 0.98 }}
             className="w-full"
           >
-            <Link href={`/user/${owner?.username}/update-profile`} onClick={() => handleNavigation(`/user/${owner?.username}/update-profile`)}>
+            <Link href={`/user/${business?.username}/update-profile`} onClick={() => handleNavigation(`/user/${business?.username}/update-profile`)}>
             <Button
               className="w-full bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-medium"
             >

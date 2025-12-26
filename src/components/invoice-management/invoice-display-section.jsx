@@ -14,7 +14,7 @@ export default function InvoiceDisplaySection({
   customerAmount,
   emailSent,
   sendingEmail,
-  owner,
+  business,
   onCustomerEmailChange,
   onSendEmail,
   onReset,
@@ -25,7 +25,7 @@ export default function InvoiceDisplaySection({
     try {
       const response = await fetch(pdfUrl);
       const blob = await response.blob();
-      const file = new File([blob], `Invoice by ${owner?.businessName}.pdf`, {
+      const file = new File([blob], `Invoice by ${business?.businessName}.pdf`, {
         type: "application/pdf",
       });
 

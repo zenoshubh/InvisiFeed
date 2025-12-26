@@ -8,27 +8,27 @@ const sampleInvoices = [
   {
     id: 1,
     name: "Invoice 1",
-    url: "https://res.cloudinary.com/dgcpsl4lf/image/upload/v1738491690/sample-invoices/Invoice_1_rftgfo.pdf",
+    url: "https://res.cloudinary.com/dqma4eudc/image/upload/v1746254651/SampleInvoice1_cotx54.pdf",
   },
   {
     id: 2,
     name: "Invoice 2",
-    url: "https://res.cloudinary.com/dgcpsl4lf/image/upload/v1738491690/sample-invoices/Invoice_2_s7bxb2.pdf",
+    url: "https://res.cloudinary.com/dqma4eudc/image/upload/v1746254652/SampleInvoice2_hjpeay.pdf",
   },
   {
     id: 3,
     name: "Invoice 3",
-    url: "https://res.cloudinary.com/dgcpsl4lf/image/upload/v1738491690/sample-invoices/Invoice_3_smxwpk.pdf",
+    url: "https://res.cloudinary.com/dqma4eudc/image/upload/v1746254651/SampleInvoice3_lipycq.pdf",
   },
   {
     id: 4,
     name: "Invoice 4",
-    url: "https://res.cloudinary.com/dgcpsl4lf/image/upload/v1738491690/sample-invoices/Invoice_4_j9zqr0.pdf",
+    url: "https://res.cloudinary.com/dqma4eudc/image/upload/v1746254651/SampleInvoice4_wrzovq.pdf",
   },
   {
     id: 5,
     name: "Invoice 5",
-    url: "https://res.cloudinary.com/dgcpsl4lf/image/upload/v1738491690/sample-invoices/Invoice_5_h2xekb.pdf",
+    url: "https://res.cloudinary.com/dqma4eudc/image/upload/v1746254651/SampleInvoice5_tlgyuw.pdf",
   },
 ];
 
@@ -40,7 +40,7 @@ export default function InvoiceUploadSection({
   dailyLimit,
   couponSaved,
   couponData,
-  owner,
+  business,
   showCreateInvoice,
   onFileChange,
   onUpload,
@@ -54,8 +54,8 @@ export default function InvoiceUploadSection({
 }) {
   const handleUploadInvoiceFreePlanClick = (e) => {
     if (
-      owner?.plan?.planName === "free" ||
-      owner?.plan?.planEndDate < new Date()
+      business?.plan?.planName === "free" ||
+      business?.plan?.planEndDate < new Date()
     ) {
       e.preventDefault();
       if (onShowSubscriptionPopup) {
@@ -128,8 +128,8 @@ export default function InvoiceUploadSection({
                 You have reached your daily upload limit. Please try again
                 later.
               </p>
-              {(owner?.plan?.planName === "free" ||
-                owner?.plan?.planEndDate < new Date()) && (
+              {(business?.plan?.planName === "free" ||
+                business?.plan?.planEndDate < new Date()) && (
                 <Link href="/pricing">
                   <button className="text-yellow-400 text-sm mt-3 cursor-pointer p-3 rounded-full border border-yellow-400/20 bg-gradient-to-br hover:from-yellow-400/20 hover:to-yellow-400/10">
                     Please upgrade your plan to upload more invoices.
@@ -217,9 +217,9 @@ export default function InvoiceUploadSection({
             {/* Create Coupon Button */}
             {file &&
               !couponSaved &&
-              (owner?.plan?.planName !== "free" ||
-                (owner?.plan?.planEndDate &&
-                  new Date(owner?.plan?.planEndDate) > new Date())) && (
+              (business?.plan?.planName !== "free" ||
+                (business?.plan?.planEndDate &&
+                  new Date(business?.plan?.planEndDate) > new Date())) && (
                 <button
                   onClick={onShowCouponForm}
                   className="w-full max-w-md flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-white to-gray-200 hover:from-white hover:to-gray-400 text-black font-medium rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30 cursor-pointer"

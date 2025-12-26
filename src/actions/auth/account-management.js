@@ -3,7 +3,8 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 import dbConnect from "@/lib/db-connect";
-import OwnerModel from "@/models/owner";
+import AccountModel from "@/models/account";
+import BusinessModel from "@/models/business";
 import InvoiceModel from "@/models/invoice";
 import FeedbackModel from "@/models/feedback";
 import DeletedAccountModel from "@/models/deleted-account";
@@ -18,14 +19,27 @@ export async function deleteUserAccount() {
 
     await dbConnect();
 
-    const owner = await OwnerModel.findOne({ email: session.user.email });
-    if (!owner) {
-      return { success: false, message: "Owner not found" };
+    // Find account by email
+    const account = await AccountModel.findOne({
+      email: session.user.email,
+    }).lean();
+
+    if (!account) {
+      return { success: false, message: "Account not found" };
+    }
+
+    // Find business by account
+    const business = await BusinessModel.findOne({
+      account: account._id,
+    }).lean();
+
+    if (!business) {
+      return { success: false, message: "Business not found" };
     }
 
     // Create deleted account record
     const deletedAccount = await DeletedAccountModel.create({
-      email: owner.email,
+      email: account.email,
       deletionDate: new Date(),
     });
 
@@ -35,9 +49,10 @@ export async function deleteUserAccount() {
 
     // Delete all related data
     await Promise.all([
-      OwnerModel.findByIdAndDelete(owner._id),
-      InvoiceModel.deleteMany({ owner: owner._id }),
-      FeedbackModel.deleteMany({ givenTo: owner._id }),
+      AccountModel.findByIdAndDelete(account._id),
+      BusinessModel.findByIdAndDelete(business._id),
+      InvoiceModel.deleteMany({ business: business._id }),
+      FeedbackModel.deleteMany({ givenTo: business._id }),
     ]);
 
     return { success: true, message: "Account deleted successfully" };

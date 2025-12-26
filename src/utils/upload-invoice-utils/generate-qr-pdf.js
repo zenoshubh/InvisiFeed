@@ -137,7 +137,7 @@ export async function generateQrPdf(
   invoiceNumber,
   username,
   modifiedCouponCode = null,
-  owner
+  business // This is the merged business object from session (includes account data)
 ) {
   try {
     // Generate QR code data URL
@@ -170,13 +170,13 @@ export async function generateQrPdf(
           <View style={styles.orgInfo}>
             <View style={styles.invoiceDetails}>
               <Text style={styles.invoiceNumber}>
-                From: {owner?.businessName}
+                From: {business?.businessName}
               </Text>
 
-              <Text style={styles.invoiceDate}>Email: {owner?.email}</Text>
-              {owner?.gstinDetails?.gstinHolderName && (
+              <Text style={styles.invoiceDate}>Email: {business?.email}</Text>
+              {business?.gstinDetails?.gstinHolderName && (
                 <Text style={styles.invoiceDate}>
-                  GSTIN holder name: {owner?.gstinDetails?.gstinHolderName}
+                  GSTIN holder name: {business?.gstinDetails?.gstinHolderName}
                 </Text>
               )}
             </View>

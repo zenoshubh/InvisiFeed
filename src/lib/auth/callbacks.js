@@ -25,9 +25,14 @@ export const authCallbacks = {
   async jwt({ token, user, account, trigger, session }) {
     // Initial sign in
     if (user && account) {
+      // Ensure id is always a string (convert ObjectId if needed)
+      const userId = user.id 
+        ? (typeof user.id === 'object' && user.id.toString ? user.id.toString() : String(user.id))
+        : (user._id ? (typeof user._id === 'object' && user._id.toString ? user._id.toString() : String(user._id)) : null);
+      
       return {
         ...token,
-        id: user.id,
+        id: userId,
         provider: account.provider,
         username: user.username,
         businessName: user.businessName,
@@ -59,9 +64,14 @@ export const authCallbacks = {
 
   async session({ session, token }) {
     if (token) {
+      // Ensure id is always a string
+      const userId = token.id 
+        ? (typeof token.id === 'object' && token.id.toString ? token.id.toString() : String(token.id))
+        : null;
+      
       session.user = {
         ...session.user,
-        id: token.id,
+        id: userId,
         username: token.username,
         businessName: token.businessName,
         isProfileCompleted: token.isProfileCompleted,
@@ -76,6 +86,13 @@ export const authCallbacks = {
   },
 
   async redirect({ url, baseUrl }) {
+    // Handle OAuth callback redirects
+    // After OAuth, NextAuth will redirect to the callbackUrl or default sign-in page
+    // The middleware will then handle redirecting to the user page
+    if (url.includes("/sign-in") || url === baseUrl || url === `${baseUrl}/`) {
+      return `${baseUrl}/sign-in`;
+    }
+
     // Handle dynamic redirects efficiently
     if (url.includes("/user")) {
       return url.startsWith("/") ? `${baseUrl}${url}` : url;

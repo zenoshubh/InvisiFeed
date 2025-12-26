@@ -16,7 +16,7 @@ const GetStartedPopup = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { data: session } = useSession();
-  const owner = session?.user;
+  const business = session?.user;
 
   // Reset hasShown when user returns to home page
   useEffect(() => {
@@ -31,7 +31,7 @@ const GetStartedPopup = () => {
   useEffect(() => {
     let timeoutId;
 
-    if (pathname === "/" && !hasShown && !owner) {
+    if (pathname === "/" && !hasShown && !business) {
       timeoutId = setTimeout(() => {
         setShowPopup(true);
         setHasShown(true);
@@ -43,7 +43,7 @@ const GetStartedPopup = () => {
         clearTimeout(timeoutId);
       }
     };
-  }, [pathname, hasShown, owner]);
+  }, [pathname, hasShown, business]);
 
   const handleRegister = () => {
     setIsRegisterLoading(true);
@@ -56,7 +56,7 @@ const GetStartedPopup = () => {
   };
 
   // Don't render the popup if not on home page or if user is logged in
-  if (pathname !== "/" || owner) {
+  if (pathname !== "/" || business) {
     return null;
   }
 

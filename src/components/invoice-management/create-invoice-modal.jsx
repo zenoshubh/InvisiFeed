@@ -1,6 +1,6 @@
 "use client";
 
-import CreateInvoiceForm from "../owner-page-components/create-invoice-form";
+import CreateInvoiceForm from "../business-page-components/create-invoice-form";
 
 export default function CreateInvoiceModal({
   isOpen,

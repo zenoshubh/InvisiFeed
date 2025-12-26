@@ -12,7 +12,6 @@ const CouponSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Invoice",
       default: null,
-      index: true,
     },
     couponCode: {
       type: String,
@@ -28,19 +27,9 @@ const CouponSchema = new Schema(
       required: true,
       trim: true,
     },
-    discountType: {
-      type: String,
-      enum: ["percentage", "fixed"],
-      default: "percentage",
-    },
-    discountValue: {
-      type: Number,
-      required: true,
-    },
     expiryDate: {
       type: Date,
       required: true,
-      index: true,
     },
     isActive: {
       type: Boolean,

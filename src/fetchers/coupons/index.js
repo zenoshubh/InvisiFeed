@@ -1,38 +1,47 @@
 "use server";
 
 import InvoiceModel from "@/models/invoice";
+import CouponModel from "@/models/coupon";
 import dbConnect from "@/lib/db-connect";
-import { getAuthenticatedOwner } from "@/lib/auth/session-utils";
+import { getAuthenticatedBusiness } from "@/lib/auth/session-utils";
 import { successResponse, errorResponse } from "@/utils/response";
 
 export async function getCoupons() {
   await dbConnect();
   try {
-    const ownerResult = await getAuthenticatedOwner();
-    if (!ownerResult.success) {
-      return errorResponse(ownerResult.message);
+    const businessResult = await getAuthenticatedBusiness();
+    if (!businessResult.success) {
+      return errorResponse(businessResult.message);
     }
-    const { owner } = ownerResult;
+    const { business } = businessResult;
 
-    const invoices = await InvoiceModel.find({ owner: owner._id });
+    // Get all coupons for the business (not just active/not-used ones)
+    // This allows users to see and manage all their coupons
+    const coupons = await CouponModel.find({
+      business: business._id,
+    })
+      .populate("invoice", "invoiceId")
+      .sort({ createdAt: -1 }) // Sort by newest first
+      .lean();
 
-    // Extract all coupons from invoices
-    const coupons = invoices
-      .filter(
-        (invoice) =>
-          invoice?.couponAttached?.isCouponUsed === false &&
-          invoice?.couponAttached?.couponExpiryDate > Date.now()
-      ) // Only get invoices with coupons
-      .map((invoice) => ({
-        invoiceId: invoice.invoiceId,
-        couponCode: invoice.couponAttached.couponCode,
-        description: invoice.couponAttached.couponDescription,
-        expiryDate: invoice.couponAttached.couponExpiryDate,
-        isUsed: invoice.couponAttached.isCouponUsed,
-      }));
+    // Format coupons for response and serialize for client component
+    const formattedCoupons = coupons.map((coupon) => ({
+      _id: coupon._id.toString(),
+      invoiceId: coupon.invoice?.invoiceId || null,
+      couponCode: coupon.couponCode,
+      description: coupon.description,
+      expiryDate: coupon.expiryDate 
+        ? new Date(coupon.expiryDate).toISOString() 
+        : null,
+      isUsed: coupon.isUsed || false,
+      isActive: coupon.isActive !== undefined ? coupon.isActive : true,
+      createdAt: coupon.createdAt 
+        ? new Date(coupon.createdAt).toISOString() 
+        : null,
+    }));
 
     return successResponse("Coupons fetched successfully", {
-      coupons,
+      coupons: formattedCoupons,
     });
   } catch (error) {
     console.error("Error fetching coupons:", error);

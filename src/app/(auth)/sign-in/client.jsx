@@ -35,7 +35,7 @@ function SignInClient() {
   const [isNavigatingToGoogleAuth, setIsNavigatingToGoogleAuth] =
     useState(false);
   const [credentialLogin, setCredentialLogin] = useState(false);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const username = session?.user?.username;
   const router = useRouter();
   const pathname = usePathname();
@@ -62,6 +62,20 @@ function SignInClient() {
       setLoading(false);
     };
   }, [pathname]);
+
+  // Handle redirect after Google OAuth completes
+  useEffect(() => {
+    // Only redirect if session is loaded and user is authenticated
+    if (status === "authenticated" && session?.user?.username && isNavigatingToGoogleAuth) {
+      // Reset loading state
+      setIsNavigatingToGoogleAuth(false);
+      // Redirect to user page
+      router.replace(`/user/${session.user.username}/generate`);
+    } else if (status === "unauthenticated" && isNavigatingToGoogleAuth) {
+      // If authentication failed, reset loading state
+      setIsNavigatingToGoogleAuth(false);
+    }
+  }, [session, status, isNavigatingToGoogleAuth, router]);
 
   // Handle form submission
   const onSubmit = async (data) => {
@@ -242,20 +256,15 @@ function SignInClient() {
     e.preventDefault(); // Prevent form submission
     setIsNavigatingToGoogleAuth(true);
     try {
-      const result = await signIn("google", {
-        redirect: false,
+      // OAuth providers require redirect: true
+      // Don't set callbackUrl - let NextAuth and middleware handle redirect
+      await signIn("google", {
+        redirect: true,
       });
-
-      if (result?.error) {
-        toast.error(result.error);
-        return;
-      }
-
-      // After successful sign-in, redirect to user page
-      router.push(`/user/${result?.user?.username}/generate`);
     } catch (error) {
       console.error("Google sign in error:", error);
       toast.error("Failed to sign in with Google");
+      setIsNavigatingToGoogleAuth(false);
     }
   };
 

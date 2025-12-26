@@ -1,14 +1,29 @@
-import OwnerModel from "@/models/owner";
+import AccountModel from "@/models/account";
+import BusinessModel from "@/models/business";
 import InvoiceModel from "@/models/invoice";
 import { deleteFromCloudinary } from "@/lib/cloudinary";
 
 export async function deleteOldInvoicePdfs(username) {
   try {
-    // Find the owner
-    const owner = await OwnerModel.findOne({ username });
+    // Find the account
+    const account = await AccountModel.findOne({ username }).lean();
+    
+    if (!account) {
+      return { deleted: 0, errors: 0 };
+    }
+
+    // Find the business
+    const business = await BusinessModel.findOne({
+      account: account._id,
+    }).lean();
+
+    if (!business) {
+      return { deleted: 0, errors: 0 };
+    }
+
     const invoices = await InvoiceModel.find({
-      owner: owner._id
-    })
+      business: business._id,
+    }).lean();
     if (!invoices || !invoices.length === 0) {
       return { deleted: 0, errors: 0 };
     }
@@ -34,8 +49,9 @@ export async function deleteOldInvoicePdfs(username) {
           if (publicId) {
             const result = await deleteFromCloudinary(publicId);
             if (result.result === "ok" || result.result === "not found") {
-              invoice.mergedPdfUrl = null;
-              await invoice.save()
+              await InvoiceModel.findByIdAndUpdate(invoice._id, {
+                mergedPdfUrl: null,
+              });
               deletedCount++;
             }
           }

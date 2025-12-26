@@ -1,7 +1,7 @@
 "use server";
 
 import dbConnect from "@/lib/db-connect";
-import InvisifeedReviewModel from "@/models/invisifeed-review";
+import PlatformReviewModel from "@/models/platform-review";
 import { getAuthenticatedSession } from "@/lib/auth/session-utils";
 import { successResponse, errorResponse } from "@/utils/response";
 
@@ -17,7 +17,7 @@ export async function submitReview(review) {
       return errorResponse("Missing review");
     }
 
-    const newReview = new InvisifeedReviewModel({
+    const newReview = new PlatformReviewModel({
       review,
     });
 

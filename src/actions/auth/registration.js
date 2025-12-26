@@ -2,7 +2,9 @@
 
 import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/db-connect";
-import OwnerModel from "@/models/owner";
+import AccountModel from "@/models/account";
+import BusinessModel from "@/models/business";
+import SubscriptionModel from "@/models/subscription";
 import DeletedAccountModel from "@/models/deleted-account";
 import sendVerificationEmail from "@/utils/email/send-verification-email";
 import { generateOTP } from "@/utils/common/generate-otp";
@@ -19,7 +21,7 @@ export async function registerUser(prevState, formData) {
     await dbConnect();
 
     // Check deleted accounts
-    const deletedAccount = await DeletedAccountModel.findOne({ email });
+    const deletedAccount = await DeletedAccountModel.findOne({ email }).lean();
     if (deletedAccount?.deletionDate) {
       const timeElapsed =
         new Date().getTime() - deletedAccount.deletionDate.getTime();
@@ -38,42 +40,57 @@ export async function registerUser(prevState, formData) {
       }
     }
 
-    // Check existing users
-    const existingVerifiedUser = await OwnerModel.findOne({
+    // Check existing accounts
+    const existingVerifiedAccount = await AccountModel.findOne({
       username,
       isVerified: true,
-    });
+    }).lean();
 
-    if (existingVerifiedUser) {
+    if (existingVerifiedAccount) {
       return { success: false, message: "Username already exists" };
     }
 
-    const existingEmailUser = await OwnerModel.findOne({ email });
+    const existingEmailAccount = await AccountModel.findOne({ email }).lean();
     const verifyCode = generateOTP();
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    if (existingEmailUser) {
-      if (existingEmailUser.isVerified) {
+    if (existingEmailAccount) {
+      if (existingEmailAccount.isVerified) {
         return { success: false, message: "Email already exists" };
       }
 
-      // Update existing unverified user
-      existingEmailUser.password = hashedPassword;
-      existingEmailUser.verifyCode = verifyCode;
-      existingEmailUser.verifyCodeExpiry = new Date(Date.now() + 3600000);
-      existingEmailUser.businessName = businessName;
-      existingEmailUser.username = username;
-      await existingEmailUser.save();
+      // Update existing unverified account
+      await AccountModel.findByIdAndUpdate(existingEmailAccount._id, {
+        password: hashedPassword,
+        verifyCode,
+        verifyCodeExpiry: new Date(Date.now() + 3600000),
+        username,
+      });
+
+      // Update business if exists
+      const existingBusiness = await BusinessModel.findOne({
+        account: existingEmailAccount._id,
+      });
+      if (existingBusiness) {
+        existingBusiness.businessName = businessName;
+        await existingBusiness.save();
+      }
     } else {
-      // Create new user
-      const newUser = new OwnerModel({
-        businessName,
+      // Create new account
+      const newAccount = await AccountModel.create({
         email,
         username,
         password: hashedPassword,
         verifyCode,
         verifyCodeExpiry: new Date(Date.now() + 3600000),
         isVerified: false,
+        isGoogleAuth: false,
+      });
+
+      // Create business for the account
+      const newBusiness = await BusinessModel.create({
+        account: newAccount._id,
+        businessName,
         phoneNumber: "",
         address: {
           localAddress: "",
@@ -83,8 +100,17 @@ export async function registerUser(prevState, formData) {
           pincode: "",
         },
         isProfileCompleted: "pending",
+        proTrialUsed: false,
       });
-      await newUser.save();
+
+      // Create free subscription
+      await SubscriptionModel.create({
+        business: newBusiness._id,
+        planType: "free",
+        status: "active",
+        startDate: new Date(),
+        endDate: null,
+      });
     }
 
     const emailResponse = await sendVerificationEmail(email, verifyCode);
@@ -109,18 +135,19 @@ export async function verifyUserAccount(username, code) {
     await dbConnect();
 
     const decodedUsername = decodeURIComponent(username);
-    const user = await OwnerModel.findOne({ username: decodedUsername });
+    const account = await AccountModel.findOne({ username: decodedUsername }).lean();
 
-    if (!user) {
+    if (!account) {
       return { success: false, message: "User not found" };
     }
 
-    const isCodeValid = user.verifyCode === code;
-    const isCodeNotExpired = new Date(user.verifyCodeExpiry) > new Date();
+    const isCodeValid = account.verifyCode === code;
+    const isCodeNotExpired = new Date(account.verifyCodeExpiry) > new Date();
 
     if (isCodeValid && isCodeNotExpired) {
-      user.isVerified = true;
-      await user.save();
+      await AccountModel.findByIdAndUpdate(account._id, {
+        isVerified: true,
+      });
       return { success: true, message: "Account verified successfully" };
     } else if (!isCodeNotExpired) {
       return {
@@ -144,12 +171,12 @@ export async function checkUsernameAvailability(username) {
 
     await dbConnect();
 
-    const existingUser = await OwnerModel.findOne({
+    const existingAccount = await AccountModel.findOne({
       username: username.toLowerCase(),
       isVerified: true,
     }).lean();
 
-    if (existingUser) {
+    if (existingAccount) {
       return {
         success: false,
         message: "Username already taken",

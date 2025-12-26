@@ -35,11 +35,23 @@ const PricingSectionClient = () => {
         const result = await updatePlan({ planName: "pro-trial" });
 
         if (result.success) {
+          // Ensure id is a string for serialization
+          const userId = typeof session.user.id === 'object' && session.user.id.toString 
+            ? session.user.id.toString() 
+            : String(session.user.id);
+          
           await update({
             user: {
-              ...session.user,
-              plan: result.user.plan,
-              proTrialUsed: true,
+              id: userId,
+              email: session.user.email,
+              username: session.user.username,
+              businessName: session.user.businessName,
+              phoneNumber: session.user.phoneNumber,
+              address: session.user.address,
+              isProfileCompleted: session.user.isProfileCompleted,
+              gstinDetails: session.user.gstinDetails,
+              plan: result.data?.user?.plan || session.user.plan,
+              proTrialUsed: result.data?.user?.proTrialUsed ?? true,
             },
           });
 
@@ -84,10 +96,23 @@ const PricingSectionClient = () => {
             });
 
             if (verifyResult.success) {
+              // Ensure id is a string for serialization
+              const userId = typeof session.user.id === 'object' && session.user.id.toString 
+                ? session.user.id.toString() 
+                : String(session.user.id);
+              
               await update({
                 user: {
-                  ...session.user,
-                  plan: verifyResult.user.plan,
+                  id: userId,
+                  email: session.user.email,
+                  username: session.user.username,
+                  businessName: session.user.businessName,
+                  phoneNumber: session.user.phoneNumber,
+                  address: session.user.address,
+                  isProfileCompleted: session.user.isProfileCompleted,
+                  gstinDetails: session.user.gstinDetails,
+                  plan: verifyResult.data?.user?.plan || session.user.plan,
+                  proTrialUsed: session.user.proTrialUsed,
                 },
               });
 

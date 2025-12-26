@@ -1,8 +1,9 @@
 "use server";
 
 import InvoiceModel from "@/models/invoice";
+import CouponModel from "@/models/coupon";
 import dbConnect from "@/lib/db-connect";
-import { getAuthenticatedOwner } from "@/lib/auth/session-utils";
+import { getAuthenticatedBusiness } from "@/lib/auth/session-utils";
 import { successResponse, errorResponse } from "@/utils/response";
 
 export async function deleteCoupon(invoiceId) {
@@ -12,25 +13,53 @@ export async function deleteCoupon(invoiceId) {
       return errorResponse("Invoice ID is required");
     }
 
-    const ownerResult = await getAuthenticatedOwner();
-    if (!ownerResult.success) {
-      return errorResponse(ownerResult.message);
+    const businessResult = await getAuthenticatedBusiness();
+    if (!businessResult.success) {
+      return errorResponse(businessResult.message);
     }
-    const { owner } = ownerResult;
+    const { business } = businessResult;
 
-    // Find the invoice and update its coupon status
+    // Find the invoice to get the coupon reference
     const invoice = await InvoiceModel.findOne({
       invoiceId: invoiceId,
-      owner: owner._id,
-    });
-    if (!invoice || !invoice.couponAttached) {
-      return errorResponse("Invoice or coupon not found");
+      business: business._id,
+    })
+      .select("coupon")
+      .lean();
+
+    if (!invoice) {
+      return errorResponse("Invoice not found");
     }
 
-    invoice.couponAttached.isCouponUsed = true;
-    await invoice.save();
+    // If invoice has a coupon reference, update the coupon document
+    if (invoice.coupon) {
+      const coupon = await CouponModel.findById(invoice.coupon);
+      
+      if (!coupon) {
+        return errorResponse("Coupon not found");
+      }
 
-    return successResponse("Coupon marked as used successfully");
+      // Mark coupon as used and inactive
+      coupon.isUsed = true;
+      coupon.isActive = false;
+      await coupon.save();
+
+      return successResponse("Coupon marked as used successfully");
+    }
+
+    // If no coupon reference, check for legacy couponAttached (backward compatibility)
+    const invoiceWithAttached = await InvoiceModel.findOne({
+      invoiceId: invoiceId,
+      business: business._id,
+    });
+
+    if (invoiceWithAttached?.couponAttached) {
+      invoiceWithAttached.couponAttached.isCouponUsed = true;
+      await invoiceWithAttached.save();
+      return successResponse("Coupon marked as used successfully");
+    }
+
+    return errorResponse("Coupon not found for this invoice");
   } catch (error) {
     console.error("Error updating coupon status:", error);
     return errorResponse("Internal Server Error");

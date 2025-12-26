@@ -4,8 +4,9 @@ import dbConnect from "@/lib/db-connect";
 import crypto from "crypto";
 import { generateInvoicePdf } from "@/utils/pdf";
 import InvoiceModel from "@/models/invoice";
+import CouponModel from "@/models/coupon";
 import { uploadToCloudinary } from "@/lib/cloudinary";
-import { getAuthenticatedOwnerDocument } from "@/lib/auth/session-utils";
+import { getAuthenticatedBusinessDocument } from "@/lib/auth/session-utils";
 import { validateCouponData } from "@/schemas/coupon";
 import { checkDailyUploadLimit, incrementDailyUploadCount } from "@/utils/invoice/upload-limit";
 import { successResponse, errorResponse } from "@/utils/response";
@@ -19,22 +20,33 @@ export async function createInvoice(invoiceData) {
     // Validate coupon data if provided
     let couponData = invoiceData.coupon;
     if (invoiceData.addCoupon && couponData) {
-      const couponValidation = validateCouponData(couponData);
+      // Transform coupon data from form structure to validation schema structure
+      // Form sends: { code, description, expiryDays: string }
+      // Schema expects: { couponCode, description, expiryDays: number }
+      const transformedCouponData = {
+        couponCode: couponData.code || couponData.couponCode,
+        description: couponData.description,
+        expiryDays: typeof couponData.expiryDays === 'string' 
+          ? parseInt(couponData.expiryDays, 10) 
+          : couponData.expiryDays,
+      };
+      
+      const couponValidation = validateCouponData(transformedCouponData);
       if (!couponValidation.success) {
         return errorResponse(`Invalid coupon data: ${couponValidation.message}`);
       }
       couponData = couponValidation.data;
     }
 
-    // Get authenticated owner
-    const ownerResult = await getAuthenticatedOwnerDocument();
-    if (!ownerResult.success) {
-      return errorResponse(ownerResult.message);
+    // Get authenticated business
+    const businessResult = await getAuthenticatedBusinessDocument();
+    if (!businessResult.success) {
+      return errorResponse(businessResult.message);
     }
-    const { owner, username } = ownerResult;
+    const { business, username } = businessResult;
 
     // Check daily upload limit
-    const limitCheck = await checkDailyUploadLimit(owner);
+    const limitCheck = await checkDailyUploadLimit(business);
     if (!limitCheck.success) {
       return errorResponse(limitCheck.message, {
         timeLeft: limitCheck.timeLeft,
@@ -45,11 +57,13 @@ export async function createInvoice(invoiceData) {
     const invoiceNumber =
       invoiceData.invoiceNumber.trim() || `INV-${Date.now()}`;
 
-    // Check if invoice number already exists
+    // Check if invoice number already exists (read-only check)
     const existedInvoice = await InvoiceModel.findOne({
       invoiceId: invoiceNumber,
-      owner: owner._id,
-    });
+      business: business._id,
+    })
+      .select("_id")
+      .lean();
 
     if (existedInvoice) {
       return errorResponse("Invoice number already exists");
@@ -60,24 +74,41 @@ export async function createInvoice(invoiceData) {
     const encodedInvoiceNumber = encodeURIComponent(invoiceNumber);
     let qrData = `${process.env.NEXT_PUBLIC_APP_URL}/feedback/${encodedUsername}?invoiceNo=${encodedInvoiceNumber}`;
 
-    // Add coupon data if provided
+    // Create coupon document if coupon data is provided
+    let couponId = null;
     let modifiedCouponCodeforURL = null;
-    let dbCouponCode = null;
-    const expiryDate = new Date();
+    
     if (invoiceData.addCoupon && couponData) {
-      // Generate 4 random characters
+      // Generate coupon code for database
+      const invoiceCount = await InvoiceModel.countDocuments({}).lean();
+      const dbCouponCode = `${couponData.couponCode.trim()}${invoiceCount + 1}`;
+      
+      // Generate 4 random characters for URL
       const randomChars = Array.from(
         { length: 4 },
         () => "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[crypto.randomInt(0, 36)]
       ).join("");
+      
+      modifiedCouponCodeforURL = `${randomChars}${couponData.couponCode.trim()}${invoiceCount + 1}`;
+      
+      // Calculate expiry date
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + Number(couponData.expiryDays));
 
-      // Modify coupon code by adding random chars at start and invoice count
-      const invoiceCount = (await InvoiceModel.countDocuments({})) + 1;
-      dbCouponCode = `${couponData.couponCode.trim()}${invoiceCount}`;
-      modifiedCouponCodeforURL = `${randomChars}${couponData.couponCode.trim()}${invoiceCount}`;
-      expiryDate.setDate(
-        expiryDate.getDate() + Number(couponData.expiryDays)
-      );
+      // Create coupon document
+      const newCoupon = new CouponModel({
+        business: business._id,
+        couponCode: dbCouponCode,
+        description: couponData.description,
+        expiryDate: expiryDate,
+        isActive: true,
+        isUsed: false,
+        usageCount: 0,
+        maxUsage: 1,
+      });
+
+      const savedCoupon = await newCoupon.save();
+      couponId = savedCoupon._id;
 
       qrData += `&cpcd=${modifiedCouponCodeforURL}`;
     }
@@ -130,7 +161,7 @@ export async function createInvoice(invoiceData) {
     // Save invoice to database
     const newInvoice = new InvoiceModel({
       invoiceId: invoiceNumber,
-      owner: owner._id,
+      business: business._id,
       customerDetails: {
         customerName,
         customerEmail,
@@ -138,23 +169,23 @@ export async function createInvoice(invoiceData) {
       },
       mergedPdfUrl: uploadResponse.secure_url,
       AIuseCount: 0,
-      couponAttached: invoiceData.addCoupon && couponData
-        ? {
-            couponCode: dbCouponCode,
-            couponDescription: couponData.description.trim(),
-            couponExpiryDate: expiryDate,
-            isCouponUsed: false,
-          }
-        : null,
+      coupon: couponId, // Use Coupon ObjectId instead of couponAttached
     });
 
     await newInvoice.save();
 
+    // Update coupon with invoice reference if coupon exists
+    if (couponId) {
+      await CouponModel.findByIdAndUpdate(couponId, {
+        invoice: newInvoice._id,
+      }).lean();
+    }
+
     // Increment daily upload count
-    const uploadCountResult = await incrementDailyUploadCount(owner);
+    const uploadCountResult = await incrementDailyUploadCount(business);
 
     return successResponse("Invoice created successfully", {
-      url: uploadResponse.secure_url,
+      pdfUrl: uploadResponse.secure_url,
       customerName: customerName,
       customerEmail: customerEmail,
       customerAmount: grandTotal,

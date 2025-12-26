@@ -8,7 +8,7 @@ import UserNav from "@/components/navigation/user-nav";
 
 export default function NavbarClient({ children }) {
   const { data: session, status } = useSession();
-  const owner = session?.user;
+  const business = session?.user;
   const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
   const router = useRouter();

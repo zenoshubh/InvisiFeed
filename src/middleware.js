@@ -43,8 +43,10 @@ export async function middleware(request) {
   // }
 
   // Redirect logged-in users from auth pages to user page
+  // Only redirect if username is available in token
   if (
     token &&
+    token.username &&
     (url.pathname.startsWith("/sign-in") ||
       url.pathname.startsWith("/register") ||
       url.pathname.startsWith("/verify"))

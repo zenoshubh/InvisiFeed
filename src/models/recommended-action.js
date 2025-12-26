@@ -12,7 +12,6 @@ const RecommendedActionSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Invoice",
       default: null,
-      index: true,
     },
     improvements: {
       type: [String],

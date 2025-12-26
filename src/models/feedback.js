@@ -12,7 +12,6 @@ const FeedbackSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Invoice",
       default: null,
-      index: true,
     },
     customer: {
       type: Schema.Types.ObjectId,
@@ -101,4 +100,3 @@ const FeedbackModel =
   mongoose.models.Feedback || mongoose.model("Feedback", FeedbackSchema);
 
 export default FeedbackModel;
-

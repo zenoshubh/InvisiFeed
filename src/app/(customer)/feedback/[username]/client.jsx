@@ -125,8 +125,7 @@ export default function FeedbackClient({ username, invoiceNumber }) {
       if (result.success) {
         toast.success("Thank you for your feedback!");
         setCouponInfo({
-          code: result.couponCode,
-          discount: result.couponDiscount,
+          code: result.data?.couponCode || "N/A",
         });
         setFeedbackSubmittedSuccess(true);
         triggerConfetti();
@@ -191,10 +190,12 @@ export default function FeedbackClient({ username, invoiceNumber }) {
   };
 
   const downloadCoupon = () => {
+    if (!couponInfo?.code) return;
+    
     const element = document.createElement("a");
     const file = new Blob(
       [
-        `Coupon Code: ${couponInfo.code}\nDiscount: ${couponInfo.discount}%\n\nThank you for your feedback!`,
+        `Coupon Code: ${couponInfo.code}\n\nThank you for your feedback!`,
       ],
       { type: "text/plain" }
     );
@@ -206,6 +207,8 @@ export default function FeedbackClient({ username, invoiceNumber }) {
   };
 
   const printCoupon = () => {
+    if (!couponInfo?.code) return;
+    
     const printWindow = window.open("", "", "height=400,width=600");
     printWindow.document.write(`
       <html>
@@ -216,14 +219,13 @@ export default function FeedbackClient({ username, invoiceNumber }) {
             .coupon { border: 2px dashed #EAB308; padding: 30px; text-align: center; border-radius: 10px; }
             h1 { color: #EAB308; }
             .code { font-size: 24px; font-weight: bold; margin: 20px 0; }
-            .discount { font-size: 18px; color: #666; }
           </style>
         </head>
         <body>
           <div class="coupon">
             <h1>Thank You!</h1>
             <div class="code">${couponInfo.code}</div>
-            <div class="discount">Get ${couponInfo.discount}% Off</div>
+            <p>Use this code for your next purchase</p>
           </div>
         </body>
       </html>
@@ -264,10 +266,10 @@ export default function FeedbackClient({ username, invoiceNumber }) {
           <div className="bg-black/40 rounded-lg p-4 mb-6">
             <p className="text-yellow-400 text-sm mb-2">Your Coupon Code</p>
             <p className="text-2xl font-bold text-white break-all">
-              {couponInfo.code}
+              {couponInfo.code || "N/A"}
             </p>
             <p className="text-gray-400 text-sm mt-2">
-              Get {couponInfo.discount}% off on your next purchase
+              Use this code for your next purchase
             </p>
           </div>
           <div className="flex gap-3">

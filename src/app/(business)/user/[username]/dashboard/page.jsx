@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth/options";
 import { getDashboardMetrics } from "@/fetchers/dashboard-metrics";
 import DashboardContainer from "@/components/dashboard/dashboard-container";
-import UserRatingsGraph from "@/components/owner-page-components/user-ratings-graph";
+import UserRatingsGraph from "@/components/business-page-components/user-ratings-graph";
 import ScrollToTop from "@/components/common/scroll-to-top";
 
 export default async function DashboardPage() {

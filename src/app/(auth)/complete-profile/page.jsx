@@ -20,11 +20,42 @@ export default async function CompleteProfilePage() {
     redirect(`/user/${session.user.username}/generate`);
   }
 
-  // Render client form with session prop (serializable)
+  // Serialize session for client component (remove non-serializable data)
+  const serializedSession = {
+    user: {
+      id: typeof session.user.id === 'object' ? session.user.id.toString() : session.user.id,
+      email: session.user.email,
+      username: session.user.username,
+      businessName: session.user.businessName || null,
+      phoneNumber: session.user.phoneNumber || null,
+      address: session.user.address ? {
+        localAddress: session.user.address.localAddress || null,
+        city: session.user.address.city || null,
+        state: session.user.address.state || null,
+        country: session.user.address.country || null,
+        pincode: session.user.address.pincode || null,
+      } : null,
+      isProfileCompleted: session.user.isProfileCompleted || null,
+      gstinDetails: session.user.gstinDetails ? {
+        gstinVerificationStatus: session.user.gstinDetails.gstinVerificationStatus || false,
+        gstinNumber: session.user.gstinDetails.gstinNumber || null,
+        gstinHolderName: session.user.gstinDetails.gstinHolderName || null,
+      } : null,
+      plan: session.user.plan ? {
+        planName: session.user.plan.planName || null,
+        planStartDate: session.user.plan.planStartDate ? new Date(session.user.plan.planStartDate).toISOString() : null,
+        planEndDate: session.user.plan.planEndDate ? new Date(session.user.plan.planEndDate).toISOString() : null,
+      } : null,
+      proTrialUsed: session.user.proTrialUsed || false,
+    },
+    expires: session.expires,
+  };
+
+  // Render client form with serialized session prop
   return (
     <div className="flex min-h-screen bg-[#0A0A0A]">
       <Suspense fallback={<LoadingScreen />}>
-        <ProfileCompletionForm initialSession={session} />
+        <ProfileCompletionForm initialSession={serializedSession} />
       </Suspense>
     </div>
   );

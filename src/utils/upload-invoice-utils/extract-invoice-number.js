@@ -6,6 +6,21 @@ export async function extractInvoiceNumberFromPdf(buffer) {
 
     const pdfBuffer = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer);
 
+    // Validate PDF buffer
+    if (!pdfBuffer || pdfBuffer.length === 0) {
+      throw new Error("PDF buffer is empty");
+    }
+
+    // Check for PDF header - allow some flexibility
+    // Some PDFs might have whitespace or different encoding
+    const firstBytes = pdfBuffer.slice(0, 10).toString('ascii', 0, 10);
+    const hasPdfHeader = firstBytes.includes('%PDF');
+    
+    if (!hasPdfHeader) {
+      // Log warning but don't fail - let Gemini API try to process it
+      console.warn("PDF header not found in expected location, but attempting extraction anyway");
+    }
+
     const result = await model.generateContent([
       {
         inlineData: {
@@ -74,6 +89,17 @@ export async function extractInvoiceNumberFromPdf(buffer) {
     }
   } catch (error) {
     console.error("Gemini API Error:", error);
+    
+    // Check for specific error types
+    if (error.message?.includes("no pages") || error.message?.includes("Invalid PDF")) {
+      return {
+        invoiceId: "Extraction Failed - Invalid PDF",
+        customerName: "Extraction Failed",
+        customerEmail: "Extraction Failed",
+        totalAmount: "Extraction Failed",
+      };
+    }
+    
     return {
       invoiceId: "Extraction Failed",
       customerName: "Extraction Failed",

@@ -2,22 +2,37 @@
 
 import dbConnect from "@/lib/db-connect";
 import FeedbackModel from "@/models/feedback";
-import { getAuthenticatedOwner } from "@/lib/auth/session-utils";
+import { getAuthenticatedBusiness } from "@/lib/auth/session-utils";
 import { successResponse, errorResponse } from "@/utils/response";
 
 export async function getUserRatings() {
   await dbConnect();
 
   try {
-    const ownerResult = await getAuthenticatedOwner();
-    if (!ownerResult.success) {
-      return errorResponse(ownerResult.message);
+    const businessResult = await getAuthenticatedBusiness();
+    if (!businessResult.success) {
+      return errorResponse(businessResult.message);
     }
-    const { owner } = ownerResult;
+    const { business } = businessResult;
 
-    // Calculate average ratings from all feedbacks
-    const feedbacks = await FeedbackModel.find({ givenTo: owner._id });
-    const totalFeedbacks = feedbacks.length;
+    // Use aggregation pipeline for efficient average calculation
+    const ratingsResult = await FeedbackModel.aggregate([
+      { $match: { givenTo: business._id } },
+      {
+        $group: {
+          _id: null,
+          satisfactionRating: { $avg: "$satisfactionRating" },
+          communicationRating: { $avg: "$communicationRating" },
+          qualityOfServiceRating: { $avg: "$qualityOfServiceRating" },
+          valueForMoneyRating: { $avg: "$valueForMoneyRating" },
+          recommendRating: { $avg: "$recommendRating" },
+          overAllRating: { $avg: "$overAllRating" },
+          totalFeedbacks: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const totalFeedbacks = ratingsResult[0]?.totalFeedbacks || 0;
 
     if (totalFeedbacks === 0) {
       return successResponse("No feedbacks found for this business", {
@@ -34,32 +49,27 @@ export async function getUserRatings() {
     }
 
     const averageRatings = {
-      satisfactionRating: 0,
-      communicationRating: 0,
-      qualityOfServiceRating: 0,
-      valueForMoneyRating: 0,
-      recommendRating: 0,
-      overAllRating: 0,
+      satisfactionRating: Number(
+        (ratingsResult[0].satisfactionRating || 0).toFixed(2)
+      ),
+      communicationRating: Number(
+        (ratingsResult[0].communicationRating || 0).toFixed(2)
+      ),
+      qualityOfServiceRating: Number(
+        (ratingsResult[0].qualityOfServiceRating || 0).toFixed(2)
+      ),
+      valueForMoneyRating: Number(
+        (ratingsResult[0].valueForMoneyRating || 0).toFixed(2)
+      ),
+      recommendRating: Number(
+        (ratingsResult[0].recommendRating || 0).toFixed(2)
+      ),
+      overAllRating: Number(
+        (ratingsResult[0].overAllRating || 0).toFixed(2)
+      ),
     };
 
-    // Sum up all ratings
-    feedbacks.forEach((feedback) => {
-      averageRatings.satisfactionRating += feedback.satisfactionRating;
-      averageRatings.communicationRating += feedback.communicationRating;
-      averageRatings.qualityOfServiceRating += feedback.qualityOfServiceRating;
-      averageRatings.valueForMoneyRating += feedback.valueForMoneyRating;
-      averageRatings.recommendRating += feedback.recommendRating;
-      averageRatings.overAllRating += feedback.overAllRating;
-    });
-
-    // Calculate averages
-    Object.keys(averageRatings).forEach((key) => {
-      averageRatings[key] = Number(
-        (averageRatings[key] / totalFeedbacks).toFixed(2)
-      );
-    });
-
-    return successResponse("Owner ratings retrieved successfully", {
+    return successResponse("Business ratings retrieved successfully", {
       averageRatings,
       totalFeedbacks,
     });

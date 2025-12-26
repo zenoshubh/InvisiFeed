@@ -13,7 +13,7 @@ import { Country, State, City } from "country-state-city";
 import { motion } from "motion/react";
 import { useSession, Session } from "next-auth/react"; // Import Session type
 import MobileLogo from "@/components/layout/mobile-logo";
-import GSTINVerificationDialog from "@/components/owner-page-components/gstin-verification-dialog";
+import GSTINVerificationDialog from "@/components/business-page-components/gstin-verification-dialog";
 import {
   completeUserProfile,
   skipProfileCompletion,
@@ -247,7 +247,6 @@ function ProfileCompletionForm({ initialSession }) {
       toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setLoadingAction(null);
-      setIsSubmitting(false);
     }
   };
 

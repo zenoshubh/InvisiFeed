@@ -2,6 +2,16 @@ import { PDFDocument } from "pdf-lib";
 
 export async function mergePdfs(invoicePdfBuffer, qrPdfBuffer) {
     try {
+      // Validate invoice PDF buffer
+      if (!invoicePdfBuffer || invoicePdfBuffer.length === 0) {
+        throw new Error("Invoice PDF buffer is empty");
+      }
+
+      // Validate QR PDF buffer
+      if (!qrPdfBuffer || qrPdfBuffer.length === 0) {
+        throw new Error("QR PDF buffer is empty");
+      }
+
       const invoicePdf = await PDFDocument.load(invoicePdfBuffer);
       const qrPdf = await PDFDocument.load(qrPdfBuffer);
   

@@ -1,25 +1,26 @@
 "use server";
 
 import dbConnect from "@/lib/db-connect";
-import OwnerModel from "@/models/owner";
+import AccountModel from "@/models/account";
 
 export async function verifyCode(username, code) {
   await dbConnect();
 
   try {
     const decodedUsername = decodeURIComponent(username);
-    const owner = await OwnerModel.findOne({ username: decodedUsername });
+    const account = await AccountModel.findOne({ username: decodedUsername }).lean();
 
-    if (!owner) {
-      return { success: false, message: "Owner not found" };
+    if (!account) {
+      return { success: false, message: "Account not found" };
     }
 
-    const isCodeValid = owner.verifyCode === code;
-    const isCodeNotExpired = new Date(owner.verifyCodeExpiry) > new Date();
+    const isCodeValid = account.verifyCode === code;
+    const isCodeNotExpired = new Date(account.verifyCodeExpiry) > new Date();
 
     if (isCodeValid && isCodeNotExpired) {
-      owner.isVerified = true;
-      await owner.save();
+      await AccountModel.findByIdAndUpdate(account._id, {
+        isVerified: true,
+      });
       return {
         success: true,
         message: "Account verified successfully",
@@ -37,8 +38,8 @@ export async function verifyCode(username, code) {
       };
     }
   } catch (error) {
-    console.error("Error verifying owner:", error);
-    return { success: false, message: "Error verifying owner" };
+    console.error("Error verifying account:", error);
+    return { success: false, message: "Error verifying account" };
   }
 }
 

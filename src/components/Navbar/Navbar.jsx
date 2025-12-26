@@ -7,7 +7,7 @@ import NavbarClient from "./navbar-client";
 export default async function Navbar({ pathname = "/" }) {
   // SSR session check
   const session = await getServerSession(authOptions);
-  const owner = session?.user;
+  const business = session?.user;
 
   return (
     <nav className="p-4 md:p-6 bg-[#0A0A0A] text-white shadow-lg border-b border-yellow-400/10">
@@ -67,22 +67,22 @@ export default async function Navbar({ pathname = "/" }) {
                   Contact
                 </span>
               </>
-            ) : owner ? (
+            ) : business ? (
               <>
                 <Link
-                  href={`/user/${owner?.username}/generate`}
+                  href={`/user/${business?.username}/generate`}
                   className="text-gray-300 hover:text-yellow-400 transition-colors cursor-pointer"
                 >
                   Generate
                 </Link>
                 <Link
-                  href={`/user/${owner?.username}/dashboard`}
+                  href={`/user/${business?.username}/dashboard`}
                   className="text-gray-300 hover:text-yellow-400 transition-colors cursor-pointer"
                 >
                   Dashboard
                 </Link>
                 <Link
-                  href={`/user/${owner?.username}/feedbacks`}
+                  href={`/user/${business?.username}/feedbacks`}
                   className="text-gray-300 hover:text-yellow-400 transition-colors cursor-pointer"
                 >
                   Feedbacks
@@ -145,7 +145,7 @@ export default async function Navbar({ pathname = "/" }) {
           </div>
 
           {/* SSR UserNav */}
-          {!owner ? (
+          {!business ? (
             <Link href="/sign-in">
               <button className="hidden md:flex bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-medium shadow-lg shadow-yellow-500/20 cursor-pointer min-w-[120px] px-4 py-2 rounded">
                 Get Started
@@ -154,14 +154,14 @@ export default async function Navbar({ pathname = "/" }) {
           ) : (
             <div className="flex items-center gap-3">
               <Image
-                src={owner.image || "/avatar.png"}
+                src={business.image || "/avatar.png"}
                 alt="avatar"
                 width={32}
                 height={32}
                 className="rounded-full"
               />
-              <span className="text-white">{owner.name || owner.username}</span>
-              <Link href={`/user/${owner.username}/dashboard`}>
+              <span className="text-white">{business.name || business.username}</span>
+              <Link href={`/user/${business.username}/dashboard`}>
                 <button className="ml-2 px-3 py-1 bg-yellow-400 text-black rounded">
                   Dashboard
                 </button>
