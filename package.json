@@ -30,7 +30,6 @@
     "cloudinary": "^2.6.0",
     "clsx": "^2.1.1",
     "country-state-city": "^3.2.1",
-    "crypto": "^1.0.1",
     "date-fns": "^4.1.0",
     "embla-carousel-autoplay": "^8.5.2",
     "embla-carousel-react": "^8.5.2",
