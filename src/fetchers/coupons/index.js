@@ -5,8 +5,9 @@ import CouponModel from "@/models/coupon";
 import dbConnect from "@/lib/db-connect";
 import { getAuthenticatedBusiness } from "@/lib/auth/session-utils";
 import { successResponse, errorResponse } from "@/utils/response";
+import { getPaginationParams, buildPaginationResponse } from "@/utils/pagination";
 
-export async function getCoupons() {
+export async function getCoupons({ page = 1, limit = 100 } = {}) {
   await dbConnect();
   try {
     const businessResult = await getAuthenticatedBusiness();
@@ -15,14 +16,23 @@ export async function getCoupons() {
     }
     const { business } = businessResult;
 
-    // Get all coupons for the business (not just active/not-used ones)
+    // Build query for coupons
+    const query = { business: business._id };
+
+    // Get total count for pagination
+    const totalCoupons = await CouponModel.countDocuments(query);
+
+    // Get pagination params
+    const { skip, limit: limitNum } = getPaginationParams(page, limit);
+
+    // Get paginated coupons for the business (not just active/not-used ones)
     // This allows users to see and manage all their coupons
-    const coupons = await CouponModel.find({
-      business: business._id,
-    })
+    const coupons = await CouponModel.find(query)
       .select('_id business invoice couponCode description expiryDate isUsed isActive createdAt')
       .populate("invoice", "invoiceId")
       .sort({ createdAt: -1 }) // Sort by newest first
+      .skip(skip)
+      .limit(limitNum)
       .lean();
 
     // Format coupons for response and serialize for client component
@@ -43,6 +53,7 @@ export async function getCoupons() {
 
     return successResponse("Coupons fetched successfully", {
       coupons: formattedCoupons,
+      ...buildPaginationResponse(formattedCoupons, totalCoupons, page, limit),
     });
   } catch (error) {
     console.error("Error fetching coupons:", error);

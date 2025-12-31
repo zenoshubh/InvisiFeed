@@ -34,11 +34,14 @@ export async function deleteCoupon(invoiceId) {
     // If invoice has a coupon reference, update the coupon document
     if (invoice.coupon) {
       // Use findOneAndUpdate for atomic operation (more efficient than find + save)
+      // Use lean() since we only need to check existence, not use document methods
       const updatedCoupon = await CouponModel.findOneAndUpdate(
         { _id: invoice.coupon },
         { isUsed: true, isActive: false },
         { new: true }
-      );
+      )
+        .select('_id')
+        .lean();
 
       if (!updatedCoupon) {
         return errorResponse("Coupon not found");

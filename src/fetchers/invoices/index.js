@@ -27,8 +27,11 @@ export async function getInvoices({
     let query = { business: business._id };
 
     // Apply search filter
+    // Anchor regex to start (^) for efficient index usage with compound index { invoiceId: 1, business: 1 }
+    // Escape special regex characters to prevent injection and ensure predictable behavior
     if (search) {
-      query.invoiceId = { $regex: search, $options: "i" };
+      const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.invoiceId = { $regex: `^${escapedSearch}`, $options: "i" };
     }
 
     // Apply feedback filter

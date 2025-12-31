@@ -192,7 +192,7 @@ export async function uploadInvoice(formData) {
     if (couponId) {
       await CouponModel.findByIdAndUpdate(couponId, {
         invoice: newInvoice._id,
-      }).lean();
+      });
     }
 
     // Increment daily upload count
@@ -228,12 +228,14 @@ export async function getUploadCount() {
     const resetResult = await checkAndResetDailyUploads(business);
     const dailyLimit = getDailyUploadLimit(business);
     
-    // Get current count from UsageTracker
+    // Get current count from UsageTracker - only fetch needed fields
     const UsageTrackerModel = (await import("@/models/usage-tracker")).default;
     const tracker = await UsageTrackerModel.findOne({
       business: business._id,
       usageType: "invoice-upload",
-    }).lean();
+    })
+      .select('dailyUploadCount')
+      .lean();
     
     const currentCount = tracker?.dailyUploadCount || 0;
 

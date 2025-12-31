@@ -36,22 +36,30 @@ export function getDailyUploadLimit(business) {
 /**
  * Get or create usage tracker for invoice uploads
  * @param {string} businessId - Business ID
- * @returns {Promise<object>} - UsageTracker document
+ * @returns {Promise<object>} - UsageTracker document (needs document methods for .save())
  */
 async function getOrCreateUsageTracker(businessId) {
-  let tracker = await UsageTrackerModel.findOne({
+  // Check existence first with lean to optimize query
+  const existingTracker = await UsageTrackerModel.findOne({
     business: businessId,
     usageType: "invoice-upload",
-  });
+  })
+    .select('_id')
+    .lean();
 
-  if (!tracker) {
-    tracker = await UsageTrackerModel.create({
-      business: businessId,
-      usageType: "invoice-upload",
-      dailyUploadCount: 0,
-      lastDailyReset: new Date(),
-    });
+  if (existingTracker) {
+    // Fetch full document since we need document methods for .save()
+    const tracker = await UsageTrackerModel.findById(existingTracker._id);
+    return tracker;
   }
+
+  // Create new tracker if it doesn't exist
+  const tracker = await UsageTrackerModel.create({
+    business: businessId,
+    usageType: "invoice-upload",
+    dailyUploadCount: 0,
+    lastDailyReset: new Date(),
+  });
 
   return tracker;
 }
