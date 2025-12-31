@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/dbConnect";
-import OwnerModel from "@/models/Owner";
+import dbConnect from "@/lib/db-connect";
+import SubscriptionModel from "@/models/subscription";
 
 // --- Configuration ---
 // Ensure you set this environment variable in your deployment environment.
@@ -47,35 +47,69 @@ export async function GET(req) {
   try {
     await dbConnect();
 
-    // Find all users with expired Pro plans
+    // Find all expired Pro subscriptions - only fetch needed fields
     const now = new Date();
-    const expiredUsers = await OwnerModel.find({
-      "plan.planName": { $in: ["pro", "pro-trial"] },
-      "plan.planEndDate": { $lt: now },
-    });
+    const expiredSubscriptions = await SubscriptionModel.find({
+      planType: { $in: ["pro", "pro-trial"] },
+      status: "active",
+      endDate: { $lt: now },
+    })
+      .select('_id business planType status endDate')
+      .lean();
 
     // Downgrade them to Free plan if any are found
-    if (expiredUsers.length > 0) {
-        // Use Promise.all for potentially better performance with multiple updates
-        await Promise.all(expiredUsers.map(user => {
-            user.plan = {
-                planName: "free",
-                planStartDate: null,
-                planEndDate: null,
-            };
-            return user.save(); // Return the promise from save()
-        }));
-         console.log(`Successfully downgraded ${expiredUsers.length} expired Pro plans to Free.`);
-    } else {
-        console.log("No expired Pro plans found to downgrade.");
-    }
+    let downgradedCount = 0;
+    if (expiredSubscriptions.length > 0) {
+      // Update all expired subscriptions to expired status
+      await SubscriptionModel.updateMany(
+        {
+          _id: { $in: expiredSubscriptions.map((sub) => sub._id) },
+        },
+        {
+          status: "expired",
+        }
+      );
 
+      // Create free subscriptions for businesses that don't have active free subscriptions
+      const businessIds = expiredSubscriptions.map((sub) => sub.business);
+      const existingFreeSubscriptions = await SubscriptionModel.find({
+        business: { $in: businessIds },
+        planType: "free",
+        status: "active",
+      })
+        .select('business')
+        .lean();
+
+      const businessesWithFree = new Set(
+        existingFreeSubscriptions.map((sub) => sub.business.toString())
+      );
+
+      const businessesNeedingFree = businessIds.filter(
+        (id) => !businessesWithFree.has(id.toString())
+      );
+
+      if (businessesNeedingFree.length > 0) {
+        await SubscriptionModel.insertMany(
+          businessesNeedingFree.map((businessId) => ({
+            business: businessId,
+            planType: "free",
+            status: "active",
+            startDate: now,
+            endDate: null,
+          }))
+        );
+      }
+
+      downgradedCount = expiredSubscriptions.length;
+      console.log(`Successfully downgraded ${downgradedCount} expired Pro plans to Free.`);
+    } else {
+      console.log("No expired Pro plans found to downgrade.");
+    }
 
     return NextResponse.json({
       success: true,
-      message: `Cron job executed. Downgraded ${expiredUsers.length} expired Pro plans to Free.`,
+      message: `Cron job executed. Downgraded ${downgradedCount} expired Pro plans to Free.`,
     });
-
   } catch (error) {
     console.error("Error downgrading expired plans:", error);
     return NextResponse.json(
