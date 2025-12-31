@@ -90,18 +90,22 @@ export default function ShowInvoicesPage({ params }) {
       return <span className="text-gray-400">Not Submitted</span>;
     }
 
-    if (invoice.isFeedbackSubmitted && invoice.feedback === null) {
+    if (invoice.feedback && invoice.feedback.isAnonymous) {
       return <span className="text-gray-400">Submitted Anonymously</span>;
     }
 
-    return (
-      <span
-        onClick={() => handleFeedbackClick(invoice.feedback)}
-        className="text-yellow-400 hover:text-yellow-300 cursor-pointer"
-      >
-        View Feedback
-      </span>
-    );
+    if (invoice.feedback) {
+      return (
+        <span
+          onClick={() => handleFeedbackClick(invoice.feedback)}
+          className="text-yellow-400 hover:text-yellow-300 cursor-pointer"
+        >
+          View Feedback
+        </span>
+      );
+    }
+
+    return <span className="text-gray-400">No Feedback</span>;
   };
 
   const handleNavigation = (route) => {

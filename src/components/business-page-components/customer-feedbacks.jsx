@@ -39,13 +39,17 @@ const RatingDisplay = ({ rating, label }) => (
   </div>
 );
 
-const CustomerDetails = ({ details, invoiceId }) => {
+const CustomerDetails = ({ details, isAnonymous }) => {
   return (
     <div className="mt-4 p-4 bg-gradient-to-br from-yellow-400/5 to-transparent rounded-lg border border-yellow-400/10">
       <h3 className="text-sm font-medium text-gray-400 mb-2">
         Customer Details
       </h3>
-      {invoiceId ? (
+      {isAnonymous ? (
+        <div className="text-white">
+          <span>Sent Anonymously</span>
+        </div>
+      ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <span className="text-gray-400">Name:</span>
@@ -63,10 +67,6 @@ const CustomerDetails = ({ details, invoiceId }) => {
               </span>
             </div>
           )}
-        </div>
-      ) : (
-        <div className="text-white">
-          <span>Sent Anonymously</span>
         </div>
       )}
     </div>
@@ -232,12 +232,10 @@ const CustomerFeedbacks = () => {
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        {feedback.customerDetails && (
-                          <CustomerDetails
-                            details={feedback.customerDetails}
-                            invoiceId={feedback.invoiceId}
-                          />
-                        )}
+                        <CustomerDetails
+                          details={feedback.customerDetails || {}}
+                          isAnonymous={feedback.isAnonymous}
+                        />
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <RatingDisplay
                             rating={feedback.satisfactionRating}

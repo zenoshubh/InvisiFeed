@@ -143,11 +143,11 @@ export async function getInvoices({
     // Apply anonymous/non-anonymous filter after combining data
     if (feedbackFilter === "anonymous") {
       invoicesWithFeedback = invoicesWithFeedback.filter(
-        (invoice) => invoice.isFeedbackSubmitted && invoice.feedback === null
+        (invoice) => invoice.isFeedbackSubmitted && (invoice.feedback === null || invoice.feedback?.isAnonymous === true)
       );
     } else if (feedbackFilter === "non-anonymous") {
       invoicesWithFeedback = invoicesWithFeedback.filter(
-        (invoice) => invoice.isFeedbackSubmitted && invoice.feedback !== null
+        (invoice) => invoice.isFeedbackSubmitted && invoice.feedback !== null && invoice.feedback?.isAnonymous === false
       );
     }
 

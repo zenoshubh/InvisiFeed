@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -140,7 +140,7 @@ function ProfileCompletionForm({ initialSession }) {
   // Form Setup - simplified for client-side validation only
   const form = useForm({
     resolver: zodResolver(clientFormSchema),
-    mode: "onSubmit",
+    mode: "onBlur",
     defaultValues: {
       businessName: session?.user?.businessName || "",
       phoneNumber: "",
@@ -163,12 +163,9 @@ function ProfileCompletionForm({ initialSession }) {
     if (!formData.businessName?.trim() && !session?.user?.businessName) {
       errors.businessName = ["Business name is required"];
     }
-    if (
-      !formData.phoneNumber?.trim() ||
-      formData.phoneNumber?.length < 10 ||
-      formData.phoneNumber.length > 10
-    ) {
-      errors.phoneNumber = ["Enter a valid phone number"];
+    // Phone number validation - check if it's exactly 10 digits
+    if (!formData.phoneNumber?.trim() || !/^\d{10}$/.test(formData.phoneNumber)) {
+      errors.phoneNumber = ["Enter a valid phone number (10 digits)"];
     }
 
     // Address validation
@@ -371,13 +368,19 @@ function ProfileCompletionForm({ initialSession }) {
                               {...field}
                               onChange={(e) => {
                                 field.onChange(e);
+                                form.trigger("businessName");
                                 if (showValidation) {
                                   validateAllFields();
                                 }
                               }}
+                              onBlur={() => {
+                                field.onBlur();
+                                form.trigger("businessName");
+                              }}
                               className="bg-[#0A0A0A]/50 backdrop-blur-sm text-white border-yellow-400/10 focus:border-yellow-400 h-9 outline-none rounded-md"
                             />
-                            {getFieldError("businessName") && (
+                            <FormMessage className="text-[11px] text-red-500 mt-1" />
+                            {getFieldError("businessName") && !form.formState.errors.businessName && (
                               <p className="text-[11px] text-red-500 mt-1">
                                 {getFieldError("businessName")}
                               </p>
@@ -398,14 +401,24 @@ function ProfileCompletionForm({ initialSession }) {
                               placeholder="Enter Phone Number"
                               {...field}
                               onChange={(e) => {
-                                field.onChange(e);
+                                // Only allow digits
+                                const value = e.target.value.replace(/\D/g, "");
+                                field.onChange(value);
+                                // Trigger validation on change
+                                form.trigger("phoneNumber");
                                 if (showValidation) {
                                   validateAllFields();
                                 }
                               }}
+                              onBlur={() => {
+                                field.onBlur();
+                                form.trigger("phoneNumber");
+                              }}
+                              maxLength={10}
                               className="bg-[#0A0A0A]/50 backdrop-blur-sm text-white border-yellow-400/10 focus:border-yellow-400 h-9 outline-none rounded-md"
                             />
-                            {getFieldError("phoneNumber") && (
+                            <FormMessage className="text-[11px] text-red-500 mt-1" />
+                            {getFieldError("phoneNumber") && !form.formState.errors.phoneNumber && (
                               <p className="text-[11px] text-red-500 mt-1">
                                 {getFieldError("phoneNumber")}
                               </p>

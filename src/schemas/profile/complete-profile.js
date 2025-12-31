@@ -13,6 +13,9 @@ export const completeProfileSchema = z.object({
 // Simplified client-side schema for form validation only
 export const clientFormSchema = z.object({
   businessName: z.string().min(1, "Business name is required"),
-  phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
+  phoneNumber: z
+    .string()
+    .min(1, "Phone number is required")
+    .regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
 });
 
