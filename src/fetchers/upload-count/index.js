@@ -18,11 +18,13 @@ export async function getUploadCount() {
     const resetResult = await checkAndResetDailyUploads(business);
     const dailyLimit = getDailyUploadLimit(business);
     
-    // Get current count from UsageTracker
+    // Get current count from UsageTracker - only fetch dailyUploadCount
     const tracker = await UsageTrackerModel.findOne({
       business: business._id,
       usageType: "invoice-upload",
-    }).lean();
+    })
+      .select('dailyUploadCount')
+      .lean();
     
     const currentCount = tracker?.dailyUploadCount || 0;
 

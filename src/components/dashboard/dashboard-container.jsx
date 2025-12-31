@@ -111,7 +111,7 @@ export default function DashboardContainer({ initialMetrics, isPro }) {
 
   return (
     <div className="min-h-screen sm:px-6 lg:px-8 py-6 sm:py-8">
-      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
+      <div className="max-w-7xl mx-auto flex flex-col gap-6 sm:gap-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -203,7 +203,7 @@ export default function DashboardContainer({ initialMetrics, isPro }) {
               <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative">
                 <CardHeader>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
                     <Lightbulb className="h-5 w-5 text-yellow-400" />
                     <CardTitle className="text-yellow-400">
                       Areas for Improvement
@@ -214,9 +214,9 @@ export default function DashboardContainer({ initialMetrics, isPro }) {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-3">
+                  <ul className="flex flex-col gap-3">
                     {metrics.improvements?.map((improvement, index) => (
-                      <li key={index} className="flex items-start space-x-2">
+                      <li key={index} className="flex items-start gap-2">
                         <span className="text-yellow-400">•</span>
                         <span className="text-gray-300">{improvement}</span>
                       </li>
@@ -233,7 +233,7 @@ export default function DashboardContainer({ initialMetrics, isPro }) {
               <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative">
                 <CardHeader>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
                     <Star className="h-5 w-5 text-yellow-400" />
                     <CardTitle className="text-yellow-400">
                       Key Strengths
@@ -244,9 +244,9 @@ export default function DashboardContainer({ initialMetrics, isPro }) {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-3">
+                  <ul className="flex flex-col gap-3">
                     {metrics.strengths?.map((strength, index) => (
-                      <li key={index} className="flex items-start space-x-2">
+                      <li key={index} className="flex items-start gap-2">
                         <span className="text-yellow-400">•</span>
                         <span className="text-gray-300">{strength}</span>
                       </li>

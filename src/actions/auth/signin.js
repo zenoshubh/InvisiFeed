@@ -13,10 +13,12 @@ export async function signInUser(identifier, password) {
   try {
     await dbConnect();
 
-    // Find account by email or username
+    // Find account by email or username - only fetch needed fields
     const account = await AccountModel.findOne({
       $or: [{ email: identifier }, { username: identifier }],
-    }).lean();
+    })
+      .select('_id email username password isGoogleAuth isVerified verifyCode verifyCodeExpiry')
+      .lean();
 
     if (!account) {
       return {
@@ -58,15 +60,18 @@ export async function signInUser(identifier, password) {
       return { success: false, message: "Incorrect password" };
     }
 
-    // Get business and subscription data
+    // Get business and subscription data - only fetch needed fields
     const business = await BusinessModel.findOne({
       account: account._id,
-    }).lean();
+    })
+      .select('_id account businessName phoneNumber address isProfileCompleted gstinDetails proTrialUsed createdAt updatedAt')
+      .lean();
 
     const subscription = await SubscriptionModel.findOne({
       business: business?._id,
       status: "active",
     })
+      .select('planType startDate endDate status business')
       .sort({ createdAt: -1 })
       .lean();
 

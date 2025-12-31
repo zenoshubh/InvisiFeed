@@ -202,7 +202,7 @@ const PricingSectionClient = () => {
                 </p>
               </div>
 
-              <ul className="space-y-3 mb-8">
+              <ul className="flex flex-col gap-3 mb-8">
                 {[
                   "Unlimited feedback collection",
                   "Basic analytics dashboard",
@@ -276,7 +276,7 @@ const PricingSectionClient = () => {
                 </p>
               </div>
 
-              <ul className="space-y-3 mb-8">
+              <ul className="flex flex-col gap-3 mb-8">
                 {[
                   "Everything in Free plan",
                   "Sales growth tracking",

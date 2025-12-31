@@ -47,13 +47,15 @@ export async function GET(req) {
   try {
     await dbConnect();
 
-    // Find all expired Pro subscriptions
+    // Find all expired Pro subscriptions - only fetch needed fields
     const now = new Date();
     const expiredSubscriptions = await SubscriptionModel.find({
       planType: { $in: ["pro", "pro-trial"] },
       status: "active",
       endDate: { $lt: now },
-    }).lean();
+    })
+      .select('_id business planType status endDate')
+      .lean();
 
     // Downgrade them to Free plan if any are found
     let downgradedCount = 0;
@@ -74,7 +76,9 @@ export async function GET(req) {
         business: { $in: businessIds },
         planType: "free",
         status: "active",
-      }).lean();
+      })
+        .select('business')
+        .lean();
 
       const businessesWithFree = new Set(
         existingFreeSubscriptions.map((sub) => sub.business.toString())

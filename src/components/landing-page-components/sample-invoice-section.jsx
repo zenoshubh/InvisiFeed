@@ -33,11 +33,11 @@ const SampleInvoiceSection = () => {
                 }
                 whileTap={!isNavigatingToRegister ? { scale: 0.95 } : undefined}
                 onClick={() => setIsNavigatingToRegister(true)}
-                className="relative group flex items-center justify-center cursor-pointer space-x-3 px-8 py-4 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30 max-w-fit"
+                className="relative group flex items-center justify-center cursor-pointer gap-3 px-8 py-4 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30 max-w-fit"
               >
                 {/* Spinner and Loading Text */}
                 {isNavigatingToRegister ? (
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
                     <div className="w-4 h-4 border-2 border-t-transparent border-black rounded-full animate-spin"></div>
                     <span className="text-lg">Loading...</span>
                   </div>
@@ -123,7 +123,7 @@ const SampleInvoiceSection = () => {
                   <div className="text-sm text-gray-500">
                     Thank you for your business!
                   </div>
-                  <div className="flex items-center space-x-2 bg-yellow-50 px-3 py-2 rounded-md">
+                  <div className="flex items-center gap-2 bg-yellow-50 px-3 py-2 rounded-md">
                     <QrCode className="w-5 h-5 text-yellow-500" />
                     <span className="text-sm font-medium text-yellow-600">
                       Scan for feedback

@@ -40,16 +40,18 @@ export async function saveGSTIN(gstinNumber, taxpayerInfo) {
   }
   await dbConnect();
 
-  // Find account by username
+  // Find account by username - only fetch _id
   const account = await AccountModel.findOne({
     username: session.user.username,
-  }).lean();
+  })
+    .select('_id')
+    .lean();
 
   if (!account) {
     return { success: false, message: "Account not found" };
   }
 
-  // Find business by account
+  // Find business by account - fetch document for saving
   const business = await BusinessModel.findOne({
     account: account._id,
   });

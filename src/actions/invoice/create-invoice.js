@@ -79,8 +79,8 @@ export async function createInvoice(invoiceData) {
     let modifiedCouponCodeforURL = null;
     
     if (invoiceData.addCoupon && couponData) {
-      // Generate coupon code for database
-      const invoiceCount = await InvoiceModel.countDocuments({}).lean();
+      // Generate coupon code for database - use estimatedDocumentCount for approximate count
+      const invoiceCount = await InvoiceModel.estimatedDocumentCount();
       const dbCouponCode = `${couponData.couponCode.trim()}${invoiceCount + 1}`;
       
       // Generate 4 random characters for URL

@@ -72,7 +72,7 @@ function MobileNav() {
             <>
               <div
                 onClick={() => handleNavigation("/")}
-                className="flex flex-col items-center space-y-1"
+                className="flex flex-col items-center gap-1"
               >
                 <Home
                   className={`h-6 w-6 text-gray-300 hover:text-yellow-400`}
@@ -83,7 +83,7 @@ function MobileNav() {
               </div>
               <div
                 onClick={() => handleNavigation("/purpose")}
-                className="flex flex-col items-center space-y-1"
+                className="flex flex-col items-center gap-1"
               >
                 <BarChart2 className="h-6 w-6 text-gray-300 hover:text-yellow-400" />
                 <span className="text-xs text-gray-300 hover:text-yellow-400">
@@ -92,7 +92,7 @@ function MobileNav() {
               </div>
               <div
                 onClick={() => handleNavigation("/pricing")}
-                className="flex flex-col items-center space-y-1"
+                className="flex flex-col items-center gap-1"
               >
                 <Gem className="h-6 w-6 text-gray-300 hover:text-yellow-400" />
                 <span className="text-xs text-gray-300 hover:text-yellow-400">
@@ -101,7 +101,7 @@ function MobileNav() {
               </div>
               <div
                 onClick={() => handleNavigation("/guide")}
-                className="flex flex-col items-center space-y-1"
+                className="flex flex-col items-center gap-1"
               >
                 <Book className="h-6 w-6 text-gray-300 hover:text-yellow-400" />
                 <span className="text-xs text-gray-300 hover:text-yellow-400">
@@ -109,7 +109,7 @@ function MobileNav() {
                 </span>
               </div>
               <div
-                className="flex flex-col items-center space-y-1"
+                className="flex flex-col items-center gap-1"
                 onClick={(e) => {
                   e.preventDefault();
                   document
@@ -130,7 +130,7 @@ function MobileNav() {
                 onClick={() =>
                   handleNavigation(`/user/${business?.username}/generate`)
                 }
-                className="flex flex-col items-center space-y-1"
+                className="flex flex-col items-center gap-1"
               >
                 <Zap className="h-6 w-6 text-gray-300 hover:text-yellow-400" />
                 <span className="text-xs text-gray-300 hover:text-yellow-400">
@@ -142,7 +142,7 @@ function MobileNav() {
                 onClick={() =>
                   handleNavigation(`/user/${business?.username}/dashboard`)
                 }
-                className="flex flex-col items-center space-y-1"
+                className="flex flex-col items-center gap-1"
               >
                 <BarChart2 className="h-6 w-6 text-gray-300 hover:text-yellow-400" />
                 <span className="text-xs text-gray-300 hover:text-yellow-400">
@@ -154,7 +154,7 @@ function MobileNav() {
                 onClick={() =>
                   handleNavigation(`/user/${business?.username}/feedbacks`)
                 }
-                className="flex flex-col items-center space-y-1"
+                className="flex flex-col items-center gap-1"
               >
                 <MessageCircle className="h-6 w-6 text-gray-300 hover:text-yellow-400" />
                 <span className="text-xs text-gray-300 hover:text-yellow-400">
@@ -170,7 +170,7 @@ function MobileNav() {
                     .getElementById("contact")
                     ?.scrollIntoView({ behavior: "smooth" });
                 }}
-                className="flex flex-col items-center space-y-1 text-gray-300 hover:text-yellow-400 transition-colors cursor-pointer"
+                className="flex flex-col items-center gap-1 text-gray-300 hover:text-yellow-400 transition-colors cursor-pointer"
                 whileTap={{ scale: 0.95 }}
               >
                 <Mail className="h-6 w-6 text-gray-300 hover:text-yellow-400" />
@@ -181,7 +181,7 @@ function MobileNav() {
             <>
               <div
                 onClick={() => handleNavigation("/")}
-                className="flex flex-col items-center space-y-1"
+                className="flex flex-col items-center gap-1"
               >
                 <Home
                   className={`h-6 w-6 text-gray-300 hover:text-yellow-400`}
@@ -192,7 +192,7 @@ function MobileNav() {
               </div>
               <div
                 onClick={() => handleNavigation("/purpose")}
-                className="flex flex-col items-center space-y-1"
+                className="flex flex-col items-center gap-1"
               >
                 <BarChart2 className="h-6 w-6 text-gray-300 hover:text-yellow-400" />
                 <span className="text-xs text-gray-300 hover:text-yellow-400">
@@ -201,7 +201,7 @@ function MobileNav() {
               </div>
               <div
                 onClick={() => handleNavigation("/pricing")}
-                className="flex flex-col items-center space-y-1"
+                className="flex flex-col items-center gap-1"
               >
                 <Gem className="h-6 w-6 text-gray-300 hover:text-yellow-400" />
                 <span className="text-xs text-gray-300 hover:text-yellow-400">
@@ -210,7 +210,7 @@ function MobileNav() {
               </div>
               <div
                 onClick={() => handleNavigation("/guide")}
-                className="flex flex-col items-center space-y-1"
+                className="flex flex-col items-center gap-1"
               >
                 <Book className="h-6 w-6 text-gray-300 hover:text-yellow-400" />
                 <span className="text-xs text-gray-300 hover:text-yellow-400">
@@ -218,7 +218,7 @@ function MobileNav() {
                 </span>
               </div>
               <div
-                className="flex flex-col items-center space-y-1"
+                className="flex flex-col items-center gap-1"
                 onClick={(e) => {
                   e.preventDefault();
                   document

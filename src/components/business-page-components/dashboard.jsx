@@ -86,7 +86,7 @@ const ANIMATION_CONFIG = {
 // Memoized Components
 const LoadingState = () => (
   <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-    <div className="flex items-center space-x-2 text-yellow-400">
+    <div className="flex items-center gap-2 text-yellow-400">
       <Loader2 className="w-6 h-6 animate-spin" />
       <span>Loading dashboard...</span>
     </div>
@@ -411,7 +411,7 @@ const Dashboard = () => {
                       </Pie>
                     </PieChart>
                   </ChartContainer>
-                  <div className="w-full sm:w-[40%] space-y-4 mt-4 sm:mt-0">
+                  <div className="w-full sm:w-[40%] flex flex-col gap-4 mt-4 sm:mt-0">
                     <div className="text-center sm:text-right">
                       <p className="text-gray-400 text-sm">Total Invoices</p>
                       <p className="text-xl sm:text-2xl font-bold text-white">
@@ -500,7 +500,7 @@ const Dashboard = () => {
                       </Pie>
                     </PieChart>
                   </ChartContainer>
-                  <div className="w-full sm:w-[40%] space-y-4 mt-4 sm:mt-0">
+                  <div className="w-full sm:w-[40%] flex flex-col gap-4 mt-4 sm:mt-0">
                     <div className="text-center sm:text-right">
                       <p className="text-gray-400 text-sm">
                         Positive Feedbacks
@@ -531,7 +531,7 @@ const Dashboard = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
             {business?.plan?.planName === "free" && (
-              <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 text-center space-y-4 z-10 ">
+              <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 text-center gap-4 z-10 ">
                 <div className="text-yellow-400">
                   <Lock size={32} />
                 </div>
@@ -682,7 +682,7 @@ const Dashboard = () => {
           <Card className="bg-gradient-to-br from-[#0A0A0A]/80 to-[#0A0A0A]/50 backdrop-blur-sm border-yellow-400/10 hover:border-yellow-400/20 transition-colors group relative overflow-hidden flex flex-col">
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             {business?.plan?.planName === "free" && (
-              <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 text-center space-y-4 z-10">
+              <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 text-center gap-4 z-10">
                 <div className="text-yellow-400">
                   <Lock size={32} />
                 </div>
@@ -856,9 +856,9 @@ const Dashboard = () => {
                 Best & Worst Areas
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="flex flex-col gap-6">
               {/* Best Performing */}
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-400">
                     Best: {metrics.bestPerforming.metric}
@@ -874,7 +874,7 @@ const Dashboard = () => {
               </div>
 
               {/* Worst Performing */}
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-400">
                     Worst: {metrics.worstPerforming.metric}
@@ -899,7 +899,7 @@ const Dashboard = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative">
               <CardHeader>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-2">
                   <Lightbulb className="h-5 w-5 text-yellow-400" />
                   <CardTitle className="text-yellow-400">
                     Areas for Improvement
@@ -910,9 +910,9 @@ const Dashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-3">
+                <ul className="flex flex-col gap-3">
                   {metrics.improvements.map((improvement, index) => (
-                    <li key={index} className="flex items-start space-x-2">
+                    <li key={index} className="flex items-start gap-2">
                       <span className="text-yellow-400">•</span>
                       <span className="text-gray-300">{improvement}</span>
                     </li>
@@ -927,7 +927,7 @@ const Dashboard = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative">
               <CardHeader>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-2">
                   <Star className="h-5 w-5 text-yellow-400" />
                   <CardTitle className="text-yellow-400">
                     Key Strengths
@@ -938,9 +938,9 @@ const Dashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-3">
+                <ul className="flex flex-col gap-3">
                   {metrics.strengths.map((strength, index) => (
-                    <li key={index} className="flex items-start space-x-2">
+                    <li key={index} className="flex items-start gap-2">
                       <span className="text-yellow-400">•</span>
                       <span className="text-gray-300">{strength}</span>
                     </li>

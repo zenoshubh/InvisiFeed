@@ -20,6 +20,7 @@ export async function getCoupons() {
     const coupons = await CouponModel.find({
       business: business._id,
     })
+      .select('_id business invoice couponCode description expiryDate isUsed isActive createdAt')
       .populate("invoice", "invoiceId")
       .sort({ createdAt: -1 }) // Sort by newest first
       .lean();

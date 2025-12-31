@@ -95,7 +95,7 @@ export default function SocialMediaPopup({
 
             {/* Switch Social Media Icons */}
             <div className="flex justify-center mb-4 relative">
-              <div className="flex items-center space-x-1 bg-[#0A0A0A]/50 backdrop-blur-sm rounded-full p-0.5 border border-yellow-400/10">
+              <div className="flex items-center gap-1 bg-[#0A0A0A]/50 backdrop-blur-sm rounded-full p-0.5 border border-yellow-400/10">
                 {socialMediaIcons.map(({ id, icon: Icon, label }, index) => (
                   <button
                     key={id}
@@ -133,7 +133,7 @@ export default function SocialMediaPopup({
                   transition={{ delay: index * 0.1 }}
                   className="bg-[#0A0A0A]/50 backdrop-blur-sm rounded-lg border border-yellow-400/10 p-3 hover:border-yellow-400/20 transition-all duration-300 group hover:shadow-lg hover:shadow-yellow-400/5"
                 >
-                  <div className="flex items-start space-x-3">
+                  <div className="flex items-start gap-3">
                     <div className="flex-1">
                       <h3 className="text-base font-semibold text-yellow-400 group-hover:text-yellow-300 transition-colors">
                         {creator.name}
@@ -156,7 +156,7 @@ export default function SocialMediaPopup({
                               href={creator.github}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="mt-2 inline-flex items-center space-x-1 text-yellow-400 hover:text-yellow-300 transition-colors"
+                              className="mt-2 inline-flex items-center gap-1 text-yellow-400 hover:text-yellow-300 transition-colors"
                             >
                               <Github className="h-3 w-3" />
                               <span className="text-xs">Connect on GitHub</span>
@@ -167,7 +167,7 @@ export default function SocialMediaPopup({
                               href={creator.linkedin}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="mt-2 inline-flex items-center space-x-1 text-yellow-400 hover:text-yellow-300 transition-colors"
+                              className="mt-2 inline-flex items-center gap-1 text-yellow-400 hover:text-yellow-300 transition-colors"
                             >
                               <Linkedin className="h-3 w-3" />
                               <span className="text-xs">
@@ -180,7 +180,7 @@ export default function SocialMediaPopup({
                               href={creator.twitter}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="mt-2 inline-flex items-center space-x-1 text-yellow-400 hover:text-yellow-300 transition-colors"
+                              className="mt-2 inline-flex items-center gap-1 text-yellow-400 hover:text-yellow-300 transition-colors"
                             >
                               <Twitter className="h-3 w-3" />
                               <span className="text-xs">
@@ -193,7 +193,7 @@ export default function SocialMediaPopup({
                               href={creator.bmc}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="mt-2 inline-flex items-center space-x-1 text-yellow-400 hover:text-yellow-300 transition-colors"
+                              className="mt-2 inline-flex items-center gap-1 text-yellow-400 hover:text-yellow-300 transition-colors"
                             >
                               <Coffee className="h-3 w-3" />
                               <span className="text-xs">

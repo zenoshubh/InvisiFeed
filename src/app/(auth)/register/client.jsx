@@ -172,7 +172,7 @@ export default function RegisterClient() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="w-full max-w-md space-y-4"
+          className="w-full max-w-md flex flex-col gap-4"
         >
           {/* Fixed Header Section */}
           <div className="text-center mb-8">
@@ -221,7 +221,7 @@ export default function RegisterClient() {
           </div>
 
           <Form {...form}>
-            <form action={formAction} className="space-y-4">
+            <form action={formAction} className="flex flex-col gap-4">
               <AnimatePresence mode="wait">
                 {step === 1 && (
                   <motion.div
@@ -230,7 +230,7 @@ export default function RegisterClient() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
                     transition={{ duration: 0.2 }}
-                    className="space-y-4"
+                    className="flex flex-col gap-4"
                   >
                     <FormField
                       control={form.control}
@@ -274,7 +274,7 @@ export default function RegisterClient() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.2 }}
-                    className="space-y-4"
+                    className="flex flex-col gap-4"
                   >
                     <FormField
                       control={form.control}
@@ -330,7 +330,7 @@ export default function RegisterClient() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.2 }}
-                    className="space-y-4"
+                    className="flex flex-col gap-4"
                   >
                     <FormField
                       control={form.control}
@@ -399,7 +399,7 @@ export default function RegisterClient() {
               </AnimatePresence>
 
               {/* Navigation buttons */}
-              <div className="space-y-4 mt-8">
+              <div className="flex flex-col gap-4 mt-8">
                 {step > 1 && (
                   <Button
                     type="button"
@@ -471,7 +471,7 @@ export default function RegisterClient() {
                 <button
                   type="button"
                   onClick={handleGoogleSignIn}
-                  className="w-full flex items-center justify-center space-x-2 px-6 py-5 bg-white hover:bg-gray-300 text-black font-medium cursor-pointer h-9 shadow-lg rounded-lg transition-all duration-300 ease-in-out"
+                  className="w-full flex items-center justify-center gap-2 px-6 py-5 bg-white hover:bg-gray-300 text-black font-medium cursor-pointer h-9 shadow-lg rounded-lg transition-all duration-300 ease-in-out"
                 >
                   {!isNavigatingToGoogleAuth ? (
                     <>

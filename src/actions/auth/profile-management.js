@@ -47,10 +47,12 @@ export async function completeUserProfile(prevState, formData) {
 
     await dbConnect();
 
-    // Find account by username
+    // Find account by username - only fetch _id
     const account = await AccountModel.findOne({
       username: session.user.username,
-    }).lean();
+    })
+      .select('_id')
+      .lean();
 
     if (!account) {
       return {
@@ -143,10 +145,12 @@ export async function skipProfileCompletion(prevState) {
 
     await dbConnect();
 
-    // Find account by username
+    // Find account by username - only fetch _id
     const account = await AccountModel.findOne({
       username: session.user.username,
-    }).lean();
+    })
+      .select('_id')
+      .lean();
 
     if (!account) {
       return {

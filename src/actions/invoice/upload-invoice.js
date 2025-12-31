@@ -136,8 +136,8 @@ export async function uploadInvoice(formData) {
     // Create coupon document if coupon data is provided
     let couponId = null;
     if (couponData) {
-      // Generate coupon code for database (matching API route format)
-      const invoiceCount = await InvoiceModel.countDocuments({}).lean();
+      // Generate coupon code for database (matching API route format) - use estimatedDocumentCount for approximate count
+      const invoiceCount = await InvoiceModel.estimatedDocumentCount();
       const dbCouponCode = `${couponData.couponCode}${invoiceCount + 1}`;
       
       // Calculate expiry date

@@ -69,7 +69,7 @@ export default function SalesAnalysisChart({
       <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="relative">
         {!isPro && (
-          <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 text-center space-y-4 z-10">
+          <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/70 text-center gap-4 z-10">
             <Lock className="h-12 w-12 text-yellow-400" />
             <p className="text-yellow-400 text-center">
               Upgrade to Pro to unlock Sales Analysis

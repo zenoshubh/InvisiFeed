@@ -273,7 +273,7 @@ const FeedbackFormPreview = () => {
   };
 
   return (
-    <div className="space-y-6 p-4">
+    <div className="flex flex-col gap-6 p-4">
       {/* Rating Fields */}
       {[
         { key: "satisfactionRating", label: "Overall Satisfaction" },
@@ -426,7 +426,7 @@ const GuideSection = () => {
 
         {/* Progress Steps */}
         <div className="flex justify-center  mb-12">
-          <div className="flex items-center max-w-[80vw]  space-x-2">
+          <div className="flex items-center max-w-[80vw] gap-2">
             {steps.map((step, index) => (
               <React.Fragment key={step.title}>
                 <motion.div
@@ -469,7 +469,7 @@ const GuideSection = () => {
           >
             <Card className="w-full bg-transparent border-none">
               <CardHeader>
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center gap-4">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-yellow-500/10 flex items-center justify-center">
                     <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500" />
                   </div>
@@ -489,7 +489,7 @@ const GuideSection = () => {
                   {currentStep.content.map((item, index) => (
                     <AccordionItem key={item.title} value={`item-${index}`}>
                       <AccordionTrigger className="text-white hover:text-yellow-500">
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center gap-2">
                           <CheckCircle className="w-5 h-5 text-yellow-500" />
                           <span className="text-sm sm:text-base">
                             {item.title}
@@ -500,11 +500,11 @@ const GuideSection = () => {
                         <p className="text-gray-400 mb-4 text-sm sm:text-base">
                           {item.description}
                         </p>
-                        <ul className="space-y-2">
+                        <ul className="flex flex-col gap-2">
                           {item.details.map((detail, detailIndex) => (
                             <li
                               key={detailIndex}
-                              className="flex items-start space-x-2 text-gray-300"
+                              className="flex items-start gap-2 text-gray-300"
                             >
                               <ChevronRight className="w-4 h-4 text-yellow-500 flex-shrink-0" />
                               <span className="text-xs sm:text-sm">
@@ -551,8 +551,8 @@ const GuideSection = () => {
                 <CardTitle className="text-xl text-white">Quick Tips</CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-4">
-                  <li className="flex items-start space-x-2">
+                <ul className="flex flex-col gap-4">
+                  <li className="flex items-start gap-2">
                     <Shield className="w-5 h-5 text-yellow-500 mt-1" />
                     <div>
                       <p className="text-white font-medium">Privacy First</p>
@@ -562,7 +562,7 @@ const GuideSection = () => {
                       </p>
                     </div>
                   </li>
-                  <li className="flex items-start space-x-2">
+                  <li className="flex items-start gap-2">
                     <Award className="w-5 h-5 text-yellow-500 mt-1" />
                     <div>
                       <p className="text-white font-medium">Best Practices</p>
@@ -571,7 +571,7 @@ const GuideSection = () => {
                       </p>
                     </div>
                   </li>
-                  <li className="flex items-start space-x-2">
+                  <li className="flex items-start gap-2">
                     <PieChart className="w-5 h-5 text-yellow-500 mt-1" />
                     <div>
                       <p className="text-white font-medium">Data Insights</p>
@@ -592,8 +592,8 @@ const GuideSection = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-4">
-                  <li className="flex items-start space-x-2">
+                <ul className="flex flex-col gap-4">
+                  <li className="flex items-start gap-2">
                     <MessageSquare className="w-5 h-5 text-yellow-500 mt-1" />
                     <div>
                       <button
@@ -607,7 +607,7 @@ const GuideSection = () => {
                       </p>
                     </div>
                   </li>
-                  <li className="flex items-start space-x-2">
+                  <li className="flex items-start gap-2">
                     <FileText className="w-5 h-5 text-yellow-500 mt-1" />
                     <div>
                       <button
@@ -622,7 +622,7 @@ const GuideSection = () => {
                       </p>
                     </div>
                   </li>
-                  <li className="flex items-start space-x-2">
+                  <li className="flex items-start gap-2">
                     <QrCode className="w-5 h-5 text-yellow-500 mt-1" />
                     <div>
                       <button

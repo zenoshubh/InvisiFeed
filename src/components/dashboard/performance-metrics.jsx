@@ -22,9 +22,9 @@ export default function PerformanceMetrics({ metrics }) {
             Best & Worst Areas
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="flex flex-col gap-6">
           {/* Best Performing */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-400">
                 Best: {metrics?.bestPerforming?.metric || "N/A"}
@@ -40,7 +40,7 @@ export default function PerformanceMetrics({ metrics }) {
           </div>
 
           {/* Worst Performing */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-400">
                 Worst: {metrics?.worstPerforming?.metric || "N/A"}

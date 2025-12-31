@@ -20,10 +20,12 @@ export async function checkInvoiceValidity(username, invoiceNumber) {
       });
     }
 
-    // Find business by account
+    // Find business by account - only fetch _id
     const business = await BusinessModel.findOne({
       account: account._id,
-    }).lean();
+    })
+      .select('_id')
+      .lean();
 
     if (!business) {
       return errorResponse("Business not found", {
@@ -34,7 +36,9 @@ export async function checkInvoiceValidity(username, invoiceNumber) {
     const invoice = await InvoiceModel.findOne({
       invoiceId: invoiceNumber,
       business: business._id,
-    }).lean();
+    })
+      .select('_id AIuseCount')
+      .lean();
 
     if (!invoice) {
       return errorResponse("Invalid invoice", {
@@ -44,7 +48,9 @@ export async function checkInvoiceValidity(username, invoiceNumber) {
 
     const feedbackSubmitted = await FeedbackModel.findOne({
       invoice: invoice._id,
-    }).lean();
+    })
+      .select('_id')
+      .lean();
 
     if (feedbackSubmitted) {
       return errorResponse("Feedback already submitted for this invoice", {
@@ -77,27 +83,35 @@ export async function generateFeedbackWithAI(
       return errorResponse("Business not found");
     }
 
-    // Find business by account
+    // Find business by account - only fetch _id
     const business = await BusinessModel.findOne({
       account: account._id,
-    }).lean();
+    })
+      .select('_id')
+      .lean();
 
     if (!business) {
       return errorResponse("Business not found");
     }
 
-    const invoice = await InvoiceModel.findOne({
+    // Check if invoice exists first with lean
+    const invoiceCheck = await InvoiceModel.findOne({
       invoiceId: invoiceNumber,
       business: business._id,
-    });
+    })
+      .select('_id AIuseCount')
+      .lean();
 
-    if (!invoice) {
+    if (!invoiceCheck) {
       return errorResponse("Invoice not found");
     }
 
-    if (invoice.AIuseCount >= 3) {
+    if (invoiceCheck.AIuseCount >= 3) {
       return errorResponse("AI usage limit reached for this invoice");
     }
+
+    // Fetch invoice document for saving (needs document methods)
+    const invoice = await InvoiceModel.findById(invoiceCheck._id);
 
     let prompt = `
       Overall Satisfaction: ${formData.satisfactionRating}/5,
@@ -152,27 +166,35 @@ export async function generateSuggestionsWithAI(
       return errorResponse("Business not found");
     }
 
-    // Find business by account
+    // Find business by account - only fetch _id
     const business = await BusinessModel.findOne({
       account: account._id,
-    }).lean();
+    })
+      .select('_id')
+      .lean();
 
     if (!business) {
       return errorResponse("Business not found");
     }
 
-    const invoice = await InvoiceModel.findOne({
+    // Check if invoice exists first with lean
+    const invoiceCheck = await InvoiceModel.findOne({
       invoiceId: invoiceNumber,
       business: business._id,
-    });
+    })
+      .select('_id AIuseCount')
+      .lean();
 
-    if (!invoice) {
+    if (!invoiceCheck) {
       return errorResponse("Invoice not found");
     }
 
-    if (invoice.AIuseCount >= 3) {
+    if (invoiceCheck.AIuseCount >= 3) {
       return errorResponse("AI usage limit reached");
     }
+
+    // Fetch invoice document for saving (needs document methods)
+    const invoice = await InvoiceModel.findById(invoiceCheck._id);
 
     let prompt = `Based on these ratings:
       Overall Satisfaction: ${formData.satisfactionRating}/5,

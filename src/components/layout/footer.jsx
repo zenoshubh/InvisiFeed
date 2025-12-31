@@ -88,7 +88,7 @@ function Footer() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="space-y-4"
+              className="flex flex-col gap-4"
             >
               <Link
                 href="/"
@@ -108,12 +108,12 @@ function Footer() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.1 }}
-              className="space-y-4"
+              className="flex flex-col gap-4"
             >
               <h4 className="text-lg font-semibold text-yellow-400">
                 Quick Links
               </h4>
-              <ul className="space-y-3">
+              <ul className="flex flex-col gap-3">
                 {[
                   { label: "Home", route: "/" },
                   { label: "Purpose", route: "/purpose" },
@@ -124,7 +124,7 @@ function Footer() {
                   <Link
                     href={link.route}
                     key={link.label}
-                    className="text-gray-400 hover:text-yellow-400 transition-colors duration-200 flex items-center space-x-2 group cursor-pointer"
+                    className="text-gray-400 hover:text-yellow-400 transition-colors duration-200 flex items-center gap-2 group cursor-pointer"
                     onClick={() => handleNavigation(link.route)}
                   >
                     <span className="w-1 h-1 bg-yellow-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
@@ -139,14 +139,14 @@ function Footer() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.2 }}
-              className="space-y-4"
+              className="flex flex-col gap-4"
             >
               <h4 className="text-lg font-semibold text-yellow-400">
                 Contact Us
               </h4>
-              <ul className="space-y-3">
+              <ul className="flex flex-col gap-3">
                 <li
-                  className="flex items-center space-x-3 text-gray-400 hover:text-yellow-400 transition-colors cursor-pointer"
+                  className="flex items-center gap-3 text-gray-400 hover:text-yellow-400 transition-colors cursor-pointer"
                   onClick={() =>
                     (window.location.href = "mailto:invisifeed@gmail.com")
                   }
@@ -154,7 +154,7 @@ function Footer() {
                   <Mail className="h-4 w-4" />
                   <span>invisifeed@gmail.com</span>
                 </li>
-                <li className="flex items-center space-x-3 text-gray-400 hover:text-yellow-400 transition-colors">
+                <li className="flex items-center gap-3 text-gray-400 hover:text-yellow-400 transition-colors">
                   <MapPin className="h-4 w-4" />
                   <span>India</span>
                 </li>
@@ -166,12 +166,12 @@ function Footer() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.3 }}
-              className="space-y-4"
+              className="flex flex-col gap-4"
             >
               <h4 className="text-lg font-semibold text-yellow-400">
                 Follow Us
               </h4>
-              <div className="flex space-x-4">
+              <div className="flex flex-row gap-4">
                 {socialLinks.map((social) => (
                   <motion.div
                     key={social.name}
@@ -190,11 +190,11 @@ function Footer() {
         {/* Bottom Bar */}
         <div className="pb-15 md:pb-0 border-t border-yellow-400/10">
           <div className="container mx-auto px-6 py-4">
-            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
               <p className="text-sm text-gray-500">
                 © 2025 InvisiFeed. All rights reserved.
               </p>
-              <div className="hidden md:flex space-x-6">
+              <div className="hidden md:flex flex-row gap-6">
                 {["/terms-of-service", "/privacy-policy"].map(
                   (route) => (
                     <Link

@@ -91,9 +91,9 @@ export default function UserRatingsGraph() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3 sm:p-6">
-            <div className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col gap-4 sm:gap-6">
               {Object.entries(ratingLabels).map(([key, label]) => (
-                <div key={key} className="space-y-2">
+                <div key={key} className="flex flex-col gap-2">
                   <div className="flex flex-col sm:flex-row justify-between items-center sm:items-start gap-1 sm:gap-2">
                     <span className="text-gray-300 text-xs sm:text-base order-1 sm:order-none text-center sm:text-left">
                       {label}

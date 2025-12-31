@@ -23,8 +23,8 @@ export default function ContactAdminPopup({ open, onOpenChange }) {
         <DialogHeader>
           <DialogTitle className="text-white">Stay in touch</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
+        <div className="flex flex-col gap-4 py-4">
+          <div className="flex flex-col gap-2">
             <p className="text-sm text-gray-400">
               Contact our admin for any updates or queries regarding paid plans.
             </p>

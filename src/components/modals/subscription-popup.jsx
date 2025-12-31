@@ -53,7 +53,7 @@ export const SubscriptionPopup = ({ isOpen, onClose }) => {
               <X className="h-5 w-5" />
             </button>
 
-            <div className="text-center space-y-6">
+            <div className="text-center flex flex-col gap-6">
               <div className="flex justify-center">
                 <Lock className="h-12 w-12 text-yellow-400" />
               </div>

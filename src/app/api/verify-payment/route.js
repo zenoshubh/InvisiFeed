@@ -35,10 +35,12 @@ export async function POST(req) {
 
     await dbConnect();
     
-    // Find account by username
+    // Find account by username - only fetch _id to find business
     const account = await AccountModel.findOne({
       username: session.user.username,
-    }).lean();
+    })
+      .select('_id')
+      .lean();
 
     if (!account) {
       return NextResponse.json(
@@ -47,10 +49,12 @@ export async function POST(req) {
       );
     }
 
-    // Find business
+    // Find business - only fetch _id
     const business = await BusinessModel.findOne({
       account: account._id,
-    }).lean();
+    })
+      .select('_id')
+      .lean();
 
     if (!business) {
       return NextResponse.json(
@@ -59,12 +63,14 @@ export async function POST(req) {
       );
     }
 
-    // Check if business already has a pro plan
+    // Check if business already has a pro plan - only fetch needed fields
     const activeSubscription = await SubscriptionModel.findOne({
       business: business._id,
       status: "active",
       planType: "pro",
-    }).lean();
+    })
+      .select('planType status business')
+      .lean();
 
     if (activeSubscription) {
       return NextResponse.json(

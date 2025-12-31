@@ -111,7 +111,7 @@ export default function ManageCoupons() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="flex items-center space-x-2 text-yellow-400">
+        <div className="flex items-center gap-2 text-yellow-400">
           <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-yellow-400"></div>
           <span>Loading coupons...</span>
         </div>
@@ -125,8 +125,8 @@ export default function ManageCoupons() {
   ) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-4">
-        <div className="text-center space-y-6">
-          <div className="flex flex-col items-center space-y-4">
+        <div className="text-center flex flex-col gap-6">
+          <div className="flex flex-col items-center gap-4">
             <span className="text-xl font-semibold text-yellow-400">
               Upgrade to Pro to manage coupons
             </span>
@@ -202,7 +202,7 @@ export default function ManageCoupons() {
                             )
                           }
                         >
-                          <div className="flex items-center space-x-4">
+                          <div className="flex items-center gap-4">
                             <div className="bg-yellow-400/10 text-yellow-400 px-3 py-1 rounded-full text-xs font-medium border border-yellow-400/20 md:text-sm">
                               {coupon.couponCode}
                             </div>
@@ -210,7 +210,7 @@ export default function ManageCoupons() {
                               Invoice: {coupon.invoiceId}
                             </span>
                           </div>
-                          <div className="flex items-center space-x-4">
+                          <div className="flex items-center gap-4">
                             {coupon.isUsed ? (
                               <span className="text-green-400 text-sm font-medium">
                                 Used
@@ -273,7 +273,7 @@ export default function ManageCoupons() {
 
                   {/* Pagination */}
                   {totalPages > 1 && (
-                    <div className="mt-6 flex items-center justify-center space-x-2">
+                    <div className="mt-6 flex items-center justify-center gap-2">
                       <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1}
@@ -323,7 +323,7 @@ export default function ManageCoupons() {
               Are you sure you want to mark this coupon as used? This action
               cannot be undone.
             </p>
-            <div className="flex justify-end space-x-4">
+            <div className="flex justify-end gap-4">
               <button
                 onClick={() => setShowDeleteDialog(false)}
                 className="px-4 py-2 text-gray-400 hover:text-gray-300 transition-colors cursor-pointer"

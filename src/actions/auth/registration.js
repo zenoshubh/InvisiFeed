@@ -20,8 +20,10 @@ export async function registerUser(prevState, formData) {
 
     await dbConnect();
 
-    // Check deleted accounts
-    const deletedAccount = await DeletedAccountModel.findOne({ email }).lean();
+    // Check deleted accounts - only fetch deletionDate
+    const deletedAccount = await DeletedAccountModel.findOne({ email })
+      .select('_id deletionDate')
+      .lean();
     if (deletedAccount?.deletionDate) {
       const timeElapsed =
         new Date().getTime() - deletedAccount.deletionDate.getTime();
@@ -40,17 +42,21 @@ export async function registerUser(prevState, formData) {
       }
     }
 
-    // Check existing accounts
+    // Check existing accounts - only fetch _id
     const existingVerifiedAccount = await AccountModel.findOne({
       username,
       isVerified: true,
-    }).lean();
+    })
+      .select('_id')
+      .lean();
 
     if (existingVerifiedAccount) {
       return { success: false, message: "Username already exists" };
     }
 
-    const existingEmailAccount = await AccountModel.findOne({ email }).lean();
+    const existingEmailAccount = await AccountModel.findOne({ email })
+      .select('_id isVerified')
+      .lean();
     const verifyCode = generateOTP();
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -67,10 +73,11 @@ export async function registerUser(prevState, formData) {
         username,
       });
 
-      // Update business if exists
+      // Update business if exists - fetch document for saving
       const existingBusiness = await BusinessModel.findOne({
         account: existingEmailAccount._id,
-      });
+      })
+        .select('_id businessName');
       if (existingBusiness) {
         existingBusiness.businessName = businessName;
         await existingBusiness.save();
@@ -135,7 +142,9 @@ export async function verifyUserAccount(username, code) {
     await dbConnect();
 
     const decodedUsername = decodeURIComponent(username);
-    const account = await AccountModel.findOne({ username: decodedUsername }).lean();
+    const account = await AccountModel.findOne({ username: decodedUsername })
+      .select('_id username verifyCode verifyCodeExpiry')
+      .lean();
 
     if (!account) {
       return { success: false, message: "User not found" };
@@ -174,7 +183,9 @@ export async function checkUsernameAvailability(username) {
     const existingAccount = await AccountModel.findOne({
       username: username.toLowerCase(),
       isVerified: true,
-    }).lean();
+    })
+      .select('_id')
+      .lean();
 
     if (existingAccount) {
       return {

@@ -7,7 +7,10 @@ import { successResponse, errorResponse } from "@/utils/response";
 export async function getReviews() {
   try {
     await dbConnect();
-    const reviews = await PlatformReviewModel.find().lean();
+    // Fetch all review fields needed for display
+    const reviews = await PlatformReviewModel.find()
+      .select('_id reviewerName reviewerRole rating comment createdAt updatedAt')
+      .lean();
     return successResponse("Reviews fetched successfully", {
       reviews,
     });

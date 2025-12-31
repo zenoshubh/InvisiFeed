@@ -95,14 +95,14 @@ export default function InvoiceUploadSection({
         {/* Daily Upload Limit Info */}
         <div className="mb-6 text-center">
           {loading ? (
-            <div className="flex items-center justify-center space-x-2">
+            <div className="flex items-center justify-center gap-2">
               <div className="w-4 h-4 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin" />
               <span className="text-sm text-gray-400">
                 Loading upload status...
               </span>
             </div>
           ) : (
-            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-[#0A0A0A]/50 rounded-full border border-yellow-400/20">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#0A0A0A]/50 rounded-full border border-yellow-400/20">
               <p className="text-sm text-gray-300">
                 Daily Uploads:{" "}
                 <span className="font-medium text-yellow-400">
@@ -118,7 +118,7 @@ export default function InvoiceUploadSection({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-center space-x-4 mb-8">
+        <div className="flex justify-center gap-4 mb-8">
           {file ? null : dailyUploadCount >= dailyLimit ? (
             <div className="text-center">
               <p className="text-yellow-400 text-lg font-medium mb-2">
@@ -140,7 +140,7 @@ export default function InvoiceUploadSection({
           ) : !showCreateInvoice ? (
             <button
               onClick={onShowCreateInvoice}
-              className="flex items-center space-x-2 px-6 py-3 max-w-md w-full cursor-pointer bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-medium rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30 justify-center"
+              className="flex items-center gap-2 px-6 py-3 max-w-md w-full cursor-pointer bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-medium rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30 justify-center"
             >
               <Plus className="h-5 w-5" />
               <span>Create Invoice</span>
@@ -148,7 +148,7 @@ export default function InvoiceUploadSection({
           ) : (
             <button
               onClick={() => onShowCreateInvoice(false)}
-              className="flex items-center cursor-pointer space-x-2 px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-medium rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30"
+              className="flex items-center cursor-pointer gap-2 px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-medium rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30"
             >
               <X className="h-5 w-5" />
               <span>Cancel</span>
@@ -158,7 +158,7 @@ export default function InvoiceUploadSection({
 
         {/* File Input Section */}
         {!showCreateInvoice && dailyUploadCount < dailyLimit && (
-          <div className="mb-8 flex flex-col items-center w-full space-y-4">
+          <div className="mb-8 flex flex-col items-center w-full gap-4">
             {/* Display File Name */}
             {file && (
               <motion.div
@@ -166,7 +166,7 @@ export default function InvoiceUploadSection({
                 animate={{ opacity: 1, y: 0 }}
                 className="flex items-center max-w-md justify-between text-gray-300 mb-4 bg-[#0A0A0A]/50 p-3 rounded-lg border border-yellow-400/10"
               >
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-2">
                   <FileText className="h-5 w-5 text-yellow-400" />
                   <span className="text-sm">
                     Selected:{" "}
@@ -206,7 +206,7 @@ export default function InvoiceUploadSection({
             <label
               htmlFor="file-upload"
               onClick={handleUploadInvoiceFreePlanClick}
-              className={`w-full max-w-md flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-medium rounded-xl cursor-pointer transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30 ${
+              className={`w-full max-w-md flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-medium rounded-xl cursor-pointer transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30 ${
                 loading ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
@@ -222,7 +222,7 @@ export default function InvoiceUploadSection({
                   new Date(business?.plan?.planEndDate) > new Date())) && (
                 <button
                   onClick={onShowCouponForm}
-                  className="w-full max-w-md flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-white to-gray-200 hover:from-white hover:to-gray-400 text-black font-medium rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30 cursor-pointer"
+                  className="w-full max-w-md flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-white to-gray-200 hover:from-white hover:to-gray-400 text-black font-medium rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30 cursor-pointer"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -241,12 +241,12 @@ export default function InvoiceUploadSection({
               )}
 
             {couponSaved && (
-              <div className="w-full max-w-md flex flex-col items-center space-y-2">
+              <div className="w-full max-w-md flex flex-col items-center gap-2">
                 <button
                   onClick={onShowCouponForm}
                   className="w-full flex items-center justify-between px-6 py-2 bg-gradient-to-r from-white to-gray-200 hover:from-white hover:to-gray-400 text-black font-medium rounded-xl transition-all duration-300 shadow-lg cursor-pointer"
                 >
-                  <div className="flex items-center justify-center space-x-2 flex-1">
+                  <div className="flex items-center justify-center gap-2 flex-1">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-5 w-5"
@@ -278,7 +278,7 @@ export default function InvoiceUploadSection({
                   className="w-full px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-medium rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none cursor-pointer"
                 >
                   {loading ? (
-                    <div className="flex items-center justify-center space-x-2">
+                    <div className="flex items-center justify-center gap-2">
                       <div className="w-5 h-5 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
                       <span>Processing...</span>
                     </div>

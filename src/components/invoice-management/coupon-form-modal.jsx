@@ -21,7 +21,7 @@ export default function CouponFormModal({
         <h2 className="text-2xl font-bold mb-6 text-yellow-400">
           Create Coupon
         </h2>
-        <div className="space-y-5">
+        <div className="flex flex-col gap-5">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Coupon Code
@@ -78,7 +78,7 @@ export default function CouponFormModal({
             />
           </div>
         </div>
-        <div className="flex justify-end space-x-3 mt-8">
+        <div className="flex justify-end gap-3 mt-8">
           <button
             onClick={onClose}
             className="px-5 py-2.5 text-gray-300 hover:text-white transition-colors cursor-pointer"

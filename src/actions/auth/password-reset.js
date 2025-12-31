@@ -9,8 +9,10 @@ export async function forgotPassword(email) {
   try {
     await dbConnect();
 
-    // Find account by email
-    const account = await AccountModel.findOne({ email }).lean();
+    // Find account by email - only fetch needed fields
+    const account = await AccountModel.findOne({ email })
+      .select('_id email isGoogleAuth')
+      .lean();
     if (!account) {
       return { success: false, message: "User not found" };
     }
@@ -75,12 +77,14 @@ export async function resetPassword(token, password) {
     // Verify token
     const decoded = jwt.verify(token, process.env.RESET_TOKEN_SECRET);
 
-    // Find account with valid reset token
+    // Find account with valid reset token - only fetch _id
     const account = await AccountModel.findOne({
       _id: decoded.userId,
       resetToken: token,
       resetTokenExpiry: { $gt: Date.now() },
-    }).lean();
+    })
+      .select('_id')
+      .lean();
 
     if (!account) {
       return { success: false, message: "Invalid or expired reset token" };

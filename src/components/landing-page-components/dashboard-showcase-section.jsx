@@ -241,7 +241,7 @@ const DashboardShowcaseSection = () => {
                     </Pie>
                   </RechartsPieChart>
                 </ChartContainer>
-                <div className="w-full sm:w-[40%] space-y-4 mt-4 sm:mt-0">
+                <div className="w-full sm:w-[40%] flex flex-col gap-4 mt-4 sm:mt-0">
                   <div className="text-center sm:text-right">
                     <p className="text-gray-400 text-sm">Total Invoices</p>
                     <p className="text-xl sm:text-2xl font-bold text-white">
@@ -270,7 +270,7 @@ const DashboardShowcaseSection = () => {
               <h3 className="text-yellow-400 font-medium text-sm sm:text-base">
                 Feedback Sentiment
               </h3>
-              <div className="flex space-x-2">
+              <div className="flex flex-row gap-2">
                 <ThumbsUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
                 <ThumbsDown className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
               </div>
@@ -334,7 +334,7 @@ const DashboardShowcaseSection = () => {
                     </Pie>
                   </RechartsPieChart>
                 </ChartContainer>
-                <div className="w-full sm:w-[40%] space-y-4 mt-4 sm:mt-0">
+                <div className="w-full sm:w-[40%] flex flex-col gap-4 mt-4 sm:mt-0">
                   <div className="text-center sm:text-right">
                     <p className="text-gray-400 text-sm">Positive Feedbacks</p>
                     <p className="text-xl sm:text-2xl font-bold text-white">
@@ -456,9 +456,9 @@ const DashboardShowcaseSection = () => {
             </h3>
             <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
           </div>
-          <div className="space-y-6">
+          <div className="flex flex-col gap-6">
             {/* Best Performing */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-400">
                   Best: Customer Service
@@ -472,7 +472,7 @@ const DashboardShowcaseSection = () => {
             </div>
 
             {/* Worst Performing */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-400">
                   Worst: Delivery Time
@@ -496,26 +496,26 @@ const DashboardShowcaseSection = () => {
             transition={{ duration: 0.5 }}
             className="bg-gradient-to-br from-[#0A0A0A]/80 to-[#0A0A0A]/50 backdrop-blur-sm border border-yellow-400/10 rounded-xl p-4 sm:p-6"
           >
-            <div className="flex items-center space-x-2 mb-3 sm:mb-4">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <Lightbulb className="h-5 w-5 text-yellow-400" />
               <h3 className="text-yellow-400 font-medium text-sm sm:text-base">
                 Areas for Improvement
               </h3>
             </div>
-            <ul className="space-y-3">
-              <li className="flex items-start space-x-2">
+            <ul className="flex flex-col gap-3">
+              <li className="flex items-start gap-2">
                 <span className="text-yellow-400">•</span>
                 <span className="text-gray-300">
                   Optimize delivery time consistency
                 </span>
               </li>
-              <li className="flex items-start space-x-2">
+              <li className="flex items-start gap-2">
                 <span className="text-yellow-400">•</span>
                 <span className="text-gray-300">
                   Enhance product packaging quality
                 </span>
               </li>
-              <li className="flex items-start space-x-2">
+              <li className="flex items-start gap-2">
                 <span className="text-yellow-400">•</span>
                 <span className="text-gray-300">
                   Improve after-sales support response time
@@ -531,26 +531,26 @@ const DashboardShowcaseSection = () => {
             transition={{ duration: 0.5 }}
             className="bg-gradient-to-br from-[#0A0A0A]/80 to-[#0A0A0A]/50 backdrop-blur-sm border border-yellow-400/10 rounded-xl p-4 sm:p-6"
           >
-            <div className="flex items-center space-x-2 mb-3 sm:mb-4">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <Star className="h-5 w-5 text-yellow-400" />
               <h3 className="text-yellow-400 font-medium text-sm sm:text-base">
                 Key Strengths
               </h3>
             </div>
-            <ul className="space-y-3">
-              <li className="flex items-start space-x-2">
+            <ul className="flex flex-col gap-3">
+              <li className="flex items-start gap-2">
                 <span className="text-yellow-400">•</span>
                 <span className="text-gray-300">
                   Excellent customer service responsiveness
                 </span>
               </li>
-              <li className="flex items-start space-x-2">
+              <li className="flex items-start gap-2">
                 <span className="text-yellow-400">•</span>
                 <span className="text-gray-300">
                   High product quality standards
                 </span>
               </li>
-              <li className="flex items-start space-x-2">
+              <li className="flex items-start gap-2">
                 <span className="text-yellow-400">•</span>
                 <span className="text-gray-300">
                   Strong customer loyalty and repeat business
@@ -576,9 +576,9 @@ const DashboardShowcaseSection = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3 sm:p-6">
-                <div className="space-y-4 sm:space-y-6">
+                <div className="flex flex-col gap-4 sm:gap-6">
                   {ratingData.map((rating, index) => (
-                    <div key={index} className="space-y-2">
+                    <div key={index} className="flex flex-col gap-2">
                       <div className="flex flex-col sm:flex-row justify-between items-center sm:items-start gap-1 sm:gap-2">
                         <span className="text-gray-300 text-xs sm:text-base order-1 sm:order-none text-center sm:text-left">
                           {rating.name}

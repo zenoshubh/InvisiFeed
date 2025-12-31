@@ -43,11 +43,11 @@ const CTASection = () => {
                     !isNavigatingToRegister1 ? { scale: 0.95 } : undefined
                   }
                   onClick={() => setIsNavigatingToRegister1(true)}
-                  className="relative group flex items-center justify-center cursor-pointer space-x-3 px-8 py-4 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30"
+                  className="relative group flex items-center justify-center cursor-pointer gap-3 px-8 py-4 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30"
                 >
                   {/* Spinner and Loading Text */}
                   {isNavigatingToRegister1 ? (
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-t-transparent border-black rounded-full animate-spin"></div>
                       <span className="text-lg">Loading...</span>
                     </div>
@@ -71,11 +71,11 @@ const CTASection = () => {
                     !isNavigatingToRegister2 ? { scale: 0.95 } : undefined
                   }
                   onClick={() => setIsNavigatingToRegister2(true)}
-                  className="relative group flex items-center justify-center cursor-pointer space-x-3 px-8 py-4 bg-transparent border-2 border-yellow-400/20 hover:border-yellow-400/40 text-yellow-400 font-semibold rounded-xl transition-all duration-300"
+                  className="relative group flex items-center justify-center cursor-pointer gap-3 px-8 py-4 bg-transparent border-2 border-yellow-400/20 hover:border-yellow-400/40 text-yellow-400 font-semibold rounded-xl transition-all duration-300"
                 >
                   {/* Spinner and Loading Text */}
                   {isNavigatingToRegister2 ? (
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-t-transparent border-yellow-400 rounded-full animate-spin"></div>
                       <span className="text-lg">Loading...</span>
                     </div>

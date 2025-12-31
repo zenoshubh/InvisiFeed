@@ -12,10 +12,12 @@ export async function handleGoogleSignIn(user, profile) {
   try {
     await dbConnect();
 
-    // Find account by email
+    // Find account by email - fetch fields needed for response
     const existingAccount = await AccountModel.findOne({
       email: user.email,
-    }).lean();
+    })
+      .select('_id email username isGoogleAuth')
+      .lean();
 
     if (existingAccount) {
       // Check if user originally signed up with credentials
@@ -26,15 +28,18 @@ export async function handleGoogleSignIn(user, profile) {
         };
       }
 
-      // Get business data
+      // Get business data - fetch fields needed for response
       const business = await BusinessModel.findOne({
         account: existingAccount._id,
-      }).lean();
+      })
+        .select('_id account businessName phoneNumber address isProfileCompleted gstinDetails proTrialUsed')
+        .lean();
 
       const subscription = await SubscriptionModel.findOne({
         business: business?._id,
         status: "active",
       })
+        .select('planType startDate endDate status business')
         .sort({ createdAt: -1 })
         .lean();
 
@@ -69,10 +74,12 @@ export async function handleGoogleSignIn(user, profile) {
       };
     }
 
-    // Check deleted accounts
+    // Check deleted accounts - only fetch deletionDate
     const deletedAccount = await DeletedAccountModel.findOne({
       email: user.email,
-    }).lean();
+    })
+      .select('_id deletionDate')
+      .lean();
     if (deletedAccount?.deletionDate) {
       const timeDiff = Date.now() - deletedAccount.deletionDate.getTime();
       const fifteenDays = 15 * 24 * 60 * 60 * 1000;
@@ -167,7 +174,9 @@ async function generateUniqueUsername(email) {
   let username = baseUsername;
   let counter = 1;
 
-  while (await AccountModel.findOne({ username }).lean()) {
+  while (await AccountModel.findOne({ username })
+    .select('_id')
+    .lean()) {
     username = `${baseUsername}${counter}`;
     counter++;
   }

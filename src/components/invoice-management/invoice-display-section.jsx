@@ -45,7 +45,7 @@ export default function InvoiceDisplaySection({
   };
 
   return (
-    <div className="max-w-7xl mx-auto mt-8 space-y-8">
+    <div className="max-w-7xl mx-auto mt-8 flex flex-col gap-8">
       {/* Invoice Details */}
       {invoiceNumber && (
         <motion.div
@@ -103,7 +103,7 @@ export default function InvoiceDisplaySection({
           className="mt-8 p-5 bg-gradient-to-br from-[#0A0A0A]/80 to-[#0A0A0A]/50 backdrop-blur-sm rounded-xl border border-yellow-400/20 w-full max-w-md mx-auto group relative overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="relative space-y-4">
+          <div className="relative flex flex-col gap-4">
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-semibold text-yellow-400">
                 Smart Invoice Ready
@@ -116,12 +116,12 @@ export default function InvoiceDisplaySection({
               </button>
             </div>
 
-            <div className="w-full max-w-md space-y-2">
+            <div className="w-full max-w-md flex flex-col gap-2">
               {/* Send Email Button */}
               <button
                 onClick={() => setShowDropdown(!showDropdown)}
                 disabled={sendingEmail || emailSent}
-                className="w-full px-6 py-3 bg-gradient-to-r from-white to-gray-200 hover:from-white hover:to-gray-400 text-black font-medium rounded-xl transition-all duration-300 ease-in-out shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30 flex items-center justify-center cursor-pointer space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-6 py-3 bg-gradient-to-r from-white to-gray-200 hover:from-white hover:to-gray-400 text-black font-medium rounded-xl transition-all duration-300 ease-in-out shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30 flex items-center justify-center cursor-pointer gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {sendingEmail ? (
                   <>
@@ -167,7 +167,7 @@ export default function InvoiceDisplaySection({
                 }}
                 className="transition-all duration-300 ease-in-out overflow-hidden"
               >
-                <div className="mt-3 bg-[#0A0A0A]/50 p-4 rounded-xl border border-yellow-400/10 space-y-3">
+                <div className="mt-3 bg-[#0A0A0A]/50 p-4 rounded-xl border border-yellow-400/10 flex flex-col gap-3">
                   <p className="text-xs text-gray-400 text-center">
                     Email will be sent via <strong>invisifeed@gmail.com</strong>
                   </p>
@@ -197,7 +197,7 @@ export default function InvoiceDisplaySection({
               href={pdfUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-medium rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30"
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-medium rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30"
             >
               <Download className="h-5 w-5" />
               <span>Download</span>

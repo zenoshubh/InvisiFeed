@@ -66,7 +66,7 @@ const FAQSection = () => {
           </p>
         </motion.div>
 
-        <Accordion type="single" collapsible className="w-full space-y-4">
+        <Accordion type="single" collapsible className="w-full flex flex-col gap-4">
           {faqs.map((faq, index) => (
             <motion.div
               key={index}

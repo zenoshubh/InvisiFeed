@@ -116,7 +116,7 @@ function SignInClient() {
       <div className="flex h-screen overflow-hidden">
         {/* Left Section with Gradient */}
         <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0A0A0A] via-[#0A0A0A] to-[#000000] p-8 flex-col justify-center items-center text-white">
-          <div className="max-w-md space-y-4">
+          <div className="max-w-md flex flex-col gap-4">
             <Link
               className="text-4xl font-extrabold tracking-tight cursor-pointer"
               href="/"
@@ -127,16 +127,16 @@ function SignInClient() {
             <p className="text-lg text-gray-200">
               Welcome back! Sign in to continue your journey
             </p>
-            <div className="space-y-3 mt-4">
-              <div className="flex items-center space-x-3">
+            <div className="flex flex-col gap-3 mt-4">
+              <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
                 <p>Secure and honest feedback system</p>
               </div>
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
                 <p>Real-time insights and analytics</p>
               </div>
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
                 <p>Build a culture of trust and transparency</p>
               </div>
@@ -150,9 +150,9 @@ function SignInClient() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="w-full max-w-md space-y-6 text-center"
+            className="w-full max-w-md flex flex-col gap-6 text-center"
           >
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <h1 className="text-2xl font-bold tracking-tight text-white">
                 Different Sign-in Method
               </h1>
@@ -192,7 +192,7 @@ function SignInClient() {
       <div className="flex h-screen overflow-hidden">
         {/* Left Section with Gradient */}
         <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0A0A0A] via-[#0A0A0A] to-[#000000] p-8 flex-col justify-center items-center text-white">
-          <div className="max-w-md space-y-4">
+          <div className="max-w-md flex flex-col gap-4">
             <Link
               className="text-4xl font-extrabold tracking-tight cursor-pointer"
               href="/"
@@ -203,16 +203,16 @@ function SignInClient() {
             <p className="text-lg text-gray-200">
               Welcome back! Sign in to continue your journey
             </p>
-            <div className="space-y-3 mt-4">
-              <div className="flex items-center space-x-3">
+            <div className="flex flex-col gap-3 mt-4">
+              <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
                 <p>Secure and honest feedback system</p>
               </div>
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
                 <p>Real-time insights and analytics</p>
               </div>
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
                 <p>Build a culture of trust and transparency</p>
               </div>
@@ -226,9 +226,9 @@ function SignInClient() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="w-full max-w-md space-y-6 text-center"
+            className="w-full max-w-md flex flex-col gap-6 text-center"
           >
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <h1 className="text-2xl font-bold tracking-tight text-white">
                 Account Deleted
               </h1>
@@ -276,7 +276,7 @@ function SignInClient() {
     <div className="flex h-screen overflow-hidden">
       {/* Left Section with Gradient */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0A0A0A] via-[#0A0A0A] to-[#000000] p-8 flex-col justify-center items-center text-white">
-        <div className="max-w-md space-y-4">
+        <div className="max-w-md flex flex-col gap-4">
           <Link
             className="text-4xl font-extrabold tracking-tight cursor-pointer"
             href="/"
@@ -287,16 +287,16 @@ function SignInClient() {
           <p className="text-lg text-gray-200">
             Welcome back! Sign in to continue your journey
           </p>
-          <div className="space-y-3 mt-4">
-            <div className="flex items-center space-x-3">
+          <div className="flex flex-col gap-3 mt-4">
+            <div className="flex items-center gap-3">
               <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
               <p>Secure and honest feedback system</p>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-3">
               <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
               <p>Real-time insights and analytics</p>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-3">
               <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
               <p>Build a culture of trust and transparency</p>
             </div>
@@ -314,7 +314,7 @@ function SignInClient() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="w-full max-w-md space-y-4"
+            className="w-full max-w-md flex flex-col gap-4"
           >
             <div className="text-center">
               <h1 className="text-2xl font-bold tracking-tight text-white">
@@ -328,7 +328,7 @@ function SignInClient() {
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
+                className="flex flex-col gap-4"
               >
                 <FormField
                   name="identifier"
@@ -423,7 +423,7 @@ function SignInClient() {
             <button
               type="button"
               onClick={handleGoogleSignIn}
-              className="w-full flex items-center justify-center space-x-2 px-6 py-5 bg-white hover:bg-gray-300 text-black font-medium cursor-pointer h-9 shadow-lg rounded-lg transition-all duration-300 ease-in-out"
+              className="w-full flex items-center justify-center gap-2 px-6 py-5 bg-white hover:bg-gray-300 text-black font-medium cursor-pointer h-9 shadow-lg rounded-lg transition-all duration-300 ease-in-out"
             >
               {!isNavigatingToGoogleAuth ? (
                 <>

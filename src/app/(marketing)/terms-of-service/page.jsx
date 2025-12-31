@@ -42,13 +42,13 @@ const TermsOfService = () => {
 
             {/* Content */}
             <div className="prose prose-invert max-w-none">
-              <div className="space-y-8">
+              <div className="flex flex-col gap-8">
                 <section>
                   <h2 className="text-2xl font-bold text-yellow-400 mb-4">1. Definitions</h2>
                   <p className="text-gray-300 mb-4">
                     Capitalized terms used herein shall have the meanings set forth in this Section or as defined elsewhere in this Agreement. Terms not defined here but defined in the InvisiFeed Privacy Policy shall have the meanings ascribed to them therein.
                   </p>
-                  <ul className="list-disc list-inside text-gray-300 space-y-2">
+                  <ul className="list-disc list-inside text-gray-300 flex flex-col gap-2">
                     <li><strong>"Agreement"</strong> means these Terms of Service, including any referenced policies (such as the Privacy Policy) and any future amendments.</li>
                     <li><strong>"Content"</strong> means any data, information, text, documents (including invoices in PDF or other formats), graphics, images, feedback, suggestions, comments, or other materials uploaded, submitted, created, posted, generated, stored, or displayed by a User on or through the Service.</li>
                     <li><strong>"End-User"</strong> or <strong>"Customer"</strong> means the client or customer of the Business User who receives communications (such as invoices with feedback links) generated via the Service and may provide feedback.</li>
@@ -68,7 +68,7 @@ const TermsOfService = () => {
                   <p className="text-gray-300">
                     InvisiFeed provides a platform designed to assist Business Users in managing customer interactions by:
                   </p>
-                  <ul className="list-disc list-inside text-gray-300 space-y-2 mt-2">
+                  <ul className="list-disc list-inside text-gray-300 flex flex-col gap-2 mt-2">
                     <li>Allowing Users to upload existing customer invoices or create new invoices using templates provided within the Service.</li>
                     <li>Enabling Users to optionally embed coupons or promotional offers within the communication sent to End-Users.</li>
                     <li>Generating a unique Feedback Mechanism (link/QR code) associated with an invoice, intended to solicit feedback from the User's End-Users.</li>
@@ -80,7 +80,7 @@ const TermsOfService = () => {
 
                 <section>
                   <h2 className="text-2xl font-bold text-yellow-400 mb-4">3. Eligibility and Account Registration</h2>
-                  <div className="space-y-4">
+                  <div className="flex flex-col gap-4">
                     <div>
                       <h3 className="text-xl font-semibold text-yellow-400 mb-2">a) Eligibility:</h3>
                       <p className="text-gray-300">
@@ -106,7 +106,7 @@ const TermsOfService = () => {
 
                 <section>
                   <h2 className="text-2xl font-bold text-yellow-400 mb-4">4. User Conduct and Responsibilities</h2>
-                  <div className="space-y-4">
+                  <div className="flex flex-col gap-4">
                     <div>
                       <h3 className="text-xl font-semibold text-yellow-400 mb-2">a) Compliance with Laws:</h3>
                       <p className="text-gray-300">
@@ -119,7 +119,7 @@ const TermsOfService = () => {
                       <p className="text-gray-300">
                         You are solely responsible for the accuracy, quality, integrity, legality, reliability, and appropriateness of all Content You submit, upload, or create using the Service. This includes, without limitation:
                       </p>
-                      <ul className="list-disc list-inside text-gray-300 space-y-2 mt-2">
+                      <ul className="list-disc list-inside text-gray-300 flex flex-col gap-2 mt-2">
                         <li>The accuracy and completeness of details in invoices You upload or create.</li>
                         <li>The validity, accuracy, and rightful ownership/authorization to use any GSTIN You provide for display on invoices. <strong>Providing false, inaccurate, or unauthorized GSTIN information is strictly prohibited and may result in immediate account termination and potential legal consequences for You.</strong></li>
                         <li>Ensuring You have obtained all necessary rights, permissions, and consents from Your End-Users before including any of their Personal Information within invoices processed through the Service.</li>
@@ -131,7 +131,7 @@ const TermsOfService = () => {
                       <p className="text-gray-300">
                         You agree not to engage in any of the following prohibited activities:
                       </p>
-                      <ul className="list-disc list-inside text-gray-300 space-y-2 mt-2">
+                      <ul className="list-disc list-inside text-gray-300 flex flex-col gap-2 mt-2">
                         <li>Using the Service for any fraudulent, unlawful, deceptive, or malicious purpose, including creating or distributing fake, misleading, or fraudulent invoices.</li>
                         <li>Using the Service to transmit unsolicited commercial email (spam) or bulk communications.</li>
                         <li>Uploading, transmitting, or distributing any Content that is unlawful, harmful, threatening, abusive, harassing, defamatory, vulgar, obscene, invasive of another's privacy, hateful, or racially, ethnically, or otherwise objectionable.</li>
@@ -162,7 +162,7 @@ const TermsOfService = () => {
 
                 <section>
                   <h2 className="text-2xl font-bold text-yellow-400 mb-4">5. Service Functionality Specifics</h2>
-                  <div className="space-y-4">
+                  <div className="flex flex-col gap-4">
                     <div>
                       <h3 className="text-xl font-semibold text-yellow-400 mb-2">a) Invoice Processing:</h3>
                       <p className="text-gray-300">
@@ -209,7 +209,7 @@ const TermsOfService = () => {
 
                 <section>
                   <h2 className="text-2xl font-bold text-yellow-400 mb-4">6. Intellectual Property Rights</h2>
-                  <div className="space-y-4">
+                  <div className="flex flex-col gap-4">
                     <div>
                       <h3 className="text-xl font-semibold text-yellow-400 mb-2">a) InvisiFeed IP:</h3>
                       <p className="text-gray-300">
@@ -235,7 +235,7 @@ const TermsOfService = () => {
 
                 <section>
                   <h2 className="text-2xl font-bold text-yellow-400 mb-4">7. Fees and Payment</h2>
-                  <div className="space-y-4">
+                  <div className="flex flex-col gap-4">
                     <div>
                       <h3 className="text-xl font-semibold text-yellow-400 mb-2">a) Current Use:</h3>
                       <p className="text-gray-300">
@@ -291,7 +291,7 @@ const TermsOfService = () => {
                       TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL INVISIFEED, ITS AFFILIATES, OFFICERS, DIRECTORS, EMPLOYEES, AGENTS, OR LICENSORS BE LIABLE FOR:
                     </p>
                   </div>
-                  <ul className="list-disc list-inside text-gray-300 space-y-2">
+                  <ul className="list-disc list-inside text-gray-300 flex flex-col gap-2">
                     <li>ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, PUNITIVE, OR EXEMPLARY DAMAGES, INCLUDING BUT NOT LIMITED TO DAMAGES FOR LOSS OF PROFITS, GOODWILL, USE, DATA, OR OTHER INTANGIBLE LOSSES (EVEN IF INVISIFEED HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES), ARISING OUT OF OR RELATING TO THIS AGREEMENT OR YOUR USE OF, OR INABILITY TO USE, THE SERVICE;</li>
                     <li>ANY DAMAGES ARISING FROM YOUR PROVISION OF INACCURATE, FALSE, MISLEADING, OR UNAUTHORIZED INFORMATION OR CONTENT, INCLUDING BUT NOT LIMITED TO INVALID OR FRAUDULENT GSTIN;</li>
                     <li>ANY DAMAGES ARISING FROM YOUR CREATION, USE, OR DISTRIBUTION OF FRAUDULENT, ILLEGAL, OR MISLEADING INVOICES OR COMMUNICATIONS VIA THE SERVICE;</li>
@@ -313,7 +313,7 @@ const TermsOfService = () => {
                   <p className="text-gray-300">
                     You agree to defend, indemnify, and hold harmless InvisiFeed, its affiliates, licensors, and their respective officers, directors, employees, contractors, agents, licensors, suppliers, successors, and assigns from and against any claims, liabilities, damages, judgments, awards, losses, costs, expenses, or fees (including reasonable attorneys' fees) arising out of or relating to:
                   </p>
-                  <ul className="list-disc list-inside text-gray-300 space-y-2 mt-2">
+                  <ul className="list-disc list-inside text-gray-300 flex flex-col gap-2 mt-2">
                     <li>Your violation of this Agreement or Your use of the Service, including, but not limited to, Your Content;</li>
                     <li>Your provision of inaccurate, false, fraudulent, or unauthorized information, including GSTIN;</li>
                     <li>Your creation or distribution of illegal or fraudulent invoices or communications;</li>
@@ -326,7 +326,7 @@ const TermsOfService = () => {
 
                 <section>
                   <h2 className="text-2xl font-bold text-yellow-400 mb-4">12. Term and Termination</h2>
-                  <div className="space-y-4">
+                  <div className="flex flex-col gap-4">
                     <div>
                       <h3 className="text-xl font-semibold text-yellow-400 mb-2">a) Term:</h3>
                       <p className="text-gray-300">
@@ -346,7 +346,7 @@ const TermsOfService = () => {
                       <p className="text-gray-300">
                         We may suspend or terminate Your access to and use of the Service, including Your User Account, at Our sole discretion, at any time and without notice or liability to You, including if:
                       </p>
-                      <ul className="list-disc list-inside text-gray-300 space-y-2 mt-2">
+                      <ul className="list-disc list-inside text-gray-300 flex flex-col gap-2 mt-2">
                         <li>You breach any term of this Agreement.</li>
                         <li>You engage in fraudulent, illegal, or harmful activities.</li>
                         <li>Providing the Service to You is no longer commercially viable for Us.</li>
@@ -386,7 +386,7 @@ const TermsOfService = () => {
 
                 <section>
                   <h2 className="text-2xl font-bold text-yellow-400 mb-4">16. Miscellaneous</h2>
-                  <div className="space-y-4">
+                  <div className="flex flex-col gap-4">
                     <div>
                       <h3 className="text-xl font-semibold text-yellow-400 mb-2">a) Entire Agreement:</h3>
                       <p className="text-gray-300">

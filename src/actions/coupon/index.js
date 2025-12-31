@@ -33,12 +33,18 @@ export async function deleteCoupon(invoiceId) {
 
     // If invoice has a coupon reference, update the coupon document
     if (invoice.coupon) {
-      const coupon = await CouponModel.findById(invoice.coupon);
+      // Check if coupon exists first with lean
+      const couponCheck = await CouponModel.findById(invoice.coupon)
+        .select('_id')
+        .lean();
       
-      if (!coupon) {
+      if (!couponCheck) {
         return errorResponse("Coupon not found");
       }
 
+      // Fetch coupon document for saving (needs document methods)
+      const coupon = await CouponModel.findById(couponCheck._id);
+      
       // Mark coupon as used and inactive
       coupon.isUsed = true;
       coupon.isActive = false;

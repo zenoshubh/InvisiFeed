@@ -12,17 +12,21 @@ export async function setRecommendedActions(username, invoiceNumber) {
   await dbConnect();
 
   try {
-    // Find account by username
-    const account = await AccountModel.findOne({ username }).lean();
+    // Find account by username - only fetch _id
+    const account = await AccountModel.findOne({ username })
+      .select('_id')
+      .lean();
 
     if (!account) {
       return { success: false, message: "Account not found" };
     }
 
-    // Find business by account
+    // Find business by account - only fetch _id
     const business = await BusinessModel.findOne({
       account: account._id,
-    }).lean();
+    })
+      .select('_id')
+      .lean();
 
     if (!business) {
       return { success: false, message: "Business not found" };
@@ -31,7 +35,9 @@ export async function setRecommendedActions(username, invoiceNumber) {
     const invoice = await InvoiceModel.findOne({
       invoiceId: invoiceNumber,
       business: business._id,
-    }).lean();
+    })
+      .select('_id isFeedbackSubmitted updatedRecommendedActions')
+      .lean();
 
     if (!invoice) {
       return { success: false, message: "Invoice not found" };

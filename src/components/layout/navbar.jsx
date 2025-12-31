@@ -32,14 +32,14 @@ function Navbar() {
     <nav className="p-4 md:p-6 bg-[#0A0A0A] text-white shadow-lg border-b border-yellow-400/10">
       <div className="container mx-auto flex items-center justify-between">
         {/* Logo/Brand Name */}
-        <Link href="/" className="flex items-center space-x-2 cursor-pointer">
+        <Link href="/" className="flex items-center gap-2 cursor-pointer">
           <span className="text-2xl font-bold text-yellow-400 cursor-pointer">
             InvisiFeed
           </span>
         </Link>
 
         {/* Navigation Links - Desktop */}
-        <div className="hidden md:flex space-x-6 absolute left-1/2 -translate-x-1/2">
+        <div className="hidden md:flex flex-row gap-6 absolute left-1/2 -translate-x-1/2">
           {pathname === "/" ||
           pathname === "/pricing" ||
           pathname === "/purpose" ||

@@ -87,7 +87,7 @@ export default function SampleInvoicesModal({
           )}
         </div>
 
-        <div className="space-y-2 max-h-[300px]">
+        <div className="flex flex-col gap-2 max-h-[300px]">
           {sampleInvoices.map((invoice) => (
             <button
               key={invoice.id}
@@ -99,7 +99,7 @@ export default function SampleInvoicesModal({
               {loading ? (
                 <div className="w-4 h-4 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin" />
               ) : (
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center gap-4">
                   <Eye
                     className="h-4 w-4 text-yellow-400"
                     onClick={(event) => handleViewInvoice(event, invoice)}

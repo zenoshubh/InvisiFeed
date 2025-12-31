@@ -293,7 +293,7 @@ function UpdateProfileClient({ initialBusiness }) {
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(handleSaveProfile)}
-                  className="space-y-6"
+                  className="flex flex-col gap-6"
                 >
                   {/* Business Name */}
                   <FormField
@@ -339,7 +339,7 @@ function UpdateProfileClient({ initialBusiness }) {
                   />
 
                   {/* Address Information */}
-                  <div className="space-y-4">
+                  <div className="flex flex-col gap-4">
                     <div className="flex items-center justify-between">
                       <FormLabel className="text-gray-200 text-lg">
                         Address Information
@@ -562,7 +562,7 @@ function UpdateProfileClient({ initialBusiness }) {
                   Are you sure you want to delete your account? This action
                   cannot be undone.
                 </p>
-                <div className="flex justify-end space-x-3">
+                <div className="flex justify-end gap-3">
                   <Button
                     onClick={() => setIsDeleteAccountModalOpen(false)}
                     className="bg-[#0A0A0A]/30 hover:bg-[#0A0A0A]/50 text-gray-400 border border-gray-400/20 px-4 py-2 rounded-md transition-all duration-200 cursor-pointer"

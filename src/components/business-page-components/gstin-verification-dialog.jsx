@@ -80,8 +80,8 @@ export default function GSTINVerificationDialog({ open, onOpenChange }) {
         <DialogHeader>
           <DialogTitle className="text-white">Verify GSTIN</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
+        <div className="flex flex-col gap-4 py-4">
+          <div className="flex flex-col gap-2">
             <Input
               placeholder="Enter GSTIN Number"
               value={gstinNumber}
@@ -134,7 +134,7 @@ export default function GSTINVerificationDialog({ open, onOpenChange }) {
             </div>
           )}
 
-          <div className="flex justify-end space-x-2">
+          <div className="flex justify-end gap-2">
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}

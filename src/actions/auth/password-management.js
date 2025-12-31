@@ -10,7 +10,9 @@ export async function sendPasswordResetEmail(email) {
   try {
     await dbConnect();
 
-    const account = await AccountModel.findOne({ email }).lean();
+    const account = await AccountModel.findOne({ email })
+      .select('_id email isGoogleAuth')
+      .lean();
     if (!account) {
       return { success: false, message: "User not found" };
     }
@@ -70,7 +72,9 @@ export async function resetUserPassword(token, newPassword) {
       _id: decoded.userId,
       resetToken: token,
       resetTokenExpiry: { $gt: Date.now() },
-    }).lean();
+    })
+      .select('_id')
+      .lean();
 
     if (!account) {
       return { success: false, message: "Invalid or expired reset token" };

@@ -13,23 +13,27 @@ export async function checkInvoice(username, invoiceNumber, couponCode = null) {
       return { success: false, message: "Missing required parameters" };
     }
 
-    // Find account by username
-    const account = await AccountModel.findOne({ username }).lean();
+    // Find account by username - only fetch _id
+    const account = await AccountModel.findOne({ username })
+      .select('_id')
+      .lean();
 
     if (!account) {
       return { success: false, message: "Invoice Provider not found" };
     }
 
-    // Find business by account
+    // Find business by account - fetch fields needed for response
     const business = await BusinessModel.findOne({
       account: account._id,
-    }).lean();
+    })
+      .select('_id businessName account')
+      .lean();
 
     if (!business) {
       return { success: false, message: "Business not found" };
     }
 
-    // Find invoice entry
+    // Find invoice entry - fetch fields needed for response
     const query = {
       invoiceId: invoiceNumber,
       business: business._id,
@@ -40,7 +44,9 @@ export async function checkInvoice(username, invoiceNumber, couponCode = null) {
       query["couponAttached.couponCode"] = couponCode;
     }
 
-    let invoice = await InvoiceModel.findOne(query).lean();
+    let invoice = await InvoiceModel.findOne(query)
+      .select('_id invoiceId business customerDetails isFeedbackSubmitted mergedPdfUrl')
+      .lean();
 
     if (!invoice) {
       return { success: false, message: "Invoice not found" };

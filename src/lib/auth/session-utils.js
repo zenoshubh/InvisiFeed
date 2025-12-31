@@ -62,29 +62,34 @@ export async function getAuthenticatedBusiness() {
       return sessionResult;
     }
 
-    // Find account by username
+    // Find account by username - only fetch needed fields
     const account = await AccountModel.findOne({
       username: sessionResult.username,
-    }).lean();
+    })
+      .select('_id username email isGoogleAuth isVerified')
+      .lean();
 
     if (!account) {
       return { success: false, message: 'Account not found' };
     }
 
-    // Find business by account
+    // Find business by account - fetch all fields needed for merging
     const business = await BusinessModel.findOne({
       account: account._id,
-    }).lean();
+    })
+      .select('_id account businessName phoneNumber address isProfileCompleted gstinDetails proTrialUsed createdAt updatedAt')
+      .lean();
 
     if (!business) {
       return { success: false, message: 'Business not found' };
     }
 
-    // Find active subscription
+    // Find active subscription - only fetch needed fields
     const subscription = await SubscriptionModel.findOne({
       business: business._id,
       status: 'active',
     })
+      .select('planType startDate endDate status business')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -146,10 +151,12 @@ export async function getAuthenticatedBusinessDocument() {
       return sessionResult;
     }
 
-    // Find account by username
+    // Find account by username - only fetch needed fields
     const account = await AccountModel.findOne({
       username: sessionResult.username,
-    }).lean();
+    })
+      .select('_id username email')
+      .lean();
 
     if (!account) {
       return { success: false, message: 'Account not found' };
@@ -164,11 +171,12 @@ export async function getAuthenticatedBusinessDocument() {
       return { success: false, message: 'Business not found' };
     }
 
-    // Find active subscription
+    // Find active subscription - only fetch needed fields
     const subscription = await SubscriptionModel.findOne({
       business: business._id,
       status: 'active',
     })
+      .select('planType startDate endDate status business')
       .sort({ createdAt: -1 })
       .lean();
 

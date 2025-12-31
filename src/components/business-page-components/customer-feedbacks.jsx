@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 
 const RatingDisplay = ({ rating, label }) => (
-  <div className="flex items-center space-x-2">
+  <div className="flex items-center gap-2">
     <span className="text-gray-400">{label}:</span>
     <div className="flex items-center">
       {[1, 2, 3, 4, 5].map((star) => (
@@ -167,7 +167,7 @@ const CustomerFeedbacks = () => {
               <h2 className="text-2xl font-bold bg-gradient-to-r from-yellow-500 to-yellow-400 bg-clip-text text-transparent">
                 Customer Feedbacks
               </h2>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <ArrowUpDown className="w-4 h-4 text-yellow-400" />
                 <Select value={sortBy} onValueChange={handleSortChange}>
                   <SelectTrigger className="w-[180px] bg-gradient-to-br from-[#0A0A0A]/80 to-[#0A0A0A]/50 border-yellow-400/20 text-yellow-400">
@@ -203,7 +203,7 @@ const CustomerFeedbacks = () => {
               </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="flex flex-col gap-6">
               {feedbacks.map((feedback, index) => (
                 <motion.div
                   key={feedback._id || index}
@@ -223,7 +223,7 @@ const CustomerFeedbacks = () => {
                             )}{" "}
                             IST
                           </CardTitle>
-                          <div className="flex items-center space-x-1.5 bg-gradient-to-br from-yellow-400/10 to-yellow-400/5 px-3 py-1.5 rounded-full border border-yellow-400/20 group-hover:from-yellow-400/20 group-hover:to-yellow-400/10 transition-colors">
+                          <div className="flex items-center gap-1.5 bg-gradient-to-br from-yellow-400/10 to-yellow-400/5 px-3 py-1.5 rounded-full border border-yellow-400/20 group-hover:from-yellow-400/20 group-hover:to-yellow-400/10 transition-colors">
                             <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
                             <span className="text-yellow-400 font-medium">
                               {feedback.overAllRating}
@@ -231,7 +231,7 @@ const CustomerFeedbacks = () => {
                           </div>
                         </div>
                       </CardHeader>
-                      <CardContent className="space-y-4">
+                      <CardContent className="flex flex-col gap-4">
                         <CustomerDetails
                           details={feedback.customerDetails || {}}
                           isAnonymous={feedback.isAnonymous}

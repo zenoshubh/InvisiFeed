@@ -128,7 +128,7 @@ const VerifyAccount = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="w-full max-w-md space-y-4"
+            className="w-full max-w-md flex flex-col gap-4"
           >
             <div className="text-center">
               <h1 className="text-2xl font-bold tracking-tight text-white">
@@ -143,8 +143,8 @@ const VerifyAccount = () => {
               </p>
             </div>
 
-            <form onSubmit={onSubmit} className="space-y-4">
-              <div className="flex justify-center space-x-2">
+            <form onSubmit={onSubmit} className="flex flex-col gap-4">
+              <div className="flex justify-center gap-2">
                 {otp.map((digit, index) => (
                   <input
                     key={index}

@@ -41,7 +41,7 @@ export default function CompleteProfileDialog({ open, onOpenChange }) {
             Complete Your Profile First
           </DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col items-center space-y-4 py-4">
+        <div className="flex flex-col items-center gap-4 py-4">
           <p className="text-gray-400 text-center">
             You need to complete your profile before creating invoices. This helps us provide better service and maintain accurate records.
           </p>

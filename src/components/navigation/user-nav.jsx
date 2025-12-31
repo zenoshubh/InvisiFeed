@@ -106,7 +106,7 @@ function UserNav({ isMobile = false }) {
 
   return (
     <>
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center gap-4">
         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <button className="focus:outline-none">
@@ -122,7 +122,7 @@ function UserNav({ isMobile = false }) {
             align="end"
           >
             <div className="flex items-center justify-start p-2">
-              <div className="flex flex-col space-y-1 leading-none">
+              <div className="flex flex-col gap-1 leading-none">
                 <Link
                   href={`/user/${business?.username}/generate`}
                   className="font-medium text-yellow-400 cursor-pointer"

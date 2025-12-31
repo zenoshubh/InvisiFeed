@@ -109,7 +109,7 @@ export default function PositiveNegativeChart({ metrics }) {
                 </Pie>
               </PieChart>
             </ChartContainer>
-            <div className="w-full sm:w-[40%] space-y-4 mt-4 sm:mt-0">
+            <div className="w-full sm:w-[40%] flex flex-col gap-4 mt-4 sm:mt-0">
               <div className="text-center sm:text-right">
                 <p className="text-gray-400 text-sm">Positive Feedbacks</p>
                 <p className="text-xl sm:text-2xl font-bold text-white">

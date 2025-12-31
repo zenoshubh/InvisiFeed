@@ -578,7 +578,7 @@ export default function CreateInvoiceForm({
                           <Plus className="w-4 h-4" />
                         </Button>
                       </div>
-                      <div className="space-y-4">
+                      <div className="flex flex-col gap-4">
                         {fields.map((field, index) => (
                           <Card
                             key={field.id}
@@ -862,7 +862,7 @@ export default function CreateInvoiceForm({
                       <h3 className="text-lg font-semibold text-yellow-400 mb-4">
                         Add-ons
                       </h3>
-                      <div className="space-y-4">
+                      <div className="flex flex-col gap-4">
                         {(business?.plan?.planName === "pro" ||
                           business?.plan?.planName === "pro-trial" ||
                           business?.plan?.planEndDate > new Date()) && (
@@ -871,7 +871,7 @@ export default function CreateInvoiceForm({
                               control={form.control}
                               name="addCoupon"
                               render={({ field }) => (
-                                <FormItem className="flex items-center space-x-2">
+                                <FormItem className="flex items-center gap-2">
                                   <FormControl>
                                     <Checkbox
                                       checked={field.value}
@@ -888,7 +888,7 @@ export default function CreateInvoiceForm({
                             {form.watch("addCoupon") && (
                               <Card className="bg-[#0A0A0A] border-yellow-400/20">
                                 <CardContent className="pt-6">
-                                  <div className="space-y-4">
+                                  <div className="flex flex-col gap-4">
                                     <FormField
                                       control={form.control}
                                       name="coupon.code"
@@ -983,7 +983,7 @@ export default function CreateInvoiceForm({
                   {/* Totals */}
                   <Card className="bg-[#0A0A0A] border-none w-full">
                     <CardContent className="pt-6">
-                      <div className="space-y-2">
+                      <div className="flex flex-col gap-2">
                         <div className="flex justify-between text-gray-300">
                           <span>Subtotal:</span>
                           <span>{subtotal.toFixed(2)}</span>
@@ -1005,7 +1005,7 @@ export default function CreateInvoiceForm({
                   </Card>
 
                   {/* Action Buttons */}
-                  <div className="flex justify-end space-x-4 ">
+                  <div className="flex justify-end gap-4 ">
                     <Button
                       type="button"
                       variant="ghost"

@@ -32,7 +32,7 @@ const PrivacyPolicy = () => {
 
             {/* Content */}
             <div className="prose prose-invert max-w-none">
-              <div className="space-y-8">
+              <div className="flex flex-col gap-8">
                 <section>
                   <h2 className="text-2xl font-bold text-yellow-400 mb-4">1. Introduction and Scope</h2>
                   <p className="text-gray-300">
@@ -41,7 +41,7 @@ const PrivacyPolicy = () => {
                   <p className="text-gray-300 mt-4">
                     This Policy applies to information collected:
                   </p>
-                  <ul className="list-disc list-inside text-gray-300 space-y-2 mt-2">
+                  <ul className="list-disc list-inside text-gray-300 flex flex-col gap-2 mt-2">
                     <li>Directly from Business Users when they register for, access, or use the Service.</li>
                     <li>Automatically when Business Users interact with the Service.</li>
                     <li>From End-Users when they submit feedback through the forms generated via the Service, noting that such collection is designed to be anonymous with respect to the End-User's Personal Identifiable Information (PII).</li>
@@ -54,7 +54,7 @@ const PrivacyPolicy = () => {
 
                 <section>
                   <h2 className="text-2xl font-bold text-yellow-400 mb-4">2. Definitions</h2>
-                  <ul className="list-disc list-inside text-gray-300 space-y-2">
+                  <ul className="list-disc list-inside text-gray-300 flex flex-col gap-2">
                     <li><strong>Personal Information (or PII):</strong> Information that identifies, relates to, describes, is reasonably capable of being associated with, or could reasonably be linked, directly or indirectly, with a particular individual or household. For Business Users, this includes name, email address, business details, contact information, and potentially GSTIN. For End-Users submitting feedback via the Service, PII is not intentionally collected by InvisiFeed through the feedback form itself.</li>
                     <li><strong>Non-Personal Information:</strong> Information that cannot, on its own, be used to identify or contact a specific individual (e.g., aggregated data, anonymized usage statistics).</li>
                     <li><strong>Data Controller:</strong> The entity that determines the purposes and means of processing Personal Information. For the Personal Information of Business Users collected directly by InvisiFeed, We are the Data Controller. The Business User is generally the Data Controller for the Personal Information contained within the invoices they upload or create and relating to their End-Users.</li>
@@ -66,10 +66,10 @@ const PrivacyPolicy = () => {
 
                 <section>
                   <h2 className="text-2xl font-bold text-yellow-400 mb-4">3. Information We Collect</h2>
-                  <div className="space-y-4">
+                  <div className="flex flex-col gap-4">
                     <div>
                       <h3 className="text-xl font-semibold text-yellow-400 mb-2">a) Information Provided Directly by Business Users:</h3>
-                      <ul className="list-disc list-inside text-gray-300 space-y-2">
+                      <ul className="list-disc list-inside text-gray-300 flex flex-col gap-2">
                         <li><strong>Account Registration:</strong> Name, email address, password, business name, type of service provided.</li>
                         <li><strong>Profile Information:</strong> Additional details You may choose to provide, such as contact information, address, logo, or other business-related details.</li>
                         <li><strong>Invoice Data (Uploaded or Created):</strong> When You upload existing invoice PDFs or use Our "Create Invoice" feature, You provide Service Data which may include Your business details, Your Customer's details (name, address, contact information – potentially constituting PII of the End-User), description of services/goods, pricing, dates, and payment terms. <strong>You are solely responsible for ensuring You have the legal right and necessary consents to provide and process any End-User PII contained within these invoices via Our Service.</strong></li>
@@ -81,7 +81,7 @@ const PrivacyPolicy = () => {
 
                     <div>
                       <h3 className="text-xl font-semibold text-yellow-400 mb-2">b) Information Collected from End-Users (Anonymously via Feedback Form):</h3>
-                      <ul className="list-disc list-inside text-gray-300 space-y-2">
+                      <ul className="list-disc list-inside text-gray-300 flex flex-col gap-2">
                         <li><strong>Feedback Ratings:</strong> Customer Satisfaction, Communication, Quality of Service, Value for Money, Recommendation Likelihood, Overall Rating.</li>
                         <li><strong>Feedback Content:</strong> Qualitative feedback and suggestions provided in text fields.</li>
                         <li><strong>Metadata:</strong> The Service does not intentionally collect PII (like name, email, or specific identifiers) from End-Users directly through the feedback submission form generated via an invoice. The feedback mechanism is designed for anonymity from the perspective of InvisiFeed's direct data collection. However, standard technical information (e.g., IP address, browser type, device type, time of submission) may be logged automatically for security, anti-abuse, and operational purposes. This technical data is not directly linked to the End-User's identity within the feedback content accessible to the Business User.</li>
@@ -90,7 +90,7 @@ const PrivacyPolicy = () => {
 
                     <div>
                       <h3 className="text-xl font-semibold text-yellow-400 mb-2">c) Information Collected Automatically:</h3>
-                      <ul className="list-disc list-inside text-gray-300 space-y-2">
+                      <ul className="list-disc list-inside text-gray-300 flex flex-col gap-2">
                         <li><strong>Usage Data:</strong> Information about how You interact with the Service, such as features accessed, buttons clicked, time spent on pages, frequency of logins, IP addresses, browser type, operating system, device identifiers, referring URLs, and crash data.</li>
                         <li><strong>Cookies and Similar Technologies:</strong> We use cookies (small text files stored on Your device) and similar tracking technologies (like web beacons or pixels) to operate and administer the Service, gather usage data, and improve Your experience. This includes session cookies (expire when You close Your browser) and persistent cookies (remain until deleted or expired). You can control cookie preferences through Your browser settings.</li>
                       </ul>
@@ -103,7 +103,7 @@ const PrivacyPolicy = () => {
                   <p className="text-gray-300 mb-4">
                     We use the information collected for the following purposes:
                   </p>
-                  <ul className="list-disc list-inside text-gray-300 space-y-2">
+                  <ul className="list-disc list-inside text-gray-300 flex flex-col gap-2">
                     <li><strong>To Provide and Maintain the Service:</strong> Operate, maintain, and improve the features and functionality of InvisiFeed, including invoice processing, feedback link/QR code generation, feedback collection, dashboard analytics, and profile management.</li>
                     <li><strong>To Process Invoices and Feedback:</strong> Facilitate the uploading, creation, and processing of invoices; generate unique feedback links/QR codes; receive, store, and process End-User feedback on Your behalf.</li>
                     <li><strong>To Display Analytics and Insights:</strong> Aggregate and analyze feedback data to provide Business Users with dashboard visualizations (e.g., pie charts, line charts, average ratings, best/worst areas).</li>
@@ -122,7 +122,7 @@ const PrivacyPolicy = () => {
                   <p className="text-gray-300 mb-4">
                     Our legal basis for collecting and using the Personal Information described above will depend on the specific information and context:
                   </p>
-                  <ul className="list-disc list-inside text-gray-300 space-y-2">
+                  <ul className="list-disc list-inside text-gray-300 flex flex-col gap-2">
                     <li><strong>Performance of a Contract:</strong> Processing is necessary to provide the Service You requested and perform Our obligations under the Terms of Service (e.g., processing Your invoices, collecting feedback, displaying dashboards).</li>
                     <li><strong>Legitimate Interests:</strong> Processing is necessary for Our legitimate interests, provided these are not overridden by Your data protection interests or fundamental rights and freedoms (e.g., security, fraud prevention, analytics, service improvement, AI insights derived from aggregated data).</li>
                     <li><strong>Consent:</strong> Where required by law, or for specific purposes like optional marketing communications, We will rely on Your explicit consent. Business Users are responsible for obtaining necessary consent from their End-Users for processing any PII contained within the invoices they upload or create using the Service.</li>
@@ -135,7 +135,7 @@ const PrivacyPolicy = () => {
                   <p className="text-gray-300 mb-4">
                     We do not sell Your Personal Information. We may share information under the following limited circumstances:
                   </p>
-                  <ul className="list-disc list-inside text-gray-300 space-y-2">
+                  <ul className="list-disc list-inside text-gray-300 flex flex-col gap-2">
                     <li><strong>With Service Providers:</strong> We may share information with third-party vendors, consultants, and other service providers who perform services on Our behalf (e.g., hosting providers, cloud storage, email service providers, analytics providers, potentially AI/ML platform providers for insight generation). These providers are contractually obligated to protect the information and use it only for the purposes for which it was disclosed.</li>
                     <li><strong>For Legal Reasons:</strong> We may disclose information if required by law, subpoena, or other legal process, or if We have a good faith belief that disclosure is reasonably necessary to (i) comply with a legal obligation, (ii) protect and defend Our rights or property, (iii) prevent or investigate possible wrongdoing in connection with the Service, (iv) protect the personal safety of Users of the Service or the public, or (v) protect against legal liability.</li>
                     <li><strong>Business Transfers:</strong> In connection with, or during negotiations of, any merger, sale of company assets, financing, or acquisition of all or a portion of Our business by another company, Your information may be transferred as part of that transaction. We will notify You via email and/or a prominent notice on Our Service of any change in ownership or uses of Your Personal Information.</li>
@@ -181,7 +181,7 @@ const PrivacyPolicy = () => {
                   <p className="text-gray-300 mb-4">
                     Depending on Your location and applicable law (such as the GDPR or India's Digital Personal Data Protection Act, 2023, once fully effective), You may have the following rights regarding Your Personal Information held by InvisiFeed:
                   </p>
-                  <ul className="list-disc list-inside text-gray-300 space-y-2">
+                  <ul className="list-disc list-inside text-gray-300 flex flex-col gap-2">
                     <li><strong>Right to Access:</strong> Request access to the Personal Information We hold about You.</li>
                     <li><strong>Right to Rectification:</strong> Request correction of inaccurate or incomplete Personal Information.</li>
                     <li><strong>Right to Erasure (Right to be Forgotten):</strong> Request deletion of Your Personal Information, subject to certain exceptions.</li>
@@ -225,7 +225,7 @@ const PrivacyPolicy = () => {
 
                 <section>
                   <h2 className="text-2xl font-bold text-yellow-400 mb-4">14. Disclaimers and Limitation of Liability</h2>
-                  <div className="space-y-4">
+                  <div className="flex flex-col gap-4">
                     <div>
                       <h3 className="text-xl font-semibold text-yellow-400 mb-2">a) User Responsibility for Content:</h3>
                       <p className="text-gray-300">

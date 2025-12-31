@@ -345,7 +345,7 @@ export default function FeedbackClient({ username, invoiceNumber }) {
           </h1>
         </motion.div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
           {/* Ratings Section */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -358,7 +358,7 @@ export default function FeedbackClient({ username, invoiceNumber }) {
                   How satisfied are you?
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="flex flex-col gap-6">
                 {[
                   { key: "satisfactionRating", label: "Overall Satisfaction" },
                   { key: "communicationRating", label: "Communication" },
@@ -426,7 +426,7 @@ export default function FeedbackClient({ username, invoiceNumber }) {
               <CardHeader>
                 <CardTitle className="text-white">Your Feedback</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="flex flex-col gap-4">
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <Label className="text-gray-300">
@@ -477,7 +477,7 @@ export default function FeedbackClient({ username, invoiceNumber }) {
                   Suggestions for Improvement
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="flex flex-col gap-4">
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <Label className="text-gray-300">

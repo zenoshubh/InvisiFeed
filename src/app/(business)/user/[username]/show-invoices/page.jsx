@@ -128,8 +128,8 @@ export default function ShowInvoicesPage({ params }) {
   ) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-4">
-        <div className="text-center space-y-6">
-          <div className="flex flex-col items-center space-y-4">
+        <div className="text-center flex flex-col gap-6">
+          <div className="flex flex-col items-center gap-4">
             <span className="text-xl font-semibold text-yellow-400">
               Upgrade to Pro to View Invoices
             </span>
@@ -312,9 +312,9 @@ export default function ShowInvoicesPage({ params }) {
             </DialogTitle>
           </DialogHeader>
           {selectedFeedback && (
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <p className="text-gray-400">Satisfaction</p>
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
@@ -323,7 +323,7 @@ export default function ShowInvoicesPage({ params }) {
                     </span>
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <p className="text-gray-400">Communication</p>
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
@@ -332,7 +332,7 @@ export default function ShowInvoicesPage({ params }) {
                     </span>
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <p className="text-gray-400">Quality of Service</p>
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
@@ -341,7 +341,7 @@ export default function ShowInvoicesPage({ params }) {
                     </span>
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <p className="text-gray-400">Value for Money</p>
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
@@ -350,7 +350,7 @@ export default function ShowInvoicesPage({ params }) {
                     </span>
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <p className="text-gray-400">Recommendation</p>
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
@@ -359,7 +359,7 @@ export default function ShowInvoicesPage({ params }) {
                     </span>
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <p className="text-gray-400">Overall Rating</p>
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
@@ -369,13 +369,13 @@ export default function ShowInvoicesPage({ params }) {
                   </div>
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <p className="text-gray-400">Feedback</p>
                 <p className="text-gray-200">
                   {selectedFeedback.feedbackContent || "No feedback provided"}
                 </p>
               </div>
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <p className="text-gray-400">Suggestions</p>
                 <p className="text-gray-200">
                   {selectedFeedback.suggestionContent ||

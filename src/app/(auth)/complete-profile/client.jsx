@@ -306,7 +306,7 @@ function ProfileCompletionForm({ initialSession }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="w-full space-y-4"
+            className="w-full flex flex-col gap-4"
           >
             <div className="text-center">
               <h1 className="text-2xl font-bold tracking-tight text-white">
@@ -348,13 +348,13 @@ function ProfileCompletionForm({ initialSession }) {
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(handleSubmit)}
-                className="space-y-4"
+                className="flex flex-col gap-4"
               >
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="space-y-4"
+                  className="flex flex-col gap-4"
                 >
                   <FormField
                     control={form.control}

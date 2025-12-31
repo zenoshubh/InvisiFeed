@@ -21,29 +21,35 @@ export async function updatePlan(planName) {
 
     await dbConnect();
     
-    // Find account by username
+    // Find account by username - only fetch _id to find business
     const account = await AccountModel.findOne({
       username: session.user.username,
-    }).lean();
+    })
+      .select('_id')
+      .lean();
 
     if (!account) {
       return { success: false, message: "Account not found" };
     }
 
-    // Find business
+    // Find business - only fetch _id and proTrialUsed
     const business = await BusinessModel.findOne({
       account: account._id,
-    }).lean();
+    })
+      .select('_id proTrialUsed')
+      .lean();
 
     if (!business) {
       return { success: false, message: "Business not found" };
     }
 
-    // Check active subscription
+    // Check active subscription - only fetch needed fields
     const activeSubscription = await SubscriptionModel.findOne({
       business: business._id,
       status: "active",
-    }).lean();
+    })
+      .select('planType status business')
+      .lean();
 
     if (activeSubscription?.planType === "pro") {
       return {
@@ -93,29 +99,35 @@ export async function startProTrial() {
       return { success: false, message: "Unauthorized" };
     }
 
-    // Find account by username
+    // Find account by username - only fetch _id to find business
     const account = await AccountModel.findOne({
       username: session.user.username,
-    }).lean();
+    })
+      .select('_id')
+      .lean();
 
     if (!account) {
       return { success: false, message: "Account not found" };
     }
 
-    // Find business
+    // Find business - only fetch _id and proTrialUsed
     const business = await BusinessModel.findOne({
       account: account._id,
-    }).lean();
+    })
+      .select('_id proTrialUsed')
+      .lean();
 
     if (!business) {
       return { success: false, message: "Business not found" };
     }
 
-    // Check active subscription
+    // Check active subscription - only fetch needed fields
     const activeSubscription = await SubscriptionModel.findOne({
       business: business._id,
       status: "active",
-    }).lean();
+    })
+      .select('planType status business')
+      .lean();
 
     if (activeSubscription?.planType === "pro-trial") {
       return { success: false, message: "User already has a Pro trial" };

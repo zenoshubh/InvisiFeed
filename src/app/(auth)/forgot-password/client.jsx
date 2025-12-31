@@ -110,10 +110,10 @@ export default function ForgotPassword() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="w-full max-w-md space-y-4"
+            className="w-full max-w-md flex flex-col gap-4"
           >
             {/* Step Indicator */}
-            <div className="flex justify-center space-x-4 mb-8">
+            <div className="flex justify-center gap-4 mb-8">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center ${
                   step >= 1
@@ -165,7 +165,7 @@ export default function ForgotPassword() {
               <Form {...emailForm}>
                 <form
                   onSubmit={emailForm.handleSubmit(onEmailSubmit)}
-                  className="space-y-4"
+                  className="flex flex-col gap-4"
                 >
                   <FormField
                     name="email"
@@ -204,7 +204,7 @@ export default function ForgotPassword() {
 
             {/* Step 2: Email Sent Confirmation */}
             {step === 2 && (
-              <div className="space-y-4">
+              <div className="flex flex-col gap-4">
                 <div className="bg-yellow-400/10 border border-yellow-400/20 rounded-lg p-4 text-yellow-400 text-sm">
                   <p>
                     We've sent a password reset link to your email address. The
@@ -225,7 +225,7 @@ export default function ForgotPassword() {
               <Form {...passwordForm}>
                 <form
                   onSubmit={passwordForm.handleSubmit(onPasswordSubmit)}
-                  className="space-y-4"
+                  className="flex flex-col gap-4"
                 >
                   <FormField
                     name="password"

@@ -98,10 +98,10 @@ function HeroSection() {
                   whileHover={!isNavigating ? { scale: 1.05 } : undefined}
                   whileTap={!isNavigating ? { scale: 0.95 } : undefined}
                   onClick={() => setIsNavigating(true)}
-                  className="cursor-pointer group flex items-center justify-center space-x-2 sm:space-x-3 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30 w-full sm:w-auto"
+                  className="cursor-pointer group flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30 w-full sm:w-auto"
                 >
                   {isNavigating ? (
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-t-transparent border-gray-900 rounded-full animate-spin"></div>
                       <span className="text-sm sm:text-base">Loading...</span>
                     </div>
@@ -190,7 +190,7 @@ function HeroSection() {
                     <div className="text-xs text-gray-500">
                       Thank you for your business!
                     </div>
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center gap-1">
                       <QrCode className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
                       <span className="text-xs font-medium text-yellow-500">
                         Scan for feedback
@@ -221,7 +221,7 @@ function HeroSection() {
                       <p className="text-xs mb-1 text-gray-900">
                         Overall Experience
                       </p>
-                      <div className="flex space-x-1">
+                      <div className="flex flex-row gap-1">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <div
                             key={star}
@@ -259,7 +259,7 @@ function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className={`w-full flex flex-col items-center justify-center ${
-              isLandscape ? "space-y-6" : "space-y-8"
+              isLandscape ? "flex flex-col gap-6" : "flex flex-col gap-8"
             }`}
           >
             {/* Main Heading */}
@@ -294,7 +294,7 @@ function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
               className={`flex justify-center ${
-                isLandscape ? "space-x-3" : "space-x-6"
+                isLandscape ? "flex flex-row gap-3" : "flex flex-row gap-6"
               }`}
             >
               <div className="flex flex-col items-center">
@@ -369,7 +369,7 @@ function HeroSection() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className={`cursor-pointer group w-full flex items-center justify-center space-x-2 ${
+                className={`cursor-pointer group w-full flex items-center justify-center gap-2 ${
                   isSmallScreen ? "px-5 py-2.5" : "px-7 py-3.5"
                 } bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-gray-900 font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/30`}
                 onClick={() => router.push("/register")}
