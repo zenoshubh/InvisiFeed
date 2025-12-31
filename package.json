@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "tunnel": "ngrok http 3000"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.0",

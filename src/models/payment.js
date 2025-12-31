@@ -12,19 +12,16 @@ const PaymentSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Subscription",
       default: null,
-      index: true,
     },
     razorpayOrderId: {
       type: String,
       required: true,
       unique: true,
-      index: true,
     },
     razorpayPaymentId: {
       type: String,
       required: false,
       default: null,
-      index: true,
     },
     razorpaySignature: {
       type: String,
@@ -64,7 +61,6 @@ const PaymentSchema = new Schema(
 PaymentSchema.index({ business: 1, createdAt: -1 });
 PaymentSchema.index({ business: 1, status: 1 });
 PaymentSchema.index({ subscription: 1 });
-PaymentSchema.index({ razorpayOrderId: 1 });
 PaymentSchema.index({ razorpayPaymentId: 1 });
 PaymentSchema.index({ status: 1, createdAt: -1 });
 

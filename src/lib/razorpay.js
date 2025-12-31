@@ -44,5 +44,22 @@ export function verifyRazorpaySignature(orderId, paymentId, signature) {
   return expectedSignature === signature;
 }
 
+/**
+ * Verify Razorpay webhook signature
+ * @param {string} body - Raw webhook body as string
+ * @param {string} signature - Webhook signature from X-Razorpay-Signature header
+ * @param {string} secret - Webhook secret (RAZORPAY_WEBHOOK_SECRET)
+ * @returns {boolean} True if signature is valid
+ */
+export function verifyWebhookSignature(body, signature, secret) {
+  const crypto = require("crypto");
+  const expectedSignature = crypto
+    .createHmac("sha256", secret)
+    .update(body)
+    .digest("hex");
+
+  return expectedSignature === signature;
+}
+
 export default razorpay;
 

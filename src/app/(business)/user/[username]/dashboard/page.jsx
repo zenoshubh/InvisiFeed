@@ -7,11 +7,8 @@ import UserRatingsGraph from "@/components/business-page-components/user-ratings
 import ScrollToTop from "@/components/common/scroll-to-top";
 
 export default async function DashboardPage() {
+  // Auth check is handled by layout.js
   const session = await getServerSession(authOptions);
-
-  if (!session || !session.user) {
-    redirect("/sign-in");
-  }
 
   // Check if user has pro plan
   const isPro = session.user?.plan?.planName !== "free";

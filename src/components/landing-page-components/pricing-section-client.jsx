@@ -81,7 +81,7 @@ const PricingSectionClient = () => {
 
       const order = result.data?.order || result.order;
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: order.currency,
         name: "InvisiFeed",
@@ -127,6 +127,12 @@ const PricingSectionClient = () => {
             toast.error("Failed to verify payment");
           }
         },
+        modal: {
+          ondismiss: function () {
+            // Handle modal dismissal
+            setIsProLoading(false);
+          },
+        },
         prefill: {
           name: user?.businessName,
           email: user?.email,
@@ -138,6 +144,16 @@ const PricingSectionClient = () => {
       };
 
       const rzp = new window.Razorpay(options);
+
+      // Handle payment failure
+      rzp.on("payment.failed", function (response) {
+        console.error("Payment failed:", response);
+        toast.error(
+          `Payment failed: ${response.error?.description || "Please try again"}`
+        );
+        setIsProLoading(false);
+      });
+
       rzp.open();
     } catch (error) {
       console.error("Payment error:", error);

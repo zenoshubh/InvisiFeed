@@ -5,11 +5,8 @@ import { getUploadCount } from "@/actions/invoice";
 import InvoiceManagementContainer from "@/components/invoice-management/invoice-management-container";
 
 export default async function InvoiceManagementPage() {
+  // Auth check is handled by layout.js
   const session = await getServerSession(authOptions);
-
-  if (!session || !session.user) {
-    redirect("/sign-in");
-  }
 
   // Fetch initial upload count
   const uploadCountResponse = await getUploadCount();

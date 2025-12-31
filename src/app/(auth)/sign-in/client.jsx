@@ -106,7 +106,10 @@ function SignInClient() {
       }
     }
 
-    router.replace(`/user/${result?.user?.username}/generate`);
+    // After successful sign-in, refresh the page to trigger server component re-render
+    // The server component (page.jsx) will check session and redirect if authenticated
+    setIsSubmitting(false);
+    router.refresh();
   };
 
   const error = searchParams.get("error");

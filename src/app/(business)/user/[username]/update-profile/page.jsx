@@ -6,18 +6,9 @@ import LoadingScreen from "@/components/common/loading-screen";
 import { Suspense } from "react";
 
 export default async function UpdateProfilePage({ params }) {
+  // Auth and username matching are handled by layout.js
   const session = await getServerSession(authOptions);
   const { username } = await params;
-
-  // Server-side redirects (faster, no client JS)
-  if (!session) {
-    redirect("/sign-in");
-  }
-
-  // Validate username matches session
-  if (session.user.username !== username) {
-    redirect(`/user/${session.user.username}/update-profile`);
-  }
 
   // Serialize business data for client component (remove non-serializable data)
   const serializedBusiness = {

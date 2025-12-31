@@ -9,7 +9,6 @@ export default async function SignInPage() {
   const session = await getServerSession(authOptions);
 
   // If already logged in and username is available, redirect to dashboard
-  // Middleware will handle redirect if username is not yet available
   if (session?.user?.username) {
     redirect(`/user/${session.user.username}/generate`);
   }
