@@ -178,7 +178,7 @@ export async function createInvoice(invoiceData) {
     if (couponId) {
       await CouponModel.findByIdAndUpdate(couponId, {
         invoice: newInvoice._id,
-      }).lean();
+      });
     }
 
     // Increment daily upload count

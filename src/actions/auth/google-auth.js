@@ -24,7 +24,8 @@ export async function handleGoogleSignIn(user, profile) {
       if (!existingAccount.isGoogleAuth) {
         return {
           success: false,
-          redirectUrl: "/sign-in?error=DIFFERENT_SIGNIN_METHOD",
+          message: "Different sign-in method",
+          data: { redirectUrl: "/sign-in?error=DIFFERENT_SIGNIN_METHOD" },
         };
       }
 
@@ -67,9 +68,12 @@ export async function handleGoogleSignIn(user, profile) {
 
       return {
         success: true,
-        user: {
-          ...mergedUser,
-          id: business?._id?.toString() || existingAccount._id.toString(),
+        message: "Google sign-in successful",
+        data: {
+          user: {
+            ...mergedUser,
+            id: business?._id?.toString() || existingAccount._id.toString(),
+          },
         },
       };
     }
@@ -90,7 +94,8 @@ export async function handleGoogleSignIn(user, profile) {
         );
         return {
           success: false,
-          redirectUrl: `/sign-in?error=ACCOUNT_DELETED&remainingDays=${remainingDays}`,
+          message: "Account was deleted",
+          data: { redirectUrl: `/sign-in?error=ACCOUNT_DELETED&remainingDays=${remainingDays}` },
         };
       } else {
         await DeletedAccountModel.findByIdAndDelete(deletedAccount._id);
@@ -165,7 +170,11 @@ export async function handleGoogleSignIn(user, profile) {
     };
   } catch (error) {
     console.error("Google sign-in error:", error);
-    return { success: false, redirectUrl: "/sign-in?error=GoogleSignInError" };
+    return { 
+      success: false, 
+      message: "Google sign-in failed",
+      data: { redirectUrl: "/sign-in?error=GoogleSignInError" },
+    };
   }
 }
 

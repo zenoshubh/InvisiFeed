@@ -108,7 +108,7 @@ export async function POST(req) {
           planEndDate: thirtyDaysLater,
         },
       },
-    }, {status:200});
+    }, { status: 200 });
   } catch (error) {
     console.error("Error verifying payment:", error);
     return NextResponse.json(

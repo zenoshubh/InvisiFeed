@@ -36,6 +36,7 @@ export async function registerUser(prevState, formData) {
         return {
           success: false,
           message: `Account was deleted. Try again after ${remainingDays} days`,
+          data: null,
         };
       } else {
         await DeletedAccountModel.findByIdAndDelete(deletedAccount._id);
@@ -51,7 +52,7 @@ export async function registerUser(prevState, formData) {
       .lean();
 
     if (existingVerifiedAccount) {
-      return { success: false, message: "Username already exists" };
+      return { success: false, message: "Username already exists", data: null };
     }
 
     const existingEmailAccount = await AccountModel.findOne({ email })
@@ -62,7 +63,7 @@ export async function registerUser(prevState, formData) {
 
     if (existingEmailAccount) {
       if (existingEmailAccount.isVerified) {
-        return { success: false, message: "Email already exists" };
+        return { success: false, message: "Email already exists", data: null };
       }
 
       // Update existing unverified account
@@ -123,17 +124,19 @@ export async function registerUser(prevState, formData) {
     const emailResponse = await sendVerificationEmail(email, verifyCode);
 
     if (!emailResponse.success) {
-      return { success: false, message: emailResponse.message };
+      return { success: false, message: emailResponse.message, data: null };
     }
 
     return {
       success: true,
       message: "User registered successfully. Please verify your email.",
-      username: username, // ✅ Add username for redirect
+      data: {
+        username: username, // ✅ Add username for redirect
+      },
     };
   } catch (error) {
     console.error("Registration error:", error);
-    return { success: false, message: "Registration failed" };
+    return { success: false, message: "Registration failed", data: null };
   }
 }
 
@@ -147,7 +150,7 @@ export async function verifyUserAccount(username, code) {
       .lean();
 
     if (!account) {
-      return { success: false, message: "User not found" };
+      return { success: false, message: "User not found", data: null };
     }
 
     const isCodeValid = account.verifyCode === code;
@@ -157,18 +160,19 @@ export async function verifyUserAccount(username, code) {
       await AccountModel.findByIdAndUpdate(account._id, {
         isVerified: true,
       });
-      return { success: true, message: "Account verified successfully" };
+      return { success: true, message: "Account verified successfully", data: null };
     } else if (!isCodeNotExpired) {
       return {
         success: false,
         message: "Verification code has expired, please sign up again",
+        data: null,
       };
     } else {
-      return { success: false, message: "Incorrect verification code" };
+      return { success: false, message: "Incorrect verification code", data: null };
     }
   } catch (error) {
     console.error("Verification error:", error);
-    return { success: false, message: "Verification failed" };
+    return { success: false, message: "Verification failed", data: null };
   }
 }
 
@@ -191,18 +195,21 @@ export async function checkUsernameAvailability(username) {
       return {
         success: false,
         message: "Username already taken",
+        data: null,
       };
     }
 
     return {
       success: true,
       message: "Username available",
+      data: { available: true },
     };
   } catch (error) {
     console.error("Username check error:", error);
     return {
       success: false,
       message: "Error checking username",
+      data: null,
     };
   }
 }

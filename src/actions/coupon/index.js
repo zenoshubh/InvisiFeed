@@ -33,22 +33,16 @@ export async function deleteCoupon(invoiceId) {
 
     // If invoice has a coupon reference, update the coupon document
     if (invoice.coupon) {
-      // Check if coupon exists first with lean
-      const couponCheck = await CouponModel.findById(invoice.coupon)
-        .select('_id')
-        .lean();
-      
-      if (!couponCheck) {
+      // Use findOneAndUpdate for atomic operation (more efficient than find + save)
+      const updatedCoupon = await CouponModel.findOneAndUpdate(
+        { _id: invoice.coupon },
+        { isUsed: true, isActive: false },
+        { new: true }
+      );
+
+      if (!updatedCoupon) {
         return errorResponse("Coupon not found");
       }
-
-      // Fetch coupon document for saving (needs document methods)
-      const coupon = await CouponModel.findById(couponCheck._id);
-      
-      // Mark coupon as used and inactive
-      coupon.isUsed = true;
-      coupon.isActive = false;
-      await coupon.save();
 
       return successResponse("Coupon marked as used successfully");
     }
@@ -57,7 +51,8 @@ export async function deleteCoupon(invoiceId) {
     const invoiceWithAttached = await InvoiceModel.findOne({
       invoiceId: invoiceId,
       business: business._id,
-    });
+    })
+      .select('couponAttached');
 
     if (invoiceWithAttached?.couponAttached) {
       invoiceWithAttached.couponAttached.isCouponUsed = true;

@@ -11,8 +11,10 @@ import { successResponse, errorResponse } from "@/utils/response";
 export async function checkInvoiceValidity(username, invoiceNumber) {
   await dbConnect();
   try {
-    // Find account by username
-    const account = await AccountModel.findOne({ username }).lean();
+    // Find account by username - only fetch _id
+    const account = await AccountModel.findOne({ username })
+      .select('_id')
+      .lean();
 
     if (!account) {
       return errorResponse("Business not found", {
@@ -20,11 +22,11 @@ export async function checkInvoiceValidity(username, invoiceNumber) {
       });
     }
 
-    // Find business by account - only fetch _id
+    // Find business by account - fetch _id and businessName for response
     const business = await BusinessModel.findOne({
       account: account._id,
     })
-      .select('_id')
+      .select('_id businessName')
       .lean();
 
     if (!business) {
@@ -42,7 +44,7 @@ export async function checkInvoiceValidity(username, invoiceNumber) {
 
     if (!invoice) {
       return errorResponse("Invalid invoice", {
-        businessName: business.businessName,
+        businessName: business.businessName || null,
       });
     }
 
@@ -76,8 +78,10 @@ export async function generateFeedbackWithAI(
 ) {
   await dbConnect();
   try {
-    // Find account by username
-    const account = await AccountModel.findOne({ username }).lean();
+    // Find account by username - only fetch _id
+    const account = await AccountModel.findOne({ username })
+      .select('_id')
+      .lean();
 
     if (!account) {
       return errorResponse("Business not found");
@@ -159,8 +163,10 @@ export async function generateSuggestionsWithAI(
 ) {
   await dbConnect();
   try {
-    // Find account by username
-    const account = await AccountModel.findOne({ username }).lean();
+    // Find account by username - only fetch _id
+    const account = await AccountModel.findOne({ username })
+      .select('_id')
+      .lean();
 
     if (!account) {
       return errorResponse("Business not found");
@@ -229,8 +235,10 @@ export async function generateSuggestionsWithAI(
 export async function submitFeedback(formData, username, invoiceNumber) {
   await dbConnect();
   try {
-    // Find account by username
-    const account = await AccountModel.findOne({ username }).lean();
+    // Find account by username - only fetch _id
+    const account = await AccountModel.findOne({ username })
+      .select('_id')
+      .lean();
 
     if (!account) {
       return errorResponse("Business not found");
@@ -248,11 +256,13 @@ export async function submitFeedback(formData, username, invoiceNumber) {
     }
 
     // Get business document for saving (we need to update invoice)
-    const business = await BusinessModel.findById(businessCheck._id);
+    const business = await BusinessModel.findById(businessCheck._id)
+      .select('_id');
     const invoice = await InvoiceModel.findOne({
       invoiceId: invoiceNumber,
       business: business._id,
-    });
+    })
+      .select('_id isFeedbackSubmitted coupon');
 
     if (!invoice) {
       return errorResponse("Invoice not found");
